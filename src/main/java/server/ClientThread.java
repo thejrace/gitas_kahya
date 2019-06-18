@@ -30,6 +30,12 @@ public class ClientThread extends Thread{
                     socket.close();
                     return;
                 } else {
+
+                    // read request
+
+
+
+
                     out.writeBytes(line + "\n\r");
                     out.flush();
                 }
