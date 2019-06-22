@@ -58,6 +58,7 @@ public class KahyaClient {
 
 
 
+
         } else { // active check
             System.out.println("Aktif sefer yok!");
         }

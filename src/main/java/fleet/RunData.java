@@ -7,9 +7,9 @@ public class RunData {
     private String departureTime;
     private String routeDetails;
     private String status;
-    private String departureNo;
+    private int departureNo;
 
-    public RunData( String busCode, String departureNo, String currentStop, String departureTime, String routeDetails, String status ){
+    public RunData( String busCode, int departureNo, String currentStop, String departureTime, String routeDetails, String status ){
         this.busCode = busCode;
         this.departureNo = departureNo;
         this.currentStop = currentStop;
@@ -18,11 +18,11 @@ public class RunData {
         this.status = status;
     }
 
-    public String getDepartureNo() {
+    public int getDepartureNo() {
         return departureNo;
     }
 
-    public void setDepartureNo(String departureNo) {
+    public void setDepartureNo(int departureNo) {
         this.departureNo = departureNo;
     }
 
