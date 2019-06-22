@@ -1,11 +1,27 @@
 package server;
 
-public class ServerMain {
+import fleet.Filo_Captcha_Scene;
+import javafx.application.Application;
+import javafx.stage.Stage;
 
-    public static void main(String[] args){
+public class ServerMain extends Application {
 
-        KahyaServer server = new KahyaServer();
-        server.start();
+
+    @Override
+    public void start(Stage primaryStage ) throws Exception{
+
+        Filo_Captcha_Scene captchaScene = new Filo_Captcha_Scene();
+        captchaScene.start(new Stage());
+
 
     }
+
+
+
+    public static void main(String[] args) {
+        launch(args);
+    }
+
+
+
 }

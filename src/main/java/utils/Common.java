@@ -12,9 +12,9 @@ public class Common {
         return f.exists();
     }
 
-    public static String readJSONFile( String src ){
+    public static String readJSONFile( File src ){
         try {
-            FileReader fr = new FileReader( src);
+            FileReader fr = new FileReader( src );
             BufferedReader br = new BufferedReader(fr);
             StringBuilder sb = new StringBuilder();
             String line = br.readLine();
@@ -30,6 +30,10 @@ public class Common {
             e.printStackTrace();
             return null;
         }
+    }
+
+    public static String regexTrim( String str ){
+        return str.replaceAll("\u00A0", "");
     }
 
 }

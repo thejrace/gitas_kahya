@@ -1,5 +1,6 @@
 package client;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import utils.Common;
@@ -40,14 +41,20 @@ public class KahyaClient {
         if( oaddData.getString("status").equals("A") ){
             // first the setup work before worker loop action
 
-            // fetch route stops
-            try {
-                System.out.println(this.getClass().getResource("stops/15BK_durak.json").toURI().toString());
-                Common.readJSONFile(this.getClass().getResource("stops/15BK_durak.json").toURI().toString());
-            } catch( URISyntaxException e ){
-                e.printStackTrace();
+
+            // fetch route stops ( static for now )
+            ClassLoader classLoader = ClassLoader.getSystemClassLoader();
+            File file = new File(classLoader.getResource("stops/"+oaddData.getString("route")+"_durak.json").getFile());
+            JSONArray routeStopData = new JSONObject(Common.readJSONFile(file)).getJSONArray("duraklar");
+            JSONObject stopDataTemp;
+            for( int k = 0; k < routeStopData.length(); k++ ){
+                if( routeStopData.isNull(k) ) continue;
+                stopDataTemp = routeStopData.getJSONObject(k);
+                stops.put( stopDataTemp.getInt("sira"), String.valueOf(stopDataTemp.getInt("sira")) +"-"+stopDataTemp.getString("ad") );
             }
 
+            // request all bus data working on the route
+            JSONObject fleetData = request( new JSONObject("{ \"req\":\"download_fleet_data\", \"route\":"+oaddData.getString("route")+" }").toString() );
 
 
 

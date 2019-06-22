@@ -1,5 +1,6 @@
 package server;
 
+import fleet.RouteFleetDownload;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -41,12 +42,19 @@ public class ClientThread extends Thread{
 
                     try {
                         JSONObject request = new JSONObject(line);
-
                         if( request.getString("req").equals("oadd_download") ){
                             OADDDownload oaddDownload = new OADDDownload(request.getString("bus_code"));
                             output = oaddDownload.action();
-                        }
+                        } else if( request.getString("req").equals("download_fleet_data") ){
 
+                            RouteFleetDownload routeFleetDownload = new RouteFleetDownload(request.getString("route") );
+                            routeFleetDownload.action();
+                            if( routeFleetDownload.getErrorFlag() ){
+                                output = new JSONObject("{ \"error\":true, \"message\":\""+routeFleetDownload.getErrorMessage()+"\" }");
+                            } else {
+                                output = routeFleetDownload.getOutput();
+                            }
+                        }
                     } catch (JSONException e ){
                         e.printStackTrace();
                     }
