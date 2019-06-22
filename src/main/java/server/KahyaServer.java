@@ -19,7 +19,7 @@ public class KahyaServer {
 
         }
         while (true) {
-            System.out.println("Kahya server started at 25000");
+            System.out.println("KAHYA_SERVER_STARTED_AT 25000");
             try {
                 socket = serverSocket.accept();
             } catch (IOException e) {
