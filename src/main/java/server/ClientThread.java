@@ -43,8 +43,16 @@ public class ClientThread extends Thread{
                     try {
                         JSONObject request = new JSONObject(line);
                         if( request.getString("req").equals("oadd_download") ){
-                            OADDDownload oaddDownload = new OADDDownload(request.getString("bus_code"));
-                            output = oaddDownload.action();
+
+                            fleet.OADDDownload oaddDownload = new fleet.OADDDownload(request.getString("bus_code"));
+                            oaddDownload.action();
+                            if( oaddDownload.getErrorFlag() ){
+                                output = new JSONObject("{ \"error\":true, \"message\":\""+oaddDownload.getErrorMessage()+"\" } ");
+                            } else {
+                                output = oaddDownload.getOutput();
+                            }
+                            /*OADDDownload oaddDownload = new OADDDownload(request.getString("bus_code"));
+                            output = oaddDownload.action();*/
                         } else if( request.getString("req").equals("download_fleet_data") ){
 
                             RouteFleetDownload routeFleetDownload = new RouteFleetDownload(request.getString("route") );

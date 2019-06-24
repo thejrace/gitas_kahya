@@ -10,10 +10,7 @@ import utils.Common;
 public class RouteFleetDownload extends Filo_Task {
 
     private String route;
-    private JSONObject output = new JSONObject();
 
-    private boolean errorFlag = false;
-    private String errorMessage;
 
     public RouteFleetDownload( String route ){
         this.route = route;

@@ -27,7 +27,7 @@ public class MainScreen extends Application {
 
 
             // active bus definitions
-            String activeBus = "C-1542";
+            String activeBus = "C-1757";
             KahyaClient client = new KahyaClient(activeBus);
             client.addListener(new ClientFinishListener() {
                 @Override

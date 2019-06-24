@@ -11,6 +11,8 @@ import javafx.scene.layout.VBox;
 
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.ResourceBundle;
 
 public class MainScreenController implements Initializable {
@@ -24,7 +26,7 @@ public class MainScreenController implements Initializable {
 
     private double splitCount;
     private double activeBusPos;
-    private double fleetNextPosMargin;
+    private Map<String, Bus> busList = new HashMap<>();
 
 
     private VBox test ;
@@ -46,28 +48,33 @@ public class MainScreenController implements Initializable {
     }
 
     public void addBus( Bus bus, double pos ){
-        //uiBusContainer.getChildren().add( bus.getUI() );
-        test.getChildren().add( bus.getUI() );
+        uiBusContainer.getChildren().add( bus.getUI() );
         ((BusController)bus.getController()).setPos( pos );
+        busList.put(bus.getBusCode(), bus );
     }
 
     public void update( UIBusData activeBusData,  ArrayList<UIBusData> fleetBusData ){
         Platform.runLater(() -> {
-            //uiBusContainer.getChildren().clear();
-            test.getChildren().removeAll( test.getChildren() );
-
-            System.out.println(uiBusContainer.getChildren());
-
-            Bus activeBus = new Bus(activeBusData.getBusCode(), activeBusData.getStop(), activeBusData.getDiff() );
-            ((BusController)activeBus.getController()).setActiveBusFlag();
-            addBus( activeBus, activeBusData.getDiff() * splitCount );
+            if( !busList.containsKey(activeBusData.getBusCode())){
+                Bus activeBus = new Bus(activeBusData.getBusCode(), activeBusData.getStop(), activeBusData.getDiff() );
+                ((BusController)activeBus.getController()).setActiveBusFlag();
+                addBus( activeBus, activeBusData.getDiff() * splitCount );
+            } else {
+                busList.get(activeBusData.getBusCode()).setDiff( activeBusData.getDiff() );
+                busList.get(activeBusData.getBusCode()).setStop( activeBusData.getStop() );
+                busList.get(activeBusData.getBusCode()).notifyUI();
+            }
             activeBusPos = activeBusData.getDiff() * splitCount;
-
             for( UIBusData busData : fleetBusData ){
                 double pos = (busData.getDiff() < 0 ) ? activeBusPos - ( busData.getDiff() * splitCount * -1 ) : activeBusPos + ( busData.getDiff() * splitCount  );
-                addBus( new Bus(busData.getBusCode(), busData.getStop(), busData.getDiff() ), pos);
+                if( !busList.containsKey(busData.getBusCode())){
+                    addBus( new Bus(busData.getBusCode(), busData.getStop(), busData.getDiff() ), pos);
+                } else {
+                    busList.get(busData.getBusCode()).setDiff( busData.getDiff() );
+                    busList.get(busData.getBusCode()).setStop( busData.getStop() );
+                    busList.get(busData.getBusCode()).notifyUI();
+                }
             }
-
         });
     }
 }

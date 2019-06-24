@@ -1,5 +1,6 @@
 package fleet;
 
+import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
@@ -7,7 +8,11 @@ import java.io.IOException;
 
 class Filo_Task {
 
-    protected String oto, cookie, aktif_tarih, logprefix;
+    protected JSONObject output = new JSONObject();
+    protected boolean errorFlag = false;
+    protected String errorMessage;
+
+    protected String oto;
     protected org.jsoup.Connection.Response istek_yap( String url ){
         try {
             return Jsoup.connect(url + oto)
@@ -28,6 +33,18 @@ class Filo_Task {
             //System.out.println(  "["+Common.get_current_hmin() + "]  "+ aktif_tarih  + " " +  oto + " "+ logprefix + " parse hatası. Tekrar deneniyor.");
         }
         return null;
+    }
+
+    public JSONObject getOutput(){
+        return output;
+    }
+
+    public boolean getErrorFlag() {
+        return errorFlag;
+    }
+
+    public String getErrorMessage() {
+        return errorMessage;
     }
 
 }

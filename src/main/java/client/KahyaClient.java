@@ -43,7 +43,11 @@ public class KahyaClient {
 
     public void start(){
 
-        JSONObject oaddData = fetchOADD();
+        //JSONObject oaddData = fetchOADD();
+
+        JSONObject oaddData = request( new JSONObject("{ \"req\":\"oadd_download\", \"bus_code\":\""+activeBusCode+"\" }").toString() );
+
+
         System.out.println(oaddData.toString());
         String route = oaddData.getString("route");
         activeBusStopNo = 0;
@@ -51,122 +55,119 @@ public class KahyaClient {
 
         boolean debugFlag = false;
 
-        if( oaddData.getString("status").equals("A") ){
-            // first the setup work before worker loop action
+        output = new ArrayList<>(); // reset
 
 
-            // fetch route stops ( static for now )
-            ClassLoader classLoader = ClassLoader.getSystemClassLoader();
-            File file = new File(classLoader.getResource("stops/"+oaddData.getString("route")+"_durak.json").getFile());
-            JSONArray routeStopData = new JSONObject(Common.readJSONFile(file)).getJSONArray("duraklar");
-            stopCount = routeStopData.length();
-            JSONObject stopDataTemp;
-            for( int k = 0; k < stopCount; k++ ){
-                if( routeStopData.isNull(k) ) continue;
-                stopDataTemp = routeStopData.getJSONObject(k);
-                stops.put( stopDataTemp.getInt("sira"), String.valueOf(stopDataTemp.getInt("sira")) +"-"+stopDataTemp.getString("ad") );
-            }
-
-
-            // fleet definitions
-            Map<String, ArrayList<RunData>> fleetRunData = new HashMap<>();
-            Map<String, Integer> fleetDirections = new HashMap<>(); // array that holds fleet's direction information
-            ArrayList<String> bussesWithSameDirection = new ArrayList<>(); // busses that's going to same direction with active Bus
-            Map<String, Integer> fleetActiveRunIndexes = new HashMap<>(); // holds active run index for fleet busses
-            Map<Integer, String> fleetPositions = new HashMap<>();
-
-            // request all bus data working on the route
-            JSONObject fleetData = request( new JSONObject("{ \"req\":\"download_fleet_data\", \"route\":"+oaddData.getString("route")+" }").toString() );
-
-            Iterator<String> busCodes = fleetData.keys();
-            JSONArray tempData;
-            JSONObject tempRunData;
-            while( busCodes.hasNext() ) {
-                String key = busCodes.next(); // bus code
-                if( !fleetRunData.containsKey(key) ) fleetRunData.put(key, new ArrayList<>());
-                tempData = fleetData.getJSONArray(key);
-                for( int k = 0; k < tempData.length(); k++ ){
-                    tempRunData = tempData.getJSONObject(k);
-                    fleetRunData.get(key).add( new RunData(
-                            tempRunData.getString("bus_code"),
-                            Integer.valueOf(tempRunData.getString("no")),
-                            tempRunData.getString("stop"),
-                            tempRunData.getString("dep_time"),
-                            tempRunData.getString("route_details"),
-                            tempRunData.getString("status")
-                    ));
-
-                }
-                Collections.sort(fleetRunData.get(key), new RunNoComparator() );
-            }
-
-            for (Map.Entry<String, ArrayList<RunData>> entry : fleetRunData.entrySet()) {
-                //System.out.println(entry.getValue());
-                ArrayList<String> tempDirectionDetails = new ArrayList<>();
-                int activeRunIndex = 0;
-                int counter = 0;
-                for( RunData data : entry.getValue() ){
-                    counter++;
-                    if( data.getStatus().equals("A") && data.getBusCode().equals(activeBusCode) ){
-                        activeBusStopNo = fetchStopNo(data.getCurrentStop());
-                        activeBusStop = data.getCurrentStop();
-                    } else if( data.getStatus().equals("A") ){
-                        activeRunIndex = counter;
-                    }
-                    tempDirectionDetails.add(data.getRouteDetails());
-                }
-                // if activeRunIndex = 0, means no active run currently
-                if( activeRunIndex > 0 ){
-                    if( entry.getKey().equals(activeBusCode) ) {
-                        activeBusDirection = RouteDirection.action(route, activeRunIndex, tempDirectionDetails);
-                    } else {
-                        fleetDirections.put(entry.getKey(), RouteDirection.action(route, activeRunIndex, tempDirectionDetails));
-                        fleetActiveRunIndexes.put(entry.getKey(), activeRunIndex - 1);
-                    }
-                }
-            }
-
-            if( debugFlag ) {
-                System.out.println("Active BUS: " + activeBusCode + " DIR: " + activeBusDirection );
-                System.out.println(fleetDirections);
-            }
-
-
-            // find other busses with same direction with activeBus
-            for (Map.Entry<String, Integer> entry : fleetDirections.entrySet()) {
-                if( entry.getValue() == activeBusDirection ){
-                    bussesWithSameDirection.add( entry.getKey() );
-                }
-            }
-
-            if( debugFlag ) System.out.println("BUSSES OF INTEREST : " + bussesWithSameDirection );
-
-            for( String busCode : bussesWithSameDirection ){
-                String stop = fleetRunData.get(busCode).get(fleetActiveRunIndexes.get(busCode)).getCurrentStop();
-                //System.out.println(busCode + " @ " + stop );
-                try {
-                    if( debugFlag ) System.out.println(busCode + " @ " + stop.substring(0, stop.indexOf('-')) );
-                    int diff = fetchStopNo(stop) - activeBusStopNo;
-                    fleetPositions.put( diff, busCode );
-
-                    output.add( new UIBusData(busCode, fleetRunData.get(busCode).get(fleetActiveRunIndexes.get(busCode)).getCurrentStop(), diff));
-
-                } catch( StringIndexOutOfBoundsException e ){
-                    if( debugFlag )  System.out.println(busCode + " @ UNDEFINED" );
-                }
-            }
-            // sort busses according to diff
-            Collections.sort(output, KahyaClient.DIFF_COMPARATOR );
-
-            for (Map.Entry<Integer, String> entry : fleetPositions.entrySet()) {
-                System.out.println(entry.getValue() + "  @  " + entry.getKey() );
-            }
-
-            listener.onFinish();
-
-        } else { // active check
-            System.out.println("Aktif sefer yok!");
+        // fetch route stops ( static for now )
+        ClassLoader classLoader = ClassLoader.getSystemClassLoader();
+        File file = new File(classLoader.getResource("stops/"+oaddData.getString("route")+"_durak.json").getFile());
+        JSONArray routeStopData = new JSONObject(Common.readJSONFile(file)).getJSONArray("duraklar");
+        stopCount = routeStopData.length();
+        JSONObject stopDataTemp;
+        for( int k = 0; k < stopCount; k++ ){
+            if( routeStopData.isNull(k) ) continue;
+            stopDataTemp = routeStopData.getJSONObject(k);
+            stops.put( stopDataTemp.getInt("sira"), String.valueOf(stopDataTemp.getInt("sira")) +"-"+stopDataTemp.getString("ad") );
         }
+
+
+        // fleet definitions
+        Map<String, ArrayList<RunData>> fleetRunData = new HashMap<>();
+        Map<String, Integer> fleetDirections = new HashMap<>(); // array that holds fleet's direction information
+        ArrayList<String> bussesWithSameDirection = new ArrayList<>(); // busses that's going to same direction with active Bus
+        Map<String, Integer> fleetActiveRunIndexes = new HashMap<>(); // holds active run index for fleet busses
+        Map<Integer, String> fleetPositions = new HashMap<>();
+
+        // request all bus data working on the route
+        JSONObject fleetData = request( new JSONObject("{ \"req\":\"download_fleet_data\", \"route\":"+oaddData.getString("route")+" }").toString() );
+
+        Iterator<String> busCodes = fleetData.keys();
+        JSONArray tempData;
+        JSONObject tempRunData;
+        while( busCodes.hasNext() ) {
+            String key = busCodes.next(); // bus code
+            if( !fleetRunData.containsKey(key) ) fleetRunData.put(key, new ArrayList<>());
+            tempData = fleetData.getJSONArray(key);
+            for( int k = 0; k < tempData.length(); k++ ){
+                tempRunData = tempData.getJSONObject(k);
+                fleetRunData.get(key).add( new RunData(
+                        tempRunData.getString("bus_code"),
+                        Integer.valueOf(tempRunData.getString("no")),
+                        tempRunData.getString("stop"),
+                        tempRunData.getString("dep_time"),
+                        tempRunData.getString("route_details"),
+                        tempRunData.getString("status")
+                ));
+
+            }
+            Collections.sort(fleetRunData.get(key), new RunNoComparator() );
+        }
+
+        for (Map.Entry<String, ArrayList<RunData>> entry : fleetRunData.entrySet()) {
+            //System.out.println(entry.getValue());
+            ArrayList<String> tempDirectionDetails = new ArrayList<>();
+            int activeRunIndex = 0;
+            int counter = 0;
+            for( RunData data : entry.getValue() ){
+                counter++;
+                if( data.getStatus().equals("A") && data.getBusCode().equals(activeBusCode) ){
+                    activeBusStopNo = fetchStopNo(data.getCurrentStop());
+                    activeBusStop = data.getCurrentStop();
+                } else if( data.getStatus().equals("A") ){
+                    activeRunIndex = counter;
+                }
+                tempDirectionDetails.add(data.getRouteDetails());
+            }
+            // if activeRunIndex = 0, means no active run currently
+            if( activeRunIndex > 0 ){
+                if( entry.getKey().equals(activeBusCode) ) {
+                    activeBusDirection = RouteDirection.action(route, activeRunIndex, tempDirectionDetails);
+                } else {
+                    fleetDirections.put(entry.getKey(), RouteDirection.action(route, activeRunIndex, tempDirectionDetails));
+                    fleetActiveRunIndexes.put(entry.getKey(), activeRunIndex - 1);
+                }
+            }
+        }
+
+        if( debugFlag ) {
+            System.out.println("Active BUS: " + activeBusCode + " DIR: " + activeBusDirection );
+            System.out.println(fleetDirections);
+        }
+
+
+        // find other busses with same direction with activeBus
+        for (Map.Entry<String, Integer> entry : fleetDirections.entrySet()) {
+            if( entry.getValue() == activeBusDirection ){
+                bussesWithSameDirection.add( entry.getKey() );
+            }
+        }
+
+        if( debugFlag ) System.out.println("BUSSES OF INTEREST : " + bussesWithSameDirection );
+
+        for( String busCode : bussesWithSameDirection ){
+            String stop = fleetRunData.get(busCode).get(fleetActiveRunIndexes.get(busCode)).getCurrentStop();
+            //System.out.println(busCode + " @ " + stop );
+            try {
+                if( debugFlag ) System.out.println(busCode + " @ " + stop.substring(0, stop.indexOf('-')) );
+                int diff = fetchStopNo(stop) - activeBusStopNo;
+                fleetPositions.put( diff, busCode );
+
+                output.add( new UIBusData(busCode, fleetRunData.get(busCode).get(fleetActiveRunIndexes.get(busCode)).getCurrentStop(), diff));
+
+            } catch( StringIndexOutOfBoundsException e ){
+                if( debugFlag )  System.out.println(busCode + " @ UNDEFINED" );
+            }
+        }
+        // sort busses according to diff
+        Collections.sort(output, KahyaClient.DIFF_COMPARATOR );
+
+        for (Map.Entry<Integer, String> entry : fleetPositions.entrySet()) {
+            System.out.println(entry.getValue() + "  @  " + entry.getKey() );
+        }
+
+        listener.onFinish();
+
+
 
     }
 

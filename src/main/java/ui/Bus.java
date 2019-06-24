@@ -2,7 +2,15 @@ package ui;
 
 public class Bus  extends UIComponent {
 
-    private String busCode, stop;
+    public String getBusCode() {
+        return busCode;
+    }
+
+    private String busCode;
+
+
+
+    private String stop;
 
     private int diff;
 
@@ -14,6 +22,10 @@ public class Bus  extends UIComponent {
         this.stop = stop;
     }
 
+    public void notifyUI(){
+        ((BusController)(controller)).setData(busCode, stop, diff );
+    }
+
     public int getDiff() {
         return diff;
     }
@@ -21,5 +33,14 @@ public class Bus  extends UIComponent {
     public void setDiff(int diff) {
         this.diff = diff;
     }
+
+    public String getStop() {
+        return stop;
+    }
+
+    public void setStop(String stop) {
+        this.stop = stop;
+    }
+
 
 }
