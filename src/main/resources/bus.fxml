@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.shape.Circle?>
+
+<HBox fx:id="uiContainer" alignment="CENTER" spacing="5.0" stylesheets="@main.css" xmlns="http://javafx.com/javafx/8.0.201" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.BusController">
+   <children>
+      <Circle fx:id="uiLed" fill="DODGERBLUE" radius="12.0" stroke="BLACK" strokeType="INSIDE" styleClass="led" />
+      <HBox alignment="CENTER" spacing="10.0" styleClass="info-wrapper">
+         <children>
+            <Label fx:id="uiDiffLabel" styleClass="diff-label" text="{{DIFF}}" />
+         </children>
+         <HBox.margin>
+            <Insets />
+         </HBox.margin>
+      </HBox>
+      <HBox alignment="CENTER" layoutX="34.0" layoutY="10.0" styleClass="info-wrapper">
+         <children>
+            <Label fx:id="uiBusCodeLabel" styleClass="info-label" text="{{CODE}}" />
+         </children>
+      </HBox>
+      <HBox alignment="CENTER" layoutX="256.0" layoutY="10.0" styleClass="info-wrapper">
+         <children>
+            <Label fx:id="uiStopLabel" styleClass="info-label" text="{{STOP}}" />
+         </children>
+      </HBox>
+   </children>
+</HBox>
