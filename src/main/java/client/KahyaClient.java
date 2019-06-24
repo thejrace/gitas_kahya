@@ -20,9 +20,11 @@ public class KahyaClient {
 
     private static Socket socket;
     private String activeBusCode;
+    private int stopCount;
 
     private String route;
-    private String activeStop;
+    private String activeBusStop;
+    private int activeBusStopNo;
     private int activeStopIncrement = 2; // how further we are gonna fetch from active stop
     private Map<Integer, String> stops = new HashMap<>();
     private ArrayList<UIBusData> output = new ArrayList<>();
@@ -44,7 +46,7 @@ public class KahyaClient {
         JSONObject oaddData = fetchOADD();
         System.out.println(oaddData.toString());
         String route = oaddData.getString("route");
-        int activeBusStopNo = 0;
+        activeBusStopNo = 0;
         int activeBusDirection = 0; // active bus's direction
 
         boolean debugFlag = false;
@@ -57,8 +59,9 @@ public class KahyaClient {
             ClassLoader classLoader = ClassLoader.getSystemClassLoader();
             File file = new File(classLoader.getResource("stops/"+oaddData.getString("route")+"_durak.json").getFile());
             JSONArray routeStopData = new JSONObject(Common.readJSONFile(file)).getJSONArray("duraklar");
+            stopCount = routeStopData.length();
             JSONObject stopDataTemp;
-            for( int k = 0; k < routeStopData.length(); k++ ){
+            for( int k = 0; k < stopCount; k++ ){
                 if( routeStopData.isNull(k) ) continue;
                 stopDataTemp = routeStopData.getJSONObject(k);
                 stops.put( stopDataTemp.getInt("sira"), String.valueOf(stopDataTemp.getInt("sira")) +"-"+stopDataTemp.getString("ad") );
@@ -104,8 +107,12 @@ public class KahyaClient {
                 int counter = 0;
                 for( RunData data : entry.getValue() ){
                     counter++;
-                    if( data.getStatus().equals("A") ) activeRunIndex = counter;
-                    if( data.getStatus().equals("A") && data.getBusCode().equals(activeBusCode) ) activeBusStopNo = fetchStopNo(data.getCurrentStop());
+                    if( data.getStatus().equals("A") && data.getBusCode().equals(activeBusCode) ){
+                        activeBusStopNo = fetchStopNo(data.getCurrentStop());
+                        activeBusStop = data.getCurrentStop();
+                    } else if( data.getStatus().equals("A") ){
+                        activeRunIndex = counter;
+                    }
                     tempDirectionDetails.add(data.getRouteDetails());
                 }
                 // if activeRunIndex = 0, means no active run currently
@@ -148,6 +155,8 @@ public class KahyaClient {
                     if( debugFlag )  System.out.println(busCode + " @ UNDEFINED" );
                 }
             }
+            // sort busses according to diff
+            Collections.sort(output, KahyaClient.DIFF_COMPARATOR );
 
             for (Map.Entry<Integer, String> entry : fleetPositions.entrySet()) {
                 System.out.println(entry.getValue() + "  @  " + entry.getKey() );
@@ -207,8 +216,23 @@ public class KahyaClient {
 
     }
 
+    public static final Comparator<UIBusData> DIFF_COMPARATOR = new Comparator<UIBusData>() {
+        public int compare(UIBusData d1, UIBusData d2) {
+            return d1.getDiff() - d2.getDiff();
+        }
+    };
+
+
+    public int getStopCount(){
+        return stopCount;
+    }
+
     public ArrayList<UIBusData> getOutput(){
         return output;
+    }
+
+    public UIBusData getActiveBusData(){
+        return new UIBusData(activeBusCode, activeBusStop, activeBusStopNo );
     }
 
     public void addListener( ClientFinishListener listener ){
@@ -216,7 +240,12 @@ public class KahyaClient {
     }
 
     private int fetchStopNo( String stop ){
-        return Integer.valueOf(stop.substring(0, stop.indexOf('-')));
+        try {
+            return Integer.valueOf(stop.substring(0, stop.indexOf('-')));
+        } catch( StringIndexOutOfBoundsException e ){
+
+        }
+        return 0;
     }
 
 }

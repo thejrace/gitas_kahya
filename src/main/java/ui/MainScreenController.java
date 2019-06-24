@@ -1,12 +1,16 @@
 package ui;
 
+import fleet.UIBusData;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.VBox;
 
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.ResourceBundle;
 
 public class MainScreenController implements Initializable {
@@ -20,28 +24,50 @@ public class MainScreenController implements Initializable {
 
     private double splitCount;
     private double activeBusPos;
+    private double fleetNextPosMargin;
 
+
+    private VBox test ;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-
-
+        test = new VBox();
+        test.setSpacing(15);
+        Platform.runLater( () -> { uiBusContainer.getChildren().add(test); });
 
     }
 
 
 
-    public void splitDims( int totalHeight, int stopCount, int activeBusPos ){
-        splitCount = Math.ceil(totalHeight / stopCount);
-        this.activeBusPos = activeBusPos;
+    public void splitDims( int totalHeight, int stopCount ){
+        splitCount = totalHeight /( stopCount + 10 );
         uiBusContainer.setPrefHeight(totalHeight);
         uiBusContainerOverlay.setPrefHeight(totalHeight);
     }
 
-    public void addBus( Bus bus ){
-        uiBusContainer.getChildren().add( bus.getUI() );
-        ((BusController)bus.getController()).setPos( splitCount + activeBusPos + bus.getDiff() );
+    public void addBus( Bus bus, double pos ){
+        //uiBusContainer.getChildren().add( bus.getUI() );
+        test.getChildren().add( bus.getUI() );
+        ((BusController)bus.getController()).setPos( pos );
     }
 
+    public void update( UIBusData activeBusData,  ArrayList<UIBusData> fleetBusData ){
+        Platform.runLater(() -> {
+            //uiBusContainer.getChildren().clear();
+            test.getChildren().removeAll( test.getChildren() );
 
+            System.out.println(uiBusContainer.getChildren());
+
+            Bus activeBus = new Bus(activeBusData.getBusCode(), activeBusData.getStop(), activeBusData.getDiff() );
+            ((BusController)activeBus.getController()).setActiveBusFlag();
+            addBus( activeBus, activeBusData.getDiff() * splitCount );
+            activeBusPos = activeBusData.getDiff() * splitCount;
+
+            for( UIBusData busData : fleetBusData ){
+                double pos = (busData.getDiff() < 0 ) ? activeBusPos - ( busData.getDiff() * splitCount * -1 ) : activeBusPos + ( busData.getDiff() * splitCount  );
+                addBus( new Bus(busData.getBusCode(), busData.getStop(), busData.getDiff() ), pos);
+            }
+
+        });
+    }
 }

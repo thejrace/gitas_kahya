@@ -39,7 +39,9 @@ public class BusController implements Initializable {
         uiBusCodeLabel.setText(busCode);
         uiStopLabel.setText(stop);
         uiDiffLabel.setText(String.valueOf(diff));
-        uiContainer.getStyleClass().remove(0);
+        try {
+            uiContainer.getStyleClass().remove(0);
+        } catch( IndexOutOfBoundsException e ){ }
         if( diff < 0 ){
             uiContainer.getStyleClass().add(0, "backward");
         } else {

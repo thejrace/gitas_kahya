@@ -10,6 +10,8 @@ import javafx.stage.Stage;
 
 public class MainScreen extends Application {
 
+    private boolean UIInit = false;
+
     @Override
     public void start(Stage primaryStage) throws Exception{
         try {
@@ -23,15 +25,14 @@ public class MainScreen extends Application {
             MainScreenController controller = loader.getController();
 
 
+
             // active bus definitions
-            String activeBus = "C-1760";
+            String activeBus = "C-1542";
             KahyaClient client = new KahyaClient(activeBus);
             client.addListener(new ClientFinishListener() {
                 @Override
                 public void onFinish() {
-
-                    System.out.println("finished client.");
-
+                    controller.update( client.getActiveBusData(), client.getOutput() );
                 }
             });
 
@@ -40,6 +41,10 @@ public class MainScreen extends Application {
                 public void run() {
                     while( true ){
                         client.start();
+                        if( !UIInit ){
+                            controller.splitDims(750, client.getStopCount() );
+                            UIInit = true;
+                        }
                         try {
                             Thread.sleep(10000);
                         } catch( InterruptedException e ){
