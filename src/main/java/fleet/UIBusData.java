@@ -2,13 +2,15 @@ package fleet;
 
 public class UIBusData {
 
-    private String busCode, stop;
+    private String busCode, stop, routeDetails;
+
     private int diff;
 
-    public UIBusData(String busCode, String stop, int diff ){
+    public UIBusData(String busCode, String stop, int diff, String routeDetails ){
         this.busCode = busCode;
         this.stop = stop;
         this.diff = diff;
+        this.routeDetails = routeDetails;
     }
 
     public String getBusCode() {
@@ -33,6 +35,14 @@ public class UIBusData {
 
     public void setDiff(int diff) {
         this.diff = diff;
+    }
+
+    public String getRouteDetails() {
+        return routeDetails;
+    }
+
+    public void setRouteDetails(String routeDetails) {
+        this.routeDetails = routeDetails;
     }
 
 

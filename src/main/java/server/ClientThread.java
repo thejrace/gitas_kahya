@@ -6,8 +6,11 @@ import org.json.JSONObject;
 
 import java.io.*;
 import java.net.Socket;
+import java.net.SocketException;
 
 public class ClientThread extends Thread{
+
+    // @TODO --- ARADA BİR YERLERE İSTEK YAPIP, SESSION I AKTIF TUTMAYI DENEMEK LAZIM
 
     protected Socket socket;
 
@@ -51,8 +54,6 @@ public class ClientThread extends Thread{
                             } else {
                                 output = oaddDownload.getOutput();
                             }
-                            /*OADDDownload oaddDownload = new OADDDownload(request.getString("bus_code"));
-                            output = oaddDownload.action();*/
                         } else if( request.getString("req").equals("download_fleet_data") ){
 
                             RouteFleetDownload routeFleetDownload = new RouteFleetDownload(request.getString("route") );
@@ -74,7 +75,7 @@ public class ClientThread extends Thread{
                     out.writeUTF(output.toString() + "\r");
                     out.flush();
                 }
-            } catch (IOException e) {
+            } catch ( IOException e) {
                 e.printStackTrace();
                 return;
             }

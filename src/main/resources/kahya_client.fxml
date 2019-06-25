@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
 
 <AnchorPane fx:id="uiContainer" prefHeight="750.0" prefWidth="750.0" styleClass="main-bg-color" stylesheets="@main.css" xmlns="http://javafx.com/javafx/8.0.201" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.MainScreenController">
    <children>
@@ -13,7 +15,14 @@
             <Button fx:id="uiActionBtn" mnemonicParsing="false" prefHeight="25.0" prefWidth="71.0" text="ACTION" />
          </children>
       </HBox>
+      <HBox alignment="CENTER" layoutX="260.0" layoutY="56.0" spacing="10.0">
+         <children>
+            <Label fx:id="uiRouteLabel" text="{{ROUTE}}" textFill="#c2bb72" />
+            <Label fx:id="uiLastUpdatedLabel" layoutX="10.0" layoutY="10.0" text="{{LAST_UPDATE}}" textFill="#8ed96f" />
+            <Label fx:id="uiErrorLabel" layoutX="77.0" layoutY="10.0" text="{{ERROR}}" textFill="#ff5353" />
+         </children>
+      </HBox>
       <AnchorPane fx:id="uiBusContainerOverlay" layoutX="38.0" layoutY="54.0" prefWidth="15.0" styleClass="route-layout" AnchorPane.bottomAnchor="15.0" AnchorPane.leftAnchor="35.0" AnchorPane.topAnchor="100.0" />
-      <AnchorPane fx:id="uiBusContainer" layoutX="45.0" layoutY="110.0" prefWidth="25.0" AnchorPane.leftAnchor="30.0" />
+      <VBox fx:id="uiBusContainer" spacing="5.0" AnchorPane.leftAnchor="30.0" AnchorPane.topAnchor="100.0" />
    </children>
 </AnchorPane>

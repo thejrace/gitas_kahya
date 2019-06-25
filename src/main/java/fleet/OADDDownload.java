@@ -36,7 +36,6 @@ public class OADDDownload extends Filo_Task {
         Elements cols = null;
         String route = "";
         boolean routeFetched = false;
-        System.out.println(document);
         try {
             table = document.select("table");
             rows = table.select("tr");

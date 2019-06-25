@@ -1,5 +1,6 @@
 package ui;
 
+import client.KahyaActionListener;
 import client.KahyaClient;
 import fleet.ClientFinishListener;
 import javafx.application.Application;
@@ -11,6 +12,9 @@ import javafx.stage.Stage;
 public class MainScreen extends Application {
 
     private boolean UIInit = false;
+    private Thread clientThread;
+    private boolean runFlag = true;
+    private KahyaClient client;
 
     @Override
     public void start(Stage primaryStage) throws Exception{
@@ -24,38 +28,50 @@ public class MainScreen extends Application {
             primaryStage.show();
             MainScreenController controller = loader.getController();
 
-
-
             // active bus definitions
-            String activeBus = "C-1757";
-            KahyaClient client = new KahyaClient(activeBus);
-            client.addListener(new ClientFinishListener() {
+            controller.setActionListener(new KahyaActionListener() {
                 @Override
-                public void onFinish() {
-                    controller.update( client.getActiveBusData(), client.getOutput() );
+                public void onStart(String busCode) {
+                    controller.reset();
+                    UIInit = false;
+                    client = new KahyaClient(busCode);
+                    client.addListener(new ClientFinishListener() {
+                        @Override
+                        public void onFinish() {
+                            controller.update( client.getActiveBusData(), client.getOutput() );
+                        }
+                    });
+
+                    clientThread = new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            while( runFlag ){
+                                client.start();
+                                if( client.getErrorFlag() ){
+                                    controller.setError(client.getErrorMessage());
+                                } else {
+                                    if( !UIInit ){
+                                        controller.splitDims(750, client.getStopCount() );
+                                        controller.setRoute(client.getRoute());
+                                        UIInit = true;
+                                    }
+                                }
+                                try {
+                                    Thread.sleep(20000);
+                                } catch( InterruptedException e ){
+                                    e.printStackTrace();
+                                }
+                            }
+                        }
+                    });
+                    clientThread.setDaemon(true);
+                    clientThread.start();
                 }
             });
 
-            Thread th = new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    while( true ){
-                        client.start();
-                        if( !UIInit ){
-                            controller.splitDims(750, client.getStopCount() );
-                            UIInit = true;
-                        }
-                        try {
-                            Thread.sleep(10000);
-                        } catch( InterruptedException e ){
-                            e.printStackTrace();
-                        }
-                    }
 
-                }
-            });
-            th.setDaemon(true);
-            th.start();
+
+
 
 
 

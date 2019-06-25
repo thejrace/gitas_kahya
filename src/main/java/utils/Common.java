@@ -4,6 +4,9 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class Common {
 
@@ -30,6 +33,12 @@ public class Common {
             e.printStackTrace();
             return null;
         }
+    }
+
+    public static String getDateTime(){
+        DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+        Date date = new Date();
+        return dateFormat.format(date);
     }
 
     public static String regexTrim( String str ){

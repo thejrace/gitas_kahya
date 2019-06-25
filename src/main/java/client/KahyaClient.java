@@ -30,6 +30,9 @@ public class KahyaClient {
     private ArrayList<UIBusData> output = new ArrayList<>();
     private ClientFinishListener listener;
 
+    private boolean errorFlag = false;
+    private String errorMessage;
+
     public KahyaClient( String busCode ) {
         this.activeBusCode = busCode;
     }
@@ -43,13 +46,19 @@ public class KahyaClient {
 
     public void start(){
 
-        //JSONObject oaddData = fetchOADD();
+        errorFlag = false;
+        errorMessage = "";
 
         JSONObject oaddData = request( new JSONObject("{ \"req\":\"oadd_download\", \"bus_code\":\""+activeBusCode+"\" }").toString() );
 
-
         System.out.println(oaddData.toString());
-        String route = oaddData.getString("route");
+        if( oaddData.has("error") ){
+            errorMessage = oaddData.getString("message");
+            errorFlag = true;
+            return;
+        }
+
+        route = oaddData.getString("route");
         activeBusStopNo = 0;
         int activeBusDirection = 0; // active bus's direction
 
@@ -60,7 +69,7 @@ public class KahyaClient {
 
         // fetch route stops ( static for now )
         ClassLoader classLoader = ClassLoader.getSystemClassLoader();
-        File file = new File(classLoader.getResource("stops/"+oaddData.getString("route")+"_durak.json").getFile());
+        File file = new File(getClass().getResource("/stops/"+oaddData.getString("route")+"_durak.json").getFile());
         JSONArray routeStopData = new JSONObject(Common.readJSONFile(file)).getJSONArray("duraklar");
         stopCount = routeStopData.length();
         JSONObject stopDataTemp;
@@ -80,6 +89,17 @@ public class KahyaClient {
 
         // request all bus data working on the route
         JSONObject fleetData = request( new JSONObject("{ \"req\":\"download_fleet_data\", \"route\":"+oaddData.getString("route")+" }").toString() );
+
+        if( fleetData.has("error") ){
+            try {
+                errorMessage = oaddData.getString("message");
+            } catch( JSONException e ){
+                errorMessage = "Kahya Server failed.";
+                //e.printStackTrace();
+            }
+            errorFlag = true;
+            return;
+        }
 
         Iterator<String> busCodes = fleetData.keys();
         JSONArray tempData;
@@ -113,6 +133,7 @@ public class KahyaClient {
                 if( data.getStatus().equals("A") && data.getBusCode().equals(activeBusCode) ){
                     activeBusStopNo = fetchStopNo(data.getCurrentStop());
                     activeBusStop = data.getCurrentStop();
+                    activeRunIndex = counter;
                 } else if( data.getStatus().equals("A") ){
                     activeRunIndex = counter;
                 }
@@ -121,6 +142,7 @@ public class KahyaClient {
             // if activeRunIndex = 0, means no active run currently
             if( activeRunIndex > 0 ){
                 if( entry.getKey().equals(activeBusCode) ) {
+                    System.out.println("ACITVE   BUS INDEX :::::: " + activeRunIndex );
                     activeBusDirection = RouteDirection.action(route, activeRunIndex, tempDirectionDetails);
                 } else {
                     fleetDirections.put(entry.getKey(), RouteDirection.action(route, activeRunIndex, tempDirectionDetails));
@@ -152,12 +174,15 @@ public class KahyaClient {
                 int diff = fetchStopNo(stop) - activeBusStopNo;
                 fleetPositions.put( diff, busCode );
 
-                output.add( new UIBusData(busCode, fleetRunData.get(busCode).get(fleetActiveRunIndexes.get(busCode)).getCurrentStop(), diff));
+                output.add( new UIBusData(busCode, fleetRunData.get(busCode).get(fleetActiveRunIndexes.get(busCode)).getCurrentStop(), diff, fleetRunData.get(busCode).get(fleetActiveRunIndexes.get(busCode)).getRouteDetails()));
 
             } catch( StringIndexOutOfBoundsException e ){
                 if( debugFlag )  System.out.println(busCode + " @ UNDEFINED" );
             }
         }
+
+        output.add( new UIBusData(activeBusCode, activeBusStop, 0, RouteDirection.returnText(activeBusDirection)) );
+
         // sort busses according to diff
         Collections.sort(output, KahyaClient.DIFF_COMPARATOR );
 
@@ -165,7 +190,12 @@ public class KahyaClient {
             System.out.println(entry.getValue() + "  @  " + entry.getKey() );
         }
 
-        listener.onFinish();
+        try{
+            listener.onFinish();
+        } catch( NullPointerException e ){
+
+        }
+
 
 
 
@@ -204,7 +234,7 @@ public class KahyaClient {
             }
 
         } catch (Exception exception) {
-            exception.printStackTrace();
+            //exception.printStackTrace();
             return new JSONObject("{ \"error\":true, \"message\":\""+exception.getMessage()+"\" }");
         } finally {
             //Closing the socket
@@ -233,7 +263,7 @@ public class KahyaClient {
     }
 
     public UIBusData getActiveBusData(){
-        return new UIBusData(activeBusCode, activeBusStop, activeBusStopNo );
+        return new UIBusData(activeBusCode, activeBusStop, activeBusStopNo, "" );
     }
 
     public void addListener( ClientFinishListener listener ){
@@ -248,5 +278,31 @@ public class KahyaClient {
         }
         return 0;
     }
+
+
+    public boolean getErrorFlag() {
+        return errorFlag;
+    }
+
+    public void setErrorFlag(boolean errorFlag) {
+        this.errorFlag = errorFlag;
+    }
+
+    public String getErrorMessage() {
+        return errorMessage;
+    }
+
+    public void setErrorMessage(String errorMessage) {
+        this.errorMessage = errorMessage;
+    }
+
+    public String getRoute() {
+        return route;
+    }
+
+    public void setRoute(String route) {
+        this.route = route;
+    }
+
 
 }
