@@ -47,6 +47,7 @@ public class ClientThread extends Thread{
                         if( request.getString("req").equals("oadd_download") ){
 
                             fleet.OADDDownload oaddDownload = new fleet.OADDDownload(request.getString("bus_code"));
+                            if( request.has("only_stops_flag") ) oaddDownload.setOnlyStopFetchFlag(true);
                             oaddDownload.action();
                             if( oaddDownload.getErrorFlag() ){
                                 output = new JSONObject("{ \"error\":true, \"message\":\""+oaddDownload.getErrorMessage()+"\" } ");

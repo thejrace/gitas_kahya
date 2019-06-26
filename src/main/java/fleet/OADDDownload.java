@@ -11,6 +11,9 @@ public class OADDDownload extends Filo_Task {
 
     private String busCode;
 
+
+    private boolean onlyStopFetchFlag = false;
+
     public OADDDownload( String busCode ){
         this.busCode = busCode;
     }
@@ -74,14 +77,16 @@ public class OADDDownload extends Filo_Task {
                     routeFetched = true;
                 }
 
-                // @todo seferleri de ekle ring hat anlamak için
-
-                routeDetailsData.put(Common.regexTrim(cols.get(4).getAllElements().get(1).text()));
+                if( !onlyStopFetchFlag ) routeDetailsData.put(Common.regexTrim(cols.get(4).getAllElements().get(1).text()));
 
                 if( status.equals("A") ){
                     output.put("bus_code", busCode);
-                    output.put("route", route);
-                    output.put("active_run_index", i);
+                    if( onlyStopFetchFlag ){
+                        output.put("stop", cols.get(15).text() );
+                    } else {
+                        output.put("route", route);
+                        output.put("active_run_index", i);
+                    }
                     activeRunFound = true;
                     errorFlag = false;
                 }
@@ -99,6 +104,13 @@ public class OADDDownload extends Filo_Task {
 
 
 
+    public boolean getOnlyStopFetchFlag() {
+        return onlyStopFetchFlag;
+    }
+
+    public void setOnlyStopFetchFlag(boolean onlyStopFetchFlag) {
+        this.onlyStopFetchFlag = onlyStopFetchFlag;
+    }
 
 
 }
