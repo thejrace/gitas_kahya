@@ -1,9 +1,11 @@
 package fleet;
 
 
+import org.json.JSONArray;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import utils.Common;
 
 public class OADDDownload extends Filo_Task {
 
@@ -35,6 +37,8 @@ public class OADDDownload extends Filo_Task {
         Element row = null;
         Elements cols = null;
         String route = "";
+        JSONArray routeDetailsData = new JSONArray();
+        boolean activeRunFound = false;
         boolean routeFetched = false;
         try {
             table = document.select("table");
@@ -69,15 +73,24 @@ public class OADDDownload extends Filo_Task {
                     }
                     routeFetched = true;
                 }
+
+                // @todo seferleri de ekle ring hat anlamak için
+
+                routeDetailsData.put(Common.regexTrim(cols.get(4).getAllElements().get(1).text()));
+
                 if( status.equals("A") ){
                     output.put("bus_code", busCode);
                     output.put("route", route);
+                    output.put("active_run_index", i);
+                    activeRunFound = true;
                     errorFlag = false;
-                    return;
-                } else {
-                    errorMessage = "Aktif sefer yok!";
-                    errorFlag = true;
                 }
+            }
+            if( !activeRunFound ){
+                errorMessage = "Aktif sefer yok!";
+                errorFlag = true;
+            } else {
+                output.put("run_details_data", routeDetailsData );
             }
         } catch( Exception e ){
             e.printStackTrace();
