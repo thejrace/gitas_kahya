@@ -30,5 +30,6 @@ public class GitasDBT {
             OTOBUS_AKTIF_DURUM = "app_otobus_aktif_durum",
             OTOBUS_ALARM_DATA = "app_alarm_data",
             OTOBUS_ALARM_DATA_GORENLER = "app_alarm_data_gorenler",
-            APP_KULLANICILAR = "app_kullanicilar";
+            APP_KULLANICILAR = "app_kullanicilar",
+            HAT_DURAKLAR = "hat_duraklar";
 }

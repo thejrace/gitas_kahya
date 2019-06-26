@@ -6,7 +6,6 @@ import org.json.JSONObject;
 
 import java.io.*;
 import java.net.Socket;
-import java.net.SocketException;
 
 public class ClientThread extends Thread{
 
@@ -63,6 +62,9 @@ public class ClientThread extends Thread{
                             } else {
                                 output = routeFleetDownload.getOutput();
                             }
+                        } else if( request.getString("req").equals("route_stops_download") ){
+                            RouteStopsDownload routestopDownload = new RouteStopsDownload( request.getString("route") );
+                            output.put("stops", routestopDownload.action() );
                         }
                     } catch (JSONException e ){
                         e.printStackTrace();

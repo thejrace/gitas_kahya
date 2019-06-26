@@ -66,19 +66,16 @@ public class KahyaClient {
 
         output = new ArrayList<>(); // reset
 
+        JSONObject stopData = request( new JSONObject("{ \"req\":\"route_stops_download\", \"route\":"+oaddData.getString("route")+" }").toString() );
+        JSONArray routeStopData = stopData.getJSONArray("stops");
 
-        // fetch route stops ( static for now )
-        ClassLoader classLoader = ClassLoader.getSystemClassLoader();
-        File file = new File(getClass().getResource("/stops/"+oaddData.getString("route")+"_durak.json").getFile());
-        JSONArray routeStopData = new JSONObject(Common.readJSONFile(file)).getJSONArray("duraklar");
         stopCount = routeStopData.length();
         JSONObject stopDataTemp;
         for( int k = 0; k < stopCount; k++ ){
             if( routeStopData.isNull(k) ) continue;
             stopDataTemp = routeStopData.getJSONObject(k);
-            stops.put( stopDataTemp.getInt("sira"), String.valueOf(stopDataTemp.getInt("sira")) +"-"+stopDataTemp.getString("ad") );
+            stops.put( stopDataTemp.getInt("no"), String.valueOf(stopDataTemp.getInt("no")) +"-"+stopDataTemp.getString("name") );
         }
-
 
         // fleet definitions
         Map<String, ArrayList<RunData>> fleetRunData = new HashMap<>();

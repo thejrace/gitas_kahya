@@ -14,6 +14,7 @@ public class ServerMain extends Application {
         captchaScene.start(new Stage());
 
 
+
     }
 
 
