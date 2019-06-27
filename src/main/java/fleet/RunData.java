@@ -7,15 +7,18 @@ public class RunData {
     private String departureTime;
     private String routeDetails;
     private String status;
+
+    private String statusCode;
     private int departureNo;
 
-    public RunData( String busCode, int departureNo, String currentStop, String departureTime, String routeDetails, String status ){
+    public RunData( String busCode, int departureNo, String currentStop, String departureTime, String routeDetails, String status, String statusCode ){
         this.busCode = busCode;
         this.departureNo = departureNo;
         this.currentStop = currentStop;
         this.departureTime = departureTime;
         this.routeDetails = routeDetails;
         this.status = status;
+        this.statusCode = statusCode;
     }
 
     public int getDepartureNo() {
@@ -65,5 +68,14 @@ public class RunData {
     public void setRouteDetails(String routeDetails) {
         this.routeDetails = routeDetails;
     }
+
+    public String getStatusCode() {
+        return statusCode;
+    }
+
+    public void setStatusCode(String statusCode) {
+        this.statusCode = statusCode;
+    }
+
 
 }

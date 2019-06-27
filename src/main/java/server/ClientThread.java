@@ -47,7 +47,6 @@ public class ClientThread extends Thread{
                         if( request.getString("req").equals("oadd_download") ){
 
                             fleet.OADDDownload oaddDownload = new fleet.OADDDownload(request.getString("bus_code"));
-                            if( request.has("only_stops_flag") ) oaddDownload.setOnlyStopFetchFlag(true);
                             oaddDownload.action();
                             if( oaddDownload.getErrorFlag() ){
                                 output = new JSONObject("{ \"error\":true, \"message\":\""+oaddDownload.getErrorMessage()+"\" } ");
@@ -57,6 +56,7 @@ public class ClientThread extends Thread{
                         } else if( request.getString("req").equals("download_fleet_data") ){
 
                             RouteFleetDownload routeFleetDownload = new RouteFleetDownload(request.getString("route") );
+                            if( request.has("only_stops_flag") ) routeFleetDownload.setFetchOnlyStopsFlag(true);
                             routeFleetDownload.action();
                             if( routeFleetDownload.getErrorFlag() ){
                                 output = new JSONObject("{ \"error\":true, \"message\":\""+routeFleetDownload.getErrorMessage()+"\" }");

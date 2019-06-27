@@ -11,9 +11,6 @@ public class OADDDownload extends Filo_Task {
 
     private String busCode;
 
-
-    private boolean onlyStopFetchFlag = false;
-
     public OADDDownload( String busCode ){
         this.busCode = busCode;
     }
@@ -77,16 +74,12 @@ public class OADDDownload extends Filo_Task {
                     routeFetched = true;
                 }
 
-                if( !onlyStopFetchFlag ) routeDetailsData.put(Common.regexTrim(cols.get(4).getAllElements().get(1).text()));
+                routeDetailsData.put(Common.regexTrim(cols.get(4).getAllElements().get(1).text()));
 
                 if( status.equals("A") ){
                     output.put("bus_code", busCode);
-                    if( onlyStopFetchFlag ){
-                        output.put("stop", cols.get(15).text() );
-                    } else {
-                        output.put("route", route);
-                        output.put("active_run_index", i);
-                    }
+                    output.put("route", route);
+                    output.put("active_run_index", i);
                     activeRunFound = true;
                     errorFlag = false;
                 }
@@ -101,16 +94,5 @@ public class OADDDownload extends Filo_Task {
             e.printStackTrace();
         }
     }
-
-
-
-    public boolean getOnlyStopFetchFlag() {
-        return onlyStopFetchFlag;
-    }
-
-    public void setOnlyStopFetchFlag(boolean onlyStopFetchFlag) {
-        this.onlyStopFetchFlag = onlyStopFetchFlag;
-    }
-
 
 }

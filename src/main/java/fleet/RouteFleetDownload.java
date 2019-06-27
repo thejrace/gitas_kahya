@@ -10,7 +10,7 @@ import utils.Common;
 public class RouteFleetDownload extends Filo_Task {
 
     private String route;
-
+    private boolean fetchOnlyStopsFlag = false;
 
     public RouteFleetDownload( String route ){
         this.route = route;
@@ -52,9 +52,12 @@ public class RouteFleetDownload extends Filo_Task {
             String statusText;
             String status;
             String statusCode;
+            boolean addToOutputFlag = false;
             for (int i = 1; i < rowsSize; i++) {
                 row = rows.get(i);
                 cols = row.select("td");
+
+                addToOutputFlag = false; // reset the active run flag
 
                 busCode = Common.regexTrim(cols.get(5).text());
 
@@ -71,14 +74,31 @@ public class RouteFleetDownload extends Filo_Task {
 
                 runTemp = new JSONObject();
                 runTemp.put("bus_code", busCode);
-                runTemp.put("dep_time", Common.regexTrim(cols.get(9).getAllElements().get(2).text()));
-                runTemp.put("no", Common.regexTrim(cols.get(0).text()));
-                runTemp.put("stop", cols.get(15).text() );
-                runTemp.put("route_details", Common.regexTrim(cols.get(4).getAllElements().get(1).text()));
-                runTemp.put("status", status);
 
-                if( output.isNull(busCode) ) output.put(busCode, new JSONArray() );
-                output.getJSONArray(busCode).put( runTemp );
+                if( fetchOnlyStopsFlag ){
+                    // for ring runs we only need active stop data of the busses.
+                    // therefore, status and status_checks are done here.
+                    if( status.equals("A") && !statusCode.equals("CA") ){
+                        runTemp.put("stop", cols.get(15).text() );
+                        addToOutputFlag = true;
+                    }
+                } else {
+                    // for normal runs we need all run data of the all busses to determine route direction
+                    // using route_details data.
+                    // status and status_text checks are done in the KahyaClient
+                    runTemp.put("dep_time", Common.regexTrim(cols.get(9).getAllElements().get(2).text()));
+                    runTemp.put("no", Common.regexTrim(cols.get(0).text()));
+                    runTemp.put("stop", cols.get(15).text() );
+                    runTemp.put("route_details", Common.regexTrim(cols.get(4).getAllElements().get(1).text()));
+                    runTemp.put("status", status);
+                    runTemp.put("status_code", statusCode);
+                    addToOutputFlag = true; // this is true for all for normal case
+                }
+
+                if( addToOutputFlag ) {
+                    if( output.isNull(busCode) ) output.put(busCode, new JSONArray() );
+                    output.getJSONArray(busCode).put( runTemp );
+                }
             }
         } catch( Exception e ){
             e.printStackTrace();
@@ -95,6 +115,15 @@ public class RouteFleetDownload extends Filo_Task {
 
     public String getErrorMessage() {
         return errorMessage;
+    }
+
+
+    public boolean getFetchOnlyStopsFlag() {
+        return fetchOnlyStopsFlag;
+    }
+
+    public void setFetchOnlyStopsFlag(boolean fetchOnlyStopsFlag) {
+        this.fetchOnlyStopsFlag = fetchOnlyStopsFlag;
     }
 
 }
