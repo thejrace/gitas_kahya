@@ -50,25 +50,31 @@ public class RouteDirection {
                 // 2 - hat normal
                 // durum 1 kontrolü
                 // sonraki sefer ile ondan sonraki seferi karşılaştırıp ring olup olmadigin kontrol ediyoruz
-                if (getDirectionLetter(hat_length, guzergahlar.get(aktif_sefer_index + 2)) == sonraki_sefer_yon) {
+                try {
+                    String ikiSonraki = guzergahlar.get(aktif_sefer_index + 2);
+
+                    if (getDirectionLetter(hat_length, ikiSonraki) == sonraki_sefer_yon) {
 					/*
 						# Ring ( başlangıç farklı ) #### BU KONTROLE GEREK VAR MI ?
 						[HAT]_G -- aktif_sefer_index
 						[HAT]_D -- sonraki
 						[HAT]_D -- ondan sonraki
 					*/
-                    // bu durumda aktif sefer ring degil, normal sefer gibi degerlendiriyoruz
-                    //System.out.println("Ring hat öncesi normal sefer --> DURUM: " + aktif_sefer_yon);
-                    return aktif_sefer_yon;
-                } else {
+                        // bu durumda aktif sefer ring degil, normal sefer gibi degerlendiriyoruz
+                        //System.out.println("Ring hat öncesi normal sefer --> DURUM: " + aktif_sefer_yon);
+                        return aktif_sefer_yon;
+                    } else {
 					/*	# Normal
 						[HAT]_G -- aktif_sefer_index
 						[HAT]_D -- sonraki
 						[HAT]_G -- ondan sonraki
 					*/
-                    //System.out.println("Hat normal![1] --> DURUM: " + aktif_sefer_yon);
+                        //System.out.println("Hat normal![1] --> DURUM: " + aktif_sefer_yon);
+                    }
+                    return aktif_sefer_yon;
+                } catch( IndexOutOfBoundsException e ){
+                    return aktif_sefer_yon;
                 }
-                return aktif_sefer_yon;
             }
         } else if (!onceki.equals("VY") && sonraki.equals("VY")) {
 			/*  ..
@@ -141,7 +147,7 @@ public class RouteDirection {
             } else {
                 return BACKWARD;
             }
-        } catch (StringIndexOutOfBoundsException e) {
+        } catch ( IndexOutOfBoundsException e) {
             return -1;
         }
 

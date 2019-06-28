@@ -21,13 +21,14 @@ public class KahyaClient {
     private static Socket socket;
     private String activeBusCode;
     private int activeBusDirection;
-    private int stopCount;
+
 
     private String route;
     private String activeBusStop;
     private int activeBusStopNo;
     private int activeStopIncrement = 2; // how further we are gonna fetch from active stop
-    private Map<Integer, String> stops = new HashMap<>();
+    private Map<Integer, Integer> stopsCount = new HashMap<>();
+    private Map<Integer, Map<Integer, String>> stops = new HashMap<>();
     private ArrayList<UIBusData> output = new ArrayList<>();
     private ClientFinishListener listener;
 
@@ -62,6 +63,8 @@ public class KahyaClient {
 
         errorFlag = false;
         errorMessage = "";
+        stops.put(RouteDirection.FORWARD, new HashMap<>());
+        stops.put(RouteDirection.BACKWARD, new HashMap<>());
 
         output = new ArrayList<>(); // reset
 
@@ -73,8 +76,14 @@ public class KahyaClient {
             errorFlag = true;
             return;
         }
+        try {
+            route = oaddData.getString("route");
+        } catch (JSONException e ){
+            errorMessage = "Hat bilgisi alınamadı.";
+            errorFlag = true;
+            return;
+        }
 
-        route = oaddData.getString("route");
         JSONArray activeBusRouteDetailsData = oaddData.getJSONArray("run_details_data");
         ArrayList<String> activeBusRouteDetailsList = new ArrayList<>();
         for( int k = 0; k < activeBusRouteDetailsData.length(); k++ ) activeBusRouteDetailsList.add( activeBusRouteDetailsData.getString(k) ); // convert jsonarray to arraylist
@@ -87,15 +96,27 @@ public class KahyaClient {
         if( activeBusDirection == RouteDirection.RING ){
             ringRouteFlag = true;
             // for ring routes, we need route stops to determine directions
-            JSONObject stopData = request( new JSONObject("{ \"req\":\"route_stops_download\", \"route\":"+oaddData.getString("route")+" }").toString() );
+            JSONObject stopData = request( new JSONObject("{ \"req\":\"route_stops_download\", \"route\":\""+oaddData.getString("route")+"\" }").toString() );
             JSONArray routeStopData = stopData.getJSONArray("stops");
-            stopCount = routeStopData.length();
+
+            /*stopsCount.put(RouteDirection.FORWARD, routeStopData.getInt(RouteDirection.FORWARD));
+            stopsCount.put(RouteDirection.BACKWARD, routeStopData.getInt(RouteDirection.BACKWARD));*/
+
+            int[] dirs = { RouteDirection.FORWARD, RouteDirection.BACKWARD };
             JSONObject stopDataTemp;
-            for( int k = 0; k < stopCount; k++ ){
-                if( routeStopData.isNull(k) ) continue;
-                stopDataTemp = routeStopData.getJSONObject(k);
-                stops.put( stopDataTemp.getInt("no"), String.valueOf(stopDataTemp.getInt("no")) +"-"+stopDataTemp.getString("name") );
+            JSONArray tempStops;
+            for( int j = 0; j < dirs.length; j++ ){
+                tempStops = routeStopData.getJSONArray(j);
+                for( int k = 0; k < tempStops.length(); k++ ){
+                    if( tempStops.isNull(k) ) continue;
+                    stopDataTemp = routeStopData.getJSONObject(k);
+                    stops.get(dirs[j]).put(stopDataTemp.getInt("no"), stopDataTemp.getString("name"));
+                }
             }
+
+            System.out.println(stops.get(RouteDirection.BACKWARD));
+            System.out.println(stops.get(RouteDirection.FORWARD));
+
 
             // we will fetch the whole fleets data( including active bus )
             // and will compare active stop with previous stop etc to determine direction
@@ -103,7 +124,7 @@ public class KahyaClient {
             for( Map.Entry<String, String> entry : fleetStopsData.entrySet() ){
                 // if current stop no is greater then the total stop count, bus returns
                 int stopNo = fetchStopNo( entry.getValue() );
-                int direction = ( stopNo >= stops.size()  ) ? RouteDirection.BACKWARD : RouteDirection.FORWARD;
+                int direction = ( stopNo >= stopsCount.get(RouteDirection.FORWARD)  ) ? RouteDirection.BACKWARD : RouteDirection.FORWARD;
                 if( entry.getKey().equals(activeBusCode) ){
                     activeBusStopNo = stopNo;
                     activeBusStop = entry.getValue();
@@ -213,9 +234,9 @@ public class KahyaClient {
         // request all bus data working on the route
         JSONObject fleetData;
         if( ringRouteFlag ){
-            fleetData = request( new JSONObject("{ \"req\":\"download_fleet_data\", \"route\":"+route+", \"only_stops_flag\":true }").toString() );
+            fleetData = request( new JSONObject("{ \"req\":\"download_fleet_data\", \"route\":\""+route+"\", \"only_stops_flag\":true }").toString() );
         } else {
-            fleetData = request( new JSONObject("{ \"req\":\"download_fleet_data\", \"route\":"+route+" }").toString() );
+            fleetData = request( new JSONObject("{ \"req\":\"download_fleet_data\", \"route\":\""+route+"\" }").toString() );
         }
         if( fleetData.has("error") ){
             try {
@@ -306,10 +327,6 @@ public class KahyaClient {
         }
     };
 
-
-    public int getStopCount(){
-        return stopCount;
-    }
 
     public ArrayList<UIBusData> getOutput(){
         return output;

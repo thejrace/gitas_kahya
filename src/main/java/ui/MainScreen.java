@@ -9,12 +9,17 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class MainScreen extends Application {
 
     private boolean UIInit = false;
-    private Thread clientThread;
-    private boolean runFlag = true;
+
     private KahyaClient client;
+    private String prevBusCode;
+
+    private Map<String, Boolean> threadFlags = new HashMap<>();
 
     @Override
     public void start(Stage primaryStage) throws Exception{
@@ -34,6 +39,9 @@ public class MainScreen extends Application {
                 public void onStart(String busCode) {
                     controller.reset();
                     UIInit = false;
+                    threadFlags.put(prevBusCode, false);
+                    threadFlags.put(busCode, true);
+
                     client = new KahyaClient(busCode);
                     client.addListener(new ClientFinishListener() {
                         @Override
@@ -42,16 +50,16 @@ public class MainScreen extends Application {
                         }
                     });
 
-                    clientThread = new Thread(new Runnable() {
+                    Thread clientThread = new Thread(new Runnable() {
                         @Override
                         public void run() {
-                            while( runFlag ){
+                            while( threadFlags.get(busCode) ){
                                 client.start();
                                 if( client.getErrorFlag() ){
                                     controller.setError(client.getErrorMessage());
                                 } else {
                                     if( !UIInit ){
-                                        controller.splitDims(750, client.getStopCount() );
+                                        controller.splitDims(750);
                                         controller.setRoute(client.getRoute());
                                         UIInit = true;
                                     }
@@ -62,10 +70,14 @@ public class MainScreen extends Application {
                                     e.printStackTrace();
                                 }
                             }
+                            System.out.println(busCode + " thread is killed!!!!!");
                         }
                     });
                     clientThread.setDaemon(true);
                     clientThread.start();
+                    prevBusCode = busCode;
+
+
                 }
             });
 

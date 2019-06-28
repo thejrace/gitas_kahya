@@ -3,8 +3,11 @@ package ui;
 import client.KahyaActionListener;
 import fleet.UIBusData;
 import javafx.application.Platform;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
@@ -13,10 +16,7 @@ import javafx.scene.layout.VBox;
 import utils.Common;
 
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.ResourceBundle;
+import java.util.*;
 
 public class MainScreenController implements Initializable {
 
@@ -28,6 +28,8 @@ public class MainScreenController implements Initializable {
     @FXML private Label uiRouteLabel;
     @FXML private Label uiLastUpdatedLabel;
     @FXML private Label uiErrorLabel;
+
+    protected ObservableList<Node> dataRowsTemp;
 
     private String route;
     private double splitCount;
@@ -63,15 +65,13 @@ public class MainScreenController implements Initializable {
         this.route = route;
     }
 
-    public void splitDims( int totalHeight, int stopCount ){
-        splitCount = totalHeight /( stopCount + 10 );
+    public void splitDims( int totalHeight ){
         uiBusContainer.setPrefHeight(totalHeight);
         uiBusContainerOverlay.setPrefHeight(totalHeight);
     }
 
-    public void addBus( Bus bus, double pos ){
+    public void addBus( Bus bus ){
         uiBusContainer.getChildren().add( bus.getUI() );
-        //((BusController)bus.getController()).setPos( pos );
         busList.put(bus.getBusCode(), bus );
     }
 
@@ -82,34 +82,38 @@ public class MainScreenController implements Initializable {
         });
     }
 
+    private void sort(){
+        try {
+            ObservableList<Node> dataRows = FXCollections.observableArrayList( uiBusContainer.getChildren() );
+            Collections.sort(dataRows, new Comparator<Node>(){
+                @Override
+                public int compare( Node vb1, Node vb2 ){
+                    return Integer.valueOf(vb1.getId()).compareTo(Integer.valueOf(vb2.getId()));
+                }
+            });
+            uiBusContainer.getChildren().setAll(dataRows);
+        } catch (IndexOutOfBoundsException e ){
+            e.printStackTrace();
+        }
+    }
+
     public void update( UIBusData activeBusData,  ArrayList<UIBusData> fleetBusData ){
         Platform.runLater(() -> {
-
-
-
-            /*if( !busList.containsKey(activeBusData.getBusCode())){
-                Bus activeBus = new Bus(activeBusData.getBusCode(), activeBusData.getStop(), activeBusData.getDiff() );
-                ((BusController)activeBus.getController()).setActiveBusFlag();
-                addBus( activeBus, activeBusData.getDiff() * splitCount );
-            } else {
-                busList.get(activeBusData.getBusCode()).setDiff( activeBusData.getDiff() );
-                busList.get(activeBusData.getBusCode()).setStop( activeBusData.getStop() );
-                busList.get(activeBusData.getBusCode()).notifyUI();
-            }*/
-
             activeBusPos = activeBusData.getDiff() * splitCount;
             for( UIBusData busData : fleetBusData ){
-                double pos = (busData.getDiff() < 0 ) ? activeBusPos - ( busData.getDiff() * splitCount * -1 ) : activeBusPos + ( busData.getDiff() * splitCount  );
                 if( !busList.containsKey(busData.getBusCode())){
                     Bus busTemp = new Bus(busData.getBusCode(), busData.getStop() +  " - " + busData.getRouteDetails(), busData.getDiff() );
+                    busTemp.getUI().setId(String.valueOf(busTemp.getDiff()));
                     if( busData.getBusCode().equals(uiBusCodeInput.getText()) ) ((BusController)busTemp.getController()).setActiveBusFlag();
-                    addBus( busTemp, pos);
+                    addBus( busTemp);
                 } else {
                     busList.get(busData.getBusCode()).setDiff( busData.getDiff() );
                     busList.get(busData.getBusCode()).setStop( busData.getStop() +  " - " + busData.getRouteDetails() );
+                    busList.get(busData.getBusCode()).getUI().setId(String.valueOf(busData.getDiff()));
                     busList.get(busData.getBusCode()).notifyUI();
                 }
             }
+            sort();
             uiLastUpdatedLabel.setText(Common.getDateTime());
             uiErrorLabel.setText("");
             uiRouteLabel.setText(route);
