@@ -8,6 +8,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import utils.StringSimilarity;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -47,9 +48,9 @@ public class MainScreen extends Application {
                         @Override
                         public void onFinish() {
                             controller.update( client.getActiveBusData(), client.getOutput() );
+                            controller.setRoute(client.getRoute());
                         }
                     });
-
                     Thread clientThread = new Thread(new Runnable() {
                         @Override
                         public void run() {
@@ -60,7 +61,6 @@ public class MainScreen extends Application {
                                 } else {
                                     if( !UIInit ){
                                         controller.splitDims(750);
-                                        controller.setRoute(client.getRoute());
                                         UIInit = true;
                                     }
                                 }
@@ -76,17 +76,8 @@ public class MainScreen extends Application {
                     clientThread.setDaemon(true);
                     clientThread.start();
                     prevBusCode = busCode;
-
-
                 }
             });
-
-
-
-
-
-
-
         } catch( Exception e ){
             e.printStackTrace();
         }
