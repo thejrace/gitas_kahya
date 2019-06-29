@@ -109,7 +109,7 @@ public class KahyaClient {
                 tempStops = routeStopData.getJSONArray(j);
                 for( int k = 0; k < tempStops.length(); k++ ){
                     if( tempStops.isNull(k) ) continue;
-                    stopDataTemp = routeStopData.getJSONObject(k);
+                    stopDataTemp = tempStops.getJSONObject(k);
                     stops.get(dirs[j]).put(stopDataTemp.getInt("no"), stopDataTemp.getString("name"));
                 }
             }

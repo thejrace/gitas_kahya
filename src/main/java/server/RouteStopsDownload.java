@@ -36,7 +36,7 @@ public class RouteStopsDownload {
                 tempStop.put("no",res.getInt("no"));
                 stops.getJSONArray(RouteDirection.FORWARD).put(tempStop);
             }
-            st = con.prepareStatement("SELECT isim, no " + GitasDBT.HAT_DURAKLAR_V2 + " WHERE hat = ? && yon = ?");
+            st = con.prepareStatement("SELECT isim, no FROM " + GitasDBT.HAT_DURAKLAR_V2 + " WHERE hat = ? && yon = ?");
             st.setString(1, route );
             st.setInt(2, RouteDirection.BACKWARD );
             res = st.executeQuery();
