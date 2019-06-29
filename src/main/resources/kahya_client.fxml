@@ -8,7 +8,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<AnchorPane fx:id="uiContainer" prefHeight="750.0" prefWidth="1018.0" styleClass="main-bg-color" stylesheets="@main.css" xmlns="http://javafx.com/javafx/8.0.201" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.MainScreenController">
+<AnchorPane fx:id="uiContainer" prefHeight="700.0" prefWidth="1018.0" styleClass="main-bg-color" stylesheets="@main.css" xmlns="http://javafx.com/javafx/8.0.201" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.MainScreenController">
    <children>
       <HBox alignment="CENTER" layoutX="393.0" layoutY="14.0" spacing="10.0">
          <children>
@@ -25,7 +25,7 @@
       </HBox>
       <AnchorPane fx:id="uiBusContainerOverlay" layoutX="38.0" layoutY="54.0" prefWidth="15.0" styleClass="route-layout" AnchorPane.bottomAnchor="15.0" AnchorPane.leftAnchor="35.0" AnchorPane.topAnchor="100.0" />
       <VBox fx:id="uiBusContainer" spacing="5.0" AnchorPane.leftAnchor="30.0" AnchorPane.topAnchor="100.0" />
-      <VBox layoutX="689.0" layoutY="113.0" prefHeight="563.0" prefWidth="305.0" spacing="15.0">
+      <VBox layoutX="689.0" layoutY="113.0" prefHeight="436.0" prefWidth="305.0" spacing="15.0">
          <children>
             <AnchorPane>
                <children>
@@ -200,6 +200,6 @@
             </AnchorPane>
          </children>
       </VBox>
-      <Label layoutX="934.0" layoutY="727.0" text="kahya_client" textFill="#535353" />
+      <Label layoutX="934.0" layoutY="6.0" text="kahya_client" textFill="#535353" />
    </children>
 </AnchorPane>
