@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import java.lang.String?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TextField?>
@@ -7,15 +8,15 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<AnchorPane fx:id="uiContainer" prefHeight="750.0" prefWidth="750.0" styleClass="main-bg-color" stylesheets="@main.css" xmlns="http://javafx.com/javafx/8.0.201" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.MainScreenController">
+<AnchorPane fx:id="uiContainer" prefHeight="750.0" prefWidth="1018.0" styleClass="main-bg-color" stylesheets="@main.css" xmlns="http://javafx.com/javafx/8.0.201" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.MainScreenController">
    <children>
-      <HBox alignment="CENTER" layoutX="260.0" layoutY="21.0" spacing="10.0">
+      <HBox alignment="CENTER" layoutX="393.0" layoutY="14.0" spacing="10.0">
          <children>
             <TextField fx:id="uiBusCodeInput" promptText="Kod" />
             <Button fx:id="uiActionBtn" mnemonicParsing="false" prefHeight="25.0" prefWidth="71.0" text="ACTION" />
          </children>
       </HBox>
-      <HBox alignment="CENTER" layoutX="260.0" layoutY="56.0" spacing="10.0">
+      <HBox alignment="CENTER" layoutX="393.0" layoutY="49.0" spacing="10.0">
          <children>
             <Label fx:id="uiRouteLabel" text="{{ROUTE}}" textFill="#c2bb72" />
             <Label fx:id="uiLastUpdatedLabel" layoutX="10.0" layoutY="10.0" text="{{LAST_UPDATE}}" textFill="#8ed96f" />
@@ -24,5 +25,181 @@
       </HBox>
       <AnchorPane fx:id="uiBusContainerOverlay" layoutX="38.0" layoutY="54.0" prefWidth="15.0" styleClass="route-layout" AnchorPane.bottomAnchor="15.0" AnchorPane.leftAnchor="35.0" AnchorPane.topAnchor="100.0" />
       <VBox fx:id="uiBusContainer" spacing="5.0" AnchorPane.leftAnchor="30.0" AnchorPane.topAnchor="100.0" />
+      <VBox layoutX="689.0" layoutY="113.0" prefHeight="563.0" prefWidth="305.0" spacing="15.0">
+         <children>
+            <AnchorPane>
+               <children>
+                  <HBox alignment="CENTER" fillHeight="false" layoutX="94.0" layoutY="5.0" prefHeight="30.0" prefWidth="162.0">
+                     <styleClass>
+                        <String fx:value="bus-box-container" />
+                        <String fx:value="right" />
+                     </styleClass>
+                     <children>
+                        <Label text="{{BUS}}" />
+                     </children>
+                  </HBox>
+                  <HBox alignment="CENTER" fillHeight="false" layoutX="36.0" prefHeight="40.0" prefWidth="70.0" AnchorPane.leftAnchor="60.0">
+                     <styleClass>
+                        <String fx:value="bus-box-container" />
+                        <String fx:value="left" />
+                     </styleClass>
+                     <children>
+                        <Label text="{{DIFF}}" />
+                     </children>
+                  </HBox>
+               </children>
+               <styleClass>
+                  <String fx:value="bus-box" />
+                  <String fx:value="_60" />
+                  <String fx:value="backward" />
+               </styleClass>
+            </AnchorPane>
+            <AnchorPane>
+               <children>
+                  <HBox alignment="CENTER" fillHeight="false" layoutX="90.0" layoutY="8.0" prefHeight="30.0" prefWidth="180.0">
+                     <styleClass>
+                        <String fx:value="bus-box-container" />
+                        <String fx:value="right" />
+                     </styleClass>
+                     <children>
+                        <Label text="{{BUS}}" />
+                     </children>
+                  </HBox>
+                  <HBox alignment="CENTER" fillHeight="false" layoutX="36.0" prefHeight="45.0" prefWidth="70.0" AnchorPane.leftAnchor="35.0">
+                     <styleClass>
+                        <String fx:value="bus-box-container" />
+                        <String fx:value="left" />
+                     </styleClass>
+                     <children>
+                        <Label text="{{DIFF}}" />
+                     </children>
+                  </HBox>
+               </children>
+               <styleClass>
+                  <String fx:value="bus-box" />
+                  <String fx:value="_80" />
+                  <String fx:value="backward" />
+               </styleClass>
+            </AnchorPane>
+            <AnchorPane>
+               <children>
+                  <HBox alignment="CENTER" fillHeight="false" layoutX="91.0" layoutY="10.0" prefHeight="30.0" prefWidth="200.0">
+                     <styleClass>
+                        <String fx:value="bus-box-container" />
+                        <String fx:value="right" />
+                     </styleClass>
+                     <children>
+                        <Label text="{{BUS}}" />
+                     </children>
+                  </HBox>
+                  <HBox alignment="CENTER" fillHeight="false" prefHeight="50.0" prefWidth="100.0" AnchorPane.leftAnchor="15.0">
+                     <styleClass>
+                        <String fx:value="bus-box-container" />
+                        <String fx:value="left" />
+                     </styleClass>
+                     <children>
+                        <Label text="{{DIFF}}" />
+                     </children>
+                  </HBox>
+               </children>
+               <styleClass>
+                  <String fx:value="bus-box" />
+                  <String fx:value="_100" />
+                  <String fx:value="backward" />
+               </styleClass>
+            </AnchorPane>
+            <HBox alignment="CENTER">
+               <styleClass>
+                  <String fx:value="bus-box-container" />
+                  <String fx:value="active-bus" />
+               </styleClass>
+               <children>
+                  <Label text="{{ACTIVE}}" />
+               </children>
+            </HBox>
+            <AnchorPane>
+               <children>
+                  <HBox alignment="CENTER" fillHeight="false" layoutX="91.0" layoutY="10.0" prefHeight="30.0" prefWidth="200.0">
+                     <styleClass>
+                        <String fx:value="bus-box-container" />
+                        <String fx:value="right" />
+                     </styleClass>
+                     <children>
+                        <Label text="{{BUS}}" />
+                     </children>
+                  </HBox>
+                  <HBox alignment="CENTER" fillHeight="false" prefHeight="50.0" prefWidth="100.0" AnchorPane.leftAnchor="15.0">
+                     <styleClass>
+                        <String fx:value="bus-box-container" />
+                        <String fx:value="left" />
+                     </styleClass>
+                     <children>
+                        <Label text="{{DIFF}}" />
+                     </children>
+                  </HBox>
+               </children>
+               <styleClass>
+                  <String fx:value="bus-box" />
+                  <String fx:value="_100" />
+                  <String fx:value="forward" />
+               </styleClass>
+            </AnchorPane>
+            <AnchorPane layoutX="10.0" layoutY="64.0">
+               <children>
+                  <HBox alignment="CENTER" fillHeight="false" layoutX="90.0" layoutY="8.0" prefHeight="30.0" prefWidth="180.0">
+                     <styleClass>
+                        <String fx:value="bus-box-container" />
+                        <String fx:value="right" />
+                     </styleClass>
+                     <children>
+                        <Label text="{{BUS}}" />
+                     </children>
+                  </HBox>
+                  <HBox alignment="CENTER" fillHeight="false" layoutX="36.0" prefHeight="45.0" prefWidth="70.0" AnchorPane.leftAnchor="35.0">
+                     <styleClass>
+                        <String fx:value="bus-box-container" />
+                        <String fx:value="left" />
+                     </styleClass>
+                     <children>
+                        <Label text="{{DIFF}}" />
+                     </children>
+                  </HBox>
+               </children>
+               <styleClass>
+                  <String fx:value="bus-box" />
+                  <String fx:value="_80" />
+                  <String fx:value="forward" />
+               </styleClass>
+            </AnchorPane>
+            <AnchorPane layoutX="10.0" layoutY="129.0">
+               <children>
+                  <HBox alignment="CENTER" fillHeight="false" layoutX="94.0" layoutY="5.0" prefHeight="30.0" prefWidth="162.0">
+                     <styleClass>
+                        <String fx:value="bus-box-container" />
+                        <String fx:value="right" />
+                     </styleClass>
+                     <children>
+                        <Label text="{{BUS}}" />
+                     </children>
+                  </HBox>
+                  <HBox alignment="CENTER" fillHeight="false" layoutX="36.0" prefHeight="40.0" prefWidth="70.0" AnchorPane.leftAnchor="60.0">
+                     <styleClass>
+                        <String fx:value="bus-box-container" />
+                        <String fx:value="left" />
+                     </styleClass>
+                     <children>
+                        <Label text="{{DIFF}}" />
+                     </children>
+                  </HBox>
+               </children>
+               <styleClass>
+                  <String fx:value="bus-box" />
+                  <String fx:value="_60" />
+                  <String fx:value="forward" />
+               </styleClass>
+            </AnchorPane>
+         </children>
+      </VBox>
+      <Label layoutX="934.0" layoutY="727.0" text="kahya_client" textFill="#535353" />
    </children>
 </AnchorPane>

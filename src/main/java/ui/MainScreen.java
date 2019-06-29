@@ -30,7 +30,7 @@ public class MainScreen extends Application {
             Parent content = loader.load();
             primaryStage.setTitle("Kahya Client");
 
-            primaryStage.setScene(new Scene(content, 750, 750 )); // @todo - calculate client's width-height, give offset to that
+            primaryStage.setScene(new Scene(content, 1018, 750 )); // @todo - calculate client's width-height, give offset to that
             primaryStage.show();
             MainScreenController controller = loader.getController();
 
@@ -60,7 +60,7 @@ public class MainScreen extends Application {
                                     controller.setError(client.getErrorMessage());
                                 } else {
                                     if( !UIInit ){
-                                        controller.splitDims(750);
+                                        controller.splitDims(1018);
                                         UIInit = true;
                                     }
                                 }
