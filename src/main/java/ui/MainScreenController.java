@@ -11,6 +11,7 @@ import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 import utils.Common;
@@ -35,21 +36,14 @@ public class MainScreenController implements Initializable {
     private double splitCount;
     private double activeBusPos;
     private Map<String, Bus> busList = new HashMap<>();
-
-
-
     private KahyaActionListener actionListener;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
 
-
-
         uiActionBtn.setOnMousePressed( ev -> {
-            String busCode = uiBusCodeInput.getText();
-            if( !busCode.equals("") ) actionListener.onStart( busCode );
+            kahyaActionStart();
         });
-
 
 
     }
@@ -120,7 +114,19 @@ public class MainScreenController implements Initializable {
         });
     }
 
+    private void kahyaActionStart(){
+        String busCode = Common.regexTrim(uiBusCodeInput.getText()), out;
+        if( busCode.equals("") ) return;
+        out = ( busCode.contains("-") ) ? busCode.toUpperCase() : busCode.substring(0,1).toUpperCase() + "-" + busCode.substring(1).toUpperCase();
+        actionListener.onStart( out );
+    }
+
     public void setActionListener( KahyaActionListener listener ){
         actionListener = listener;
+        uiActionBtn.getScene().setOnKeyPressed(e -> {
+            if (e.getCode() == KeyCode.ENTER) {
+                kahyaActionStart();
+            }
+        });
     }
 }
