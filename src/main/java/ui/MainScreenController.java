@@ -32,6 +32,7 @@ public class MainScreenController implements Initializable {
 
     protected ObservableList<Node> dataRowsTemp;
 
+    private String activeBusCode;
     private String route;
     private double splitCount;
     private double activeBusPos;
@@ -98,7 +99,7 @@ public class MainScreenController implements Initializable {
                 if( !busList.containsKey(busData.getBusCode())){
                     Bus busTemp = new Bus(busData.getBusCode(), busData.getStop() +  " - " + busData.getRouteDetails(), busData.getDiff() );
                     busTemp.getUI().setId(String.valueOf(busTemp.getDiff()));
-                    if( busData.getBusCode().equals(uiBusCodeInput.getText()) ) ((BusController)busTemp.getController()).setActiveBusFlag();
+                    if( busData.getBusCode().equals(activeBusCode) ) ((BusController)busTemp.getController()).setActiveBusFlag();
                     addBus( busTemp);
                 } else {
                     busList.get(busData.getBusCode()).setDiff( busData.getDiff() );
@@ -115,10 +116,10 @@ public class MainScreenController implements Initializable {
     }
 
     private void kahyaActionStart(){
-        String busCode = Common.regexTrim(uiBusCodeInput.getText()), out;
+        String busCode = Common.regexTrim(uiBusCodeInput.getText());
         if( busCode.equals("") ) return;
-        out = ( busCode.contains("-") ) ? busCode.toUpperCase() : busCode.substring(0,1).toUpperCase() + "-" + busCode.substring(1).toUpperCase();
-        actionListener.onStart( out );
+        activeBusCode = ( busCode.contains("-") ) ? busCode.toUpperCase() : busCode.substring(0,1).toUpperCase() + "-" + busCode.substring(1).toUpperCase();
+        actionListener.onStart( activeBusCode );
     }
 
     public void setActionListener( KahyaActionListener listener ){
