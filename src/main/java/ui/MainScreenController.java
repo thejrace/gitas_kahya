@@ -29,6 +29,7 @@ public class MainScreenController implements Initializable {
     @FXML private Label uiRouteLabel;
     @FXML private Label uiLastUpdatedLabel;
     @FXML private Label uiErrorLabel;
+    @FXML private Label uiStatusLabel;
 
     protected ObservableList<Node> dataRowsTemp;
 
@@ -113,6 +114,10 @@ public class MainScreenController implements Initializable {
             uiErrorLabel.setText("");
             uiRouteLabel.setText(route);
         });
+    }
+
+    public void updateStatus( String msg ){
+        Platform.runLater( () -> { uiStatusLabel.setText(msg); });
     }
 
     private void kahyaActionStart(){

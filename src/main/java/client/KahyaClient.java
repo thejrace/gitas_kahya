@@ -55,6 +55,8 @@ public class KahyaClient {
         errorMessage = "";
         output = new ArrayList<>(); // reset
 
+        statusListener.onNotify("start action...");
+
         JSONObject oaddData = request( new JSONObject("{ \"req\":\"oadd_download\", \"bus_code\":\""+activeBusCode+"\" }").toString() );
         if( debugFlag )  System.out.println(oaddData.toString());
 
@@ -91,6 +93,8 @@ public class KahyaClient {
                 JSONObject stopData = request( new JSONObject("{ \"req\":\"route_stops_download\", \"route\":\""+oaddData.getString("route")+"\" }").toString() );
                 JSONArray routeStopData = stopData.getJSONArray("stops");
 
+                statusListener.onNotify("RING: durak download...");
+
                 int[] dirs = { RouteDirection.FORWARD, RouteDirection.BACKWARD };
                 JSONObject stopDataTemp;
                 JSONArray tempStops;
@@ -121,6 +125,7 @@ public class KahyaClient {
             // compareDirections method.
             // #NOTE3: this loop won't trigger the UI listeners until activeBus's direction is found
             while( true ){
+                statusListener.onNotify("RING: yön loop...");
                 requestFleetData();
                 if( debugFlag ) System.out.println(fleetStopsData.size());
                 if( debugFlag ) System.out.println(fleetDirections.size());
@@ -162,6 +167,7 @@ public class KahyaClient {
                                 if(  stops.get(RouteDirection.FORWARD).get(x).equals( stops.get(RouteDirection.FORWARD).get(prevActiveStopIndexData.get(entry.getKey())) ) ){
                                     // if active bus direction is found, we dont put it in fleetDirections, we update the class properties
                                     if( entry.getKey().equals(activeBusCode)) {
+                                        // @FIX aktif otobusun yönü değişince sıçıyor suan
                                         activeBusStopNo = fetchStopNo(fleetStopsData.get(entry.getKey()));
                                         activeBusStop = fleetStopsData.get(entry.getKey());
                                         activeBusDirection = RouteDirection.FORWARD;
@@ -191,10 +197,14 @@ public class KahyaClient {
                     }
                     // if active busses direction is not found, we dont update UI
                     if( activeBusDirection != RouteDirection.RING ){
+                        statusListener.onNotify("RING: durak farkları hesaplanıyor..");
                         compareDirections();
+                        statusListener.onNotify("RING: updateUI");
                         try{
                             listener.onFinish();
                         } catch( NullPointerException e ){ }
+                    } else {
+                        statusListener.onNotify("RING: aktif otobüs yön bulunmamış..");
                     }
                 }
                 if( counter == 0 ) counter++;
@@ -205,6 +215,7 @@ public class KahyaClient {
                 }
             }
         } else {
+            statusListener.onNotify("NORMAL: filo tarama yapılıyor..");
             // for normal routes, find other busses' directions
             requestFleetData(  );
             for (Map.Entry<String, ArrayList<RunData>> entry : fleetRunData.entrySet()) {
@@ -233,8 +244,10 @@ public class KahyaClient {
                     }
                 }
             }
+            statusListener.onNotify("NORMAL: durak farkları hesaplanıyor..");
             compareDirections();
             try{
+                statusListener.onNotify("NORMAL: updateUI");
                 listener.onFinish();
             } catch( NullPointerException e ){ }
         }
@@ -288,7 +301,6 @@ public class KahyaClient {
     }
 
     private void requestFleetData(){
-
         // request all bus data working on the route
         JSONObject fleetData;
         if( ringRouteFlag ){
@@ -333,7 +345,6 @@ public class KahyaClient {
             if( !ringRouteFlag ) Collections.sort(fleetRunData.get(key), new RunNoComparator() ); // sort by run no
         }
     }
-
 
     public static JSONObject request( String data ){
         try {
@@ -385,14 +396,6 @@ public class KahyaClient {
         }
     };
 
-    public Map<String, Integer> getFleetDirections(){
-        return fleetDirections;
-    }
-
-    public void setFleetDirections( Map<String, Integer> dirs ){
-        fleetDirections = dirs;
-    }
-
     public ArrayList<UIBusData> getOutput(){
         return output;
     }
@@ -401,9 +404,14 @@ public class KahyaClient {
         return new UIBusData(activeBusCode, activeBusStop, activeBusStopNo, "" );
     }
 
-    public void addListener( ClientFinishListener listener ){
+    public void setUIListener( ClientFinishListener listener ){
         this.listener = listener;
     }
+
+    public void setStatusListener(StatusListener statusListener) {
+        this.statusListener = statusListener;
+    }
+
     private int fetchStopNo( String stop ){
         try {
             return Integer.valueOf(stop.substring(0, stop.indexOf('-')));

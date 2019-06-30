@@ -44,12 +44,12 @@ public class MainScreen extends Application {
                     threadFlags.put(busCode, true);
 
                     client = new KahyaClient(busCode);
-                    client.addListener(new ClientFinishListener() {
-                        @Override
-                        public void onFinish() {
-                            controller.update( client.getActiveBusData(), client.getOutput() );
-                            controller.setRoute(client.getRoute());
-                        }
+                    client.setUIListener( () -> {
+                        controller.update( client.getActiveBusData(), client.getOutput() );
+                        controller.setRoute(client.getRoute());
+                    });
+                    client.setStatusListener( message -> {
+                        controller.updateStatus(message);
                     });
                     Thread clientThread = new Thread(new Runnable() {
                         @Override
