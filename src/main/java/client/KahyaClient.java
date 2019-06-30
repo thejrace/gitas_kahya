@@ -157,7 +157,7 @@ public class KahyaClient {
                                 Alvarlızade Camii    Ümraniye Eğitim. Arş
 
                                 stops = [ ..., Kavacık Mezarlık, Alvarlızade Camii, Ümraniye Eğitim. Arş, ... ]
-                                                                                              A
+                                                                                              ^
                                                                                               |
                                                                               <---  from here scan backwards
                                 - In this case Alvarlızade Camii is found, so we can say bus goes forward.
@@ -260,6 +260,7 @@ public class KahyaClient {
             System.out.println("Active BUS: " + activeBusCode + " DIR: " + activeBusDirection );
             System.out.println(fleetDirections);
         }
+        bussesWithSameDirection = new ArrayList<>(); // reset
         // find other busses with same direction with activeBus
         for (Map.Entry<String, Integer> entry : fleetDirections.entrySet()) {
             if( entry.getValue() == activeBusDirection ){
