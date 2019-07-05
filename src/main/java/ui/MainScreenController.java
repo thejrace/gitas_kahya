@@ -110,6 +110,7 @@ public class MainScreenController implements Initializable {
                 }
             }
             sort();
+            //@todo burda olan otobus, kahyaclient ten gelmediyse UI den uçur
             uiLastUpdatedLabel.setText(Common.getDateTime());
             uiErrorLabel.setText("");
             uiRouteLabel.setText(route);

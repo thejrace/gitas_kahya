@@ -32,6 +32,7 @@ public class KahyaClient {
     private boolean errorFlag = false;
     private String errorMessage;
     private boolean debugFlag = true;
+    private boolean activeBusDirectionFoundFlag = false;
 
     private ArrayList<UIBusData> output = new ArrayList<>();
     private ClientFinishListener listener;
@@ -166,11 +167,15 @@ public class KahyaClient {
                             for( int x = activeStopIndex - 1; x > 0; x-- ){
                                 if(  stops.get(RouteDirection.FORWARD).get(x).equals( stops.get(RouteDirection.FORWARD).get(prevActiveStopIndexData.get(entry.getKey())) ) ){
                                     // if active bus direction is found, we dont put it in fleetDirections, we update the class properties
-                                    if( entry.getKey().equals(activeBusCode)) {
+                                    if( entry.getKey().equals(activeBusCode)  ) {
                                         // @FIX aktif otobusun yönü değişince sıçıyor suan
                                         activeBusStopNo = fetchStopNo(fleetStopsData.get(entry.getKey()));
                                         activeBusStop = fleetStopsData.get(entry.getKey());
-                                        activeBusDirection = RouteDirection.FORWARD;
+                                        if( !activeBusDirectionFoundFlag ) { // @todo: sefer bittiginde vs. bunun sifirlayacagiz
+                                            activeBusDirection = RouteDirection.FORWARD;
+                                            activeBusDirectionFoundFlag = true;
+                                        }
+
                                     } else {
                                         fleetDirections.put(entry.getKey(), RouteDirection.FORWARD);
                                         if( debugFlag ) System.out.println(entry.getKey() + "  GİDİŞ");
@@ -183,7 +188,10 @@ public class KahyaClient {
                                 if( entry.getKey().equals(activeBusCode)) {
                                     activeBusStopNo = fetchStopNo(fleetStopsData.get(entry.getKey()));
                                     activeBusStop = fleetStopsData.get(entry.getKey());
-                                    activeBusDirection = RouteDirection.BACKWARD;
+                                    if( !activeBusDirectionFoundFlag ) {
+                                        activeBusDirection = RouteDirection.BACKWARD;
+                                        activeBusDirectionFoundFlag = true;
+                                    }
                                 } else {
                                     fleetDirections.put(entry.getKey(), RouteDirection.BACKWARD);
                                 }
