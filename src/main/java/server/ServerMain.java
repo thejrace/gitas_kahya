@@ -10,8 +10,10 @@ public class ServerMain extends Application {
     @Override
     public void start(Stage primaryStage ) throws Exception{
 
-        Filo_Captcha_Scene captchaScene = new Filo_Captcha_Scene();
-        captchaScene.start(new Stage());
+            RouteIntersection.action();
+
+//        Filo_Captcha_Scene captchaScene = new Filo_Captcha_Scene();
+//        captchaScene.start(new Stage());
 
     }
 

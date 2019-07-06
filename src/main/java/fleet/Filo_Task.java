@@ -6,7 +6,7 @@ import org.jsoup.nodes.Document;
 
 import java.io.IOException;
 
-class Filo_Task {
+public class Filo_Task {
 
     protected JSONObject output = new JSONObject();
     protected boolean errorFlag = false;
