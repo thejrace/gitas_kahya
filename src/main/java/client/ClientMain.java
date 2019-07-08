@@ -1,7 +1,9 @@
 package client;
 
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.stage.Stage;
+import server.StealCookie;
 import ui.MainScreen;
 
 public class ClientMain extends Application {
@@ -9,8 +11,19 @@ public class ClientMain extends Application {
     @Override
     public void start(Stage primaryStage ) throws Exception{
 
-        MainScreen mainScreen = new MainScreen();
-        mainScreen.start(new Stage());
+
+        StealCookie stealCookie = new StealCookie();
+        stealCookie.addListener(() -> {
+            Platform.runLater(()-> {
+                try {
+                    MainScreen mainScreen = new MainScreen();
+                    mainScreen.start(new Stage());
+                } catch ( Exception e ){
+                    e.printStackTrace();
+                }
+            });
+        });
+        stealCookie.action();
 
     }
 

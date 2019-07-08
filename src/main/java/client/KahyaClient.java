@@ -1,13 +1,12 @@
 package client;
 
-import fleet.ClientFinishListener;
-import fleet.RouteDirection;
-import fleet.RunData;
-import fleet.UIBusData;
+import fleet.*;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import server.RouteStopsDownload;
 import utils.RunNoComparator;
+import utils.Web_Request;
 
 import java.io.*;
 import java.net.InetAddress;
@@ -58,7 +57,8 @@ public class KahyaClient {
 
         statusListener.onNotify("start action...");
 
-        JSONObject oaddData = request( new JSONObject("{ \"req\":\"oadd_download\", \"bus_code\":\""+activeBusCode+"\" }").toString() );
+        //JSONObject oaddData = request( new JSONObject("{ \"req\":\"oadd_download\", \"bus_code\":\""+activeBusCode+"\" }").toString() );
+        JSONObject oaddData = oaddDownload();
         if( debugFlag )  System.out.println(oaddData.toString());
 
         if( oaddData.has("error") ){
@@ -91,8 +91,11 @@ public class KahyaClient {
 
             // for ring routes, we need route stops to determine directions
             if( stops.get(RouteDirection.FORWARD).size() == 0 && stops.get(RouteDirection.BACKWARD).size() == 0 ){
-                JSONObject stopData = request( new JSONObject("{ \"req\":\"route_stops_download\", \"route\":\""+oaddData.getString("route")+"\" }").toString() );
-                JSONArray routeStopData = stopData.getJSONArray("stops");
+                //JSONObject stopData = request( new JSONObject("{ \"req\":\"route_stops_download\", \"route\":\""+oaddData.getString("route")+"\" }").toString() );
+                //JSONObject stopData = routeStopsDownload();
+                //JSONArray routeStopData = stopData.getJSONArray("stops");
+
+                JSONArray routeStopData = routeStopsDownload();
 
                 statusListener.onNotify("RING: durak download...");
 
@@ -311,13 +314,27 @@ public class KahyaClient {
 
     private void requestFleetData(){
         // request all bus data working on the route
-        JSONObject fleetData;
+        JSONObject fleetData = new JSONObject();
         if( ringRouteFlag ){
-            fleetData = request( new JSONObject("{ \"req\":\"download_fleet_data\", \"route\":\""+route+"\", \"only_stops_flag\":true }").toString() );
+            //fleetData = requestFormIETT( new JSONObject("{ \"req\":\"download_fleet_data\", \"route\":\""+route+"\", \"only_stops_flag\":true }").toString() );
+
+            RouteFleetDownload routeFleetDownload = new RouteFleetDownload(route);
+            routeFleetDownload.setFetchOnlyStopsFlag(true);
+            routeFleetDownload.action();
+            if( !routeFleetDownload.getErrorFlag() ){
+                fleetData = routeFleetDownload.getOutput();
+            }
+
         } else {
-            fleetData = request( new JSONObject("{ \"req\":\"download_fleet_data\", \"route\":\""+route+"\" }").toString() );
+            //fleetData = requestFormIETT( new JSONObject("{ \"req\":\"download_fleet_data\", \"route\":\""+route+"\" }").toString() );
+            RouteFleetDownload routeFleetDownload = new RouteFleetDownload(route);
+            routeFleetDownload.action();
+            if( !routeFleetDownload.getErrorFlag() ){
+                fleetData = routeFleetDownload.getOutput();
+            }
         }
-        if( fleetData.has("error") ){
+
+        /*if( fleetData.has("error") ){
             try {
                 errorMessage = fleetData.getString("message");
             } catch( JSONException e ){
@@ -326,7 +343,9 @@ public class KahyaClient {
             }
             errorFlag = true;
             return;
-        }
+        }*/
+
+
         // list fleets rundata
         Iterator<String> busCodes = fleetData.keys();
         JSONArray tempData;
@@ -355,7 +374,24 @@ public class KahyaClient {
         }
     }
 
-    public static JSONObject request( String data ){
+    public JSONArray routeStopsDownload(){
+        RouteStopsDownload routestopDownload = new RouteStopsDownload( route );
+        return routestopDownload.action();
+    }
+
+    private JSONObject oaddDownload(){
+        fleet.OADDDownload oaddDownload = new fleet.OADDDownload(activeBusCode);
+        oaddDownload.action();
+        return oaddDownload.getOutput();
+    }
+
+    public static JSONObject requestFromServer( String data ){
+        Web_Request request = new Web_Request(Web_Request.SERVIS_URL, data );
+        request.action();
+        return new JSONObject(request.get_value());
+    }
+
+    public static JSONObject requestServer( String data ){
         try {
             System.out.println("CLIENT_ACTION_STARTED");
             String host = "localhost";

@@ -3,6 +3,7 @@ package fleet;
 import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import server.StealCookie;
 
 import java.io.IOException;
 
@@ -16,7 +17,7 @@ public class Filo_Task {
     protected org.jsoup.Connection.Response istek_yap( String url ){
         try {
             return Jsoup.connect(url + oto)
-                    .cookie("PHPSESSID", Filo_Captcha_Controller.filo5_cookie )
+                    .cookie("PHPSESSID", StealCookie.FILO5_COOKIE)
                     .method(org.jsoup.Connection.Method.POST)
                     .timeout(40*1000)
                     .execute();
