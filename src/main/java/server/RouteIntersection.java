@@ -80,9 +80,9 @@ public class RouteIntersection extends Filo_Task {
             for( Map.Entry<String, IntersectionData> entry : intersections.entrySet() ){
                 IntersectionData data = entry.getValue();
                 if( !checked.contains(data.getComparedRoute()+"|"+data.getActiveRoute()+"|"+data.getDirection())){
-
                     System.out.println(entry.getValue().toString() + "   " + matchCounts.get(data.getActiveRoute()+"|"+data.getComparedRoute()+"|"+data.getDirection()) );
                     checked.add(data.getActiveRoute()+"|"+data.getComparedRoute()+"|"+data.getDirection());
+                    //ImportIntersectionData.action(data);
                 }
             }
         });
@@ -136,6 +136,28 @@ public class RouteIntersection extends Filo_Task {
     }
 
 
+}
+
+class ImportIntersectionData {
+    public static void action( IntersectionData data ){
+
+        Connection connection;
+        try {
+            connection = DBC.getInstance().getConnection();
+            PreparedStatement ps = connection.prepareStatement("INSERT INTO hat_kesisim ( aktif_hat, kesisen_hat, yon, durak_adi ) VALUES ( ?, ?, ?, ? )");
+            ps.setString(1, data.getActiveRoute());
+            ps.setString(2, data.getComparedRoute());
+            ps.setInt(3, data.getDirection());
+            ps.setString(4, data.getIntersectedAt());
+            ps.executeUpdate();
+
+            ps.close();
+            connection.close();
+        } catch( SQLException e ){
+            e.printStackTrace();
+        }
+
+    }
 }
 
 
