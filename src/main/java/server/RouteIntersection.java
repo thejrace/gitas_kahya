@@ -64,7 +64,8 @@ public class RouteIntersection extends Filo_Task {
                                     }
                                     if( !leave ){
                                         if( !intersections.containsKey(key ) ){
-                                            intersections.put(key, new IntersectionData(activeRoute, comparedRoute, activeStop, l));
+                                            int totalDiff = routeStops.get(activeRoute).get(l).size() - routeStops.get(comparedRoute).get(l).size();
+                                            intersections.put(key, new IntersectionData(activeRoute, comparedRoute, activeStop, l, totalDiff));
                                         }
                                         break;
                                     }
@@ -144,11 +145,13 @@ class ImportIntersectionData {
         Connection connection;
         try {
             connection = DBC.getInstance().getConnection();
-            PreparedStatement ps = connection.prepareStatement("INSERT INTO hat_kesisim ( aktif_hat, kesisen_hat, yon, durak_adi ) VALUES ( ?, ?, ?, ? )");
+            PreparedStatement ps = connection.prepareStatement("INSERT INTO hat_kesisim ( aktif_hat, kesisen_hat, yon, durak_adi, total_diff ) VALUES ( ?, ?, ?, ?, ? )");
             ps.setString(1, data.getActiveRoute());
             ps.setString(2, data.getComparedRoute());
             ps.setInt(3, data.getDirection());
+
             ps.setString(4, data.getIntersectedAt());
+            ps.setInt(5, data.getTotalDiff());
             ps.executeUpdate();
 
             ps.close();

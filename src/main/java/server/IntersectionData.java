@@ -5,17 +5,22 @@ import fleet.RouteDirection;
 public class IntersectionData {
     private String activeRoute, comparedRoute, intersectedAt;
 
+
+
+    private int totalDiff;
+
     public int getDirection() {
         return direction;
     }
 
     private int direction;
 
-    public IntersectionData( String activeRoute, String comparedRoute, String intersectedAt, int direction ){
+    public IntersectionData( String activeRoute, String comparedRoute, String intersectedAt, int direction, int totalDiff ){
         this.activeRoute = activeRoute;
         this.comparedRoute = comparedRoute;
         this.intersectedAt = intersectedAt;
         this.direction = direction;
+        this.totalDiff = totalDiff;
     }
 
     public String getActiveRoute() {
@@ -44,6 +49,14 @@ public class IntersectionData {
 
     public String toString(){
         return activeRoute + "|" + comparedRoute + " - @"+intersectedAt + " - DIR:"+ RouteDirection.returnText(direction);
+    }
+
+    public int getTotalDiff() {
+        return totalDiff;
+    }
+
+    public void setTotalDiff(int totalDiff) {
+        this.totalDiff = totalDiff;
     }
 
 }

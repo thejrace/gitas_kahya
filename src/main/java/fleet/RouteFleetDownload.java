@@ -25,11 +25,16 @@ public class RouteFleetDownload extends Filo_Task {
 
     public void action(){
         for( int k = 0; k < routes.size(); k++ ){
-            org.jsoup.Connection.Response request = istek_yap("https://filotakip.iett.gov.tr/_FYS/000/sorgu.php?konum=ana&konu=sefer&hat="+routes.get(k));
-            Document document = parse_html( request );
-            parseData( document );
+            try {
+                org.jsoup.Connection.Response request = istek_yap("https://filotakip.iett.gov.tr/_FYS/000/sorgu.php?konum=ana&konu=sefer&hat="+routes.get(k));
+                Document document = parse_html( request );
+                parseData( document );
+            } catch( Exception e ){
+                e.printStackTrace();
+            }
+
         }
-        System.out.println(output);
+        System.out.println(" =======> " + output);
     }
 
     public void parseData( Document document ){
@@ -40,7 +45,7 @@ public class RouteFleetDownload extends Filo_Task {
             e.printStackTrace();
             errorMessage = "Document is empty.";
             errorFlag = true;
-            return;
+
         }
         Elements table = null;
         Elements rows = null;
@@ -51,87 +56,88 @@ public class RouteFleetDownload extends Filo_Task {
             table = document.select("table");
             rows = table.select("tr");
             int rowsSize = rows.size();
-            if (rowsSize == 0) return;
-            if (rowsSize == 1) {
+            if ( rowsSize == 0 || rowsSize == 1) {
                 errorMessage = "No data to fetch.";
                 errorFlag = true;
-                return;
-            }
-            JSONObject runTemp;
-            String busCode;
-            String route = "";
-            String statusText;
-            String status;
-            String statusCode;
-            boolean addToOutputFlag = false;
-            boolean routeFetchedFlag = false;
-            for (int i = 1; i < rowsSize; i++) {
-                row = rows.get(i);
-                cols = row.select("td");
 
-                addToOutputFlag = false; // reset the active run flag
+            } else {
+                JSONObject runTemp;
+                String busCode;
+                String route = "";
+                String statusText;
+                String status;
+                String statusCode;
+                boolean addToOutputFlag = false;
+                boolean routeFetchedFlag = false;
+                for (int i = 1; i < rowsSize; i++) {
+                    row = rows.get(i);
+                    cols = row.select("td");
 
-                busCode = Common.regexTrim(cols.get(5).text());
+                    addToOutputFlag = false; // reset the active run flag
 
-                statusText = "";
-                status = "";
-                statusCode = "";
-                try {
-                    statusText = cols.get(14).text();
-                    status = statusText.substring(0,1);
-                    statusCode = statusText.substring(2, statusText.length());
-                } catch (StringIndexOutOfBoundsException e ){
-                    //e.printStackTrace();
-                }
+                    busCode = Common.regexTrim(cols.get(5).text());
 
-                runTemp = new JSONObject();
-                runTemp.put("bus_code", busCode);
+                    statusText = "";
+                    status = "";
+                    statusCode = "";
+                    try {
+                        statusText = cols.get(14).text();
+                        status = statusText.substring(0,1);
+                        statusCode = statusText.substring(2, statusText.length());
+                    } catch (StringIndexOutOfBoundsException e ){
+                        //e.printStackTrace();
+                    }
 
-                if( !routeFetchedFlag ){
-                    route = cols.get(2).text().trim();
-                    if( cols.get(2).text().trim().contains("!")  ){
-                        route = cols.get(2).text().trim().substring(3, cols.get(2).text().trim().length() - 1 );
-                    } else if( cols.get(2).text().trim().contains("#") ) {
-                        route = cols.get(2).text().trim().substring(3, cols.get(2).text().trim().length() - 1 );
-                    } else  if( cols.get(2).text().trim().contains("*") ){
-                        route = cols.get(2).text().trim().substring(3, cols.get(2).text().trim().length() - 1);
+                    runTemp = new JSONObject();
+                    runTemp.put("bus_code", busCode);
+
+                    if( !routeFetchedFlag ){
+                        route = cols.get(2).text().trim();
+                        if( cols.get(2).text().trim().contains("!")  ){
+                            route = cols.get(2).text().trim().substring(3, cols.get(2).text().trim().length() - 1 );
+                        } else if( cols.get(2).text().trim().contains("#") ) {
+                            route = cols.get(2).text().trim().substring(3, cols.get(2).text().trim().length() - 1 );
+                        } else  if( cols.get(2).text().trim().contains("*") ){
+                            route = cols.get(2).text().trim().substring(3, cols.get(2).text().trim().length() - 1);
+                        } else {
+                            route = route.substring(2, route.length());
+                        }
+                        routeFetchedFlag = true;
+                    }
+
+                    if( fetchOnlyStopsFlag ){
+                        // for ring runs we only need active stop data of the busses.
+                        // therefore, status and status_checks are done here.
+                        if( status.equals("A") && !statusCode.equals("CA") ){
+                            runTemp.put("stop", cols.get(15).text() );
+                            runTemp.put("route",route );
+                            addToOutputFlag = true;
+                        }
                     } else {
-                        route = route.substring(2, route.length());
-                    }
-                    routeFetchedFlag = true;
-                }
 
-                if( fetchOnlyStopsFlag ){
-                    // for ring runs we only need active stop data of the busses.
-                    // therefore, status and status_checks are done here.
-                    if( status.equals("A") && !statusCode.equals("CA") ){
+
+
+
+                        // for normal runs we need all run data of the all busses to determine route direction
+                        // using route_details data.
+                        // status and status_text checks are done in the KahyaClient
+                        runTemp.put("dep_time", Common.regexTrim(cols.get(9).getAllElements().get(2).text()));
+                        runTemp.put("no", Common.regexTrim(cols.get(0).text()));
                         runTemp.put("stop", cols.get(15).text() );
-                        runTemp.put("route",route );
-                        addToOutputFlag = true;
+                        runTemp.put("route", route );
+                        runTemp.put("route_details", Common.regexTrim(cols.get(4).getAllElements().get(1).text()));
+                        runTemp.put("status", status);
+                        runTemp.put("status_code", statusCode);
+                        addToOutputFlag = true; // this is true for all for normal case
                     }
-                } else {
 
-
-
-
-                    // for normal runs we need all run data of the all busses to determine route direction
-                    // using route_details data.
-                    // status and status_text checks are done in the KahyaClient
-                    runTemp.put("dep_time", Common.regexTrim(cols.get(9).getAllElements().get(2).text()));
-                    runTemp.put("no", Common.regexTrim(cols.get(0).text()));
-                    runTemp.put("stop", cols.get(15).text() );
-                    runTemp.put("route", route );
-                    runTemp.put("route_details", Common.regexTrim(cols.get(4).getAllElements().get(1).text()));
-                    runTemp.put("status", status);
-                    runTemp.put("status_code", statusCode);
-                    addToOutputFlag = true; // this is true for all for normal case
-                }
-
-                if( addToOutputFlag ) {
-                    if( output.isNull(busCode) ) output.put(busCode, new JSONArray() );
-                    output.getJSONArray(busCode).put( runTemp );
+                    if( addToOutputFlag ) {
+                        if( output.isNull(busCode) ) output.put(busCode, new JSONArray() );
+                        output.getJSONArray(busCode).put( runTemp );
+                    }
                 }
             }
+
         } catch( Exception e ){
             e.printStackTrace();
         }

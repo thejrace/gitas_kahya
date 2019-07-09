@@ -23,6 +23,7 @@ public class FetchRouteIntersections {
                 tempData.put("intersected_route", res.getString("kesisen_hat"));
                 tempData.put("direction",res.getInt("yon"));
                 tempData.put("stop_name",res.getString("durak_adi"));
+                tempData.put("total_diff",res.getInt("total_diff"));
                 output.put(tempData);
             }
             res.close();

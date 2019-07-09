@@ -31,6 +31,7 @@ public class Filo_Task {
         try {
             return req.parse();
         } catch( IOException | NullPointerException e ){
+            e.printStackTrace();
             //System.out.println(  "["+Common.get_current_hmin() + "]  "+ aktif_tarih  + " " +  oto + " "+ logprefix + " parse hatası. Tekrar deneniyor.");
         }
         return null;

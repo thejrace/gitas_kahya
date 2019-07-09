@@ -14,6 +14,9 @@ public class RunData {
     private String statusCode;
     private int departureNo;
 
+
+    private int direction;
+
     public RunData( String busCode, String route, int departureNo, String currentStop, String departureTime, String routeDetails, String status, String statusCode ){
         this.busCode = busCode;
         this.route = route;
@@ -30,6 +33,20 @@ public class RunData {
         this.busCode = busCode;
         this.route = route;
         this.currentStop = currentStop;
+    }
+
+    public RunData( String busCode, String route, int direction ){
+        this.busCode = busCode;
+        this.route = route;
+        this.direction = direction;
+    }
+
+    public int getDirection() {
+        return direction;
+    }
+
+    public void setDirection(int direction) {
+        this.direction = direction;
     }
 
 
