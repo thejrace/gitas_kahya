@@ -23,3 +23,5 @@
 *.iml
 .idea/
 out/
+
+.kotlin_module
