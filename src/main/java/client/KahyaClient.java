@@ -241,7 +241,6 @@ public class KahyaClient {
             // for normal routes, find other busses' directions
             requestFleetData();
             for (Map.Entry<String, ArrayList<RunData>> entry : fleetRunData.entrySet()) {
-                System.out.println(entry.getKey() +"  " + entry.getValue().get(0).getRoute() );
                 //System.out.println(entry.getValue());
                 ArrayList<String> tempDirectionDetails = new ArrayList<>();
                 int activeRunIndex = 0;
@@ -336,6 +335,7 @@ public class KahyaClient {
     private void requestFleetData(){
         // request all bus data working on the route
         JSONObject fleetData = new JSONObject();
+        fleetRunData = new HashMap<>();
         if( activeBusDirection > -1 && !activeBusStop.equals("N/A")){
             // if we know the direction, we can look at the intersections
             for( IntersectionData intersectionData : routeIntersections ){
@@ -369,6 +369,7 @@ public class KahyaClient {
                 RouteFleetDownload routeFleetDownload = new RouteFleetDownload(routesToDownload);
                 routeFleetDownload.action();
                 fleetData = routeFleetDownload.getOutput();
+                System.out.println(fleetData);
             } catch( Exception e ){
                 e.printStackTrace();
             }
