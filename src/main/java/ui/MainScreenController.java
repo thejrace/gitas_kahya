@@ -97,6 +97,7 @@ public class MainScreenController implements Initializable {
         Platform.runLater(() -> {
             activeBusPos = activeBusData.getDiff() * splitCount;
             for( UIBusData busData : fleetBusData ){
+                System.out.println("UIACTION = " + busData.getBusCode() + "  @  " + busData.getDiff());
                 if( !busList.containsKey(busData.getBusCode())){
                     Bus busTemp = new Bus(busData.getBusCode(), busData.getStop() +  " - " + busData.getRouteDetails(), busData.getDiff() );
                     busTemp.getUI().setId(String.valueOf(busTemp.getDiff()));

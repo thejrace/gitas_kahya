@@ -43,10 +43,13 @@ public class MainScreen extends Application {
                     threadFlags.put(prevBusCode, false);
                     threadFlags.put(busCode, true);
 
+                    System.out.println(client);
+                    if( client != null ) client.shutdown();
+
                     client = new KahyaClient(busCode);
                     client.setUIListener( () -> {
                         controller.update( client.getActiveBusData(), client.getOutput() );
-                        controller.setRoute(client.getRoute());
+                        controller.setRoute(client.getRoutes());
                     });
                     client.setStatusListener( message -> {
                         controller.updateStatus(message);

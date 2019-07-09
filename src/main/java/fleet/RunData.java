@@ -8,11 +8,15 @@ public class RunData {
     private String routeDetails;
     private String status;
 
+
+    private String route;
+
     private String statusCode;
     private int departureNo;
 
-    public RunData( String busCode, int departureNo, String currentStop, String departureTime, String routeDetails, String status, String statusCode ){
+    public RunData( String busCode, String route, int departureNo, String currentStop, String departureTime, String routeDetails, String status, String statusCode ){
         this.busCode = busCode;
+        this.route = route;
         this.departureNo = departureNo;
         this.currentStop = currentStop;
         this.departureTime = departureTime;
@@ -20,6 +24,14 @@ public class RunData {
         this.status = status;
         this.statusCode = statusCode;
     }
+
+    // ring
+    public RunData( String busCode, String route,String currentStop ){
+        this.busCode = busCode;
+        this.route = route;
+        this.currentStop = currentStop;
+    }
+
 
     public int getDepartureNo() {
         return departureNo;
@@ -75,6 +87,14 @@ public class RunData {
 
     public void setStatusCode(String statusCode) {
         this.statusCode = statusCode;
+    }
+
+    public String getRoute() {
+        return route;
+    }
+
+    public void setRoute(String route) {
+        this.route = route;
     }
 
 
