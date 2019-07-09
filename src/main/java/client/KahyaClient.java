@@ -112,7 +112,7 @@ public class KahyaClient {
                 for( int k = 0; k < tempStops.length(); k++ ){
                     if( tempStops.isNull(k) ) continue;
                     stopDataTemp = tempStops.getJSONObject(k);
-                    stops.get(dirs[j]).add(stopDataTemp.getString("name"));
+                    stops.get(dirs[j]).add(stopDataTemp.getString("isim"));
                 }
             }
             if( debugFlag ){
@@ -422,7 +422,7 @@ public class KahyaClient {
         JSONArray data = FetchRouteIntersections.action(route);
         for( int k = 0; k < data.length(); k++ ){
             JSONObject tempData = data.getJSONObject(k);
-            routeIntersections.add(new IntersectionData(route,tempData.getString("intersected_route"), tempData.getString("stop_name"), tempData.getInt("direction"),  tempData.getInt("total_diff")));
+            routeIntersections.add(new IntersectionData(route,tempData.getString("kesisen_hat"), tempData.getString("durak_adi"), tempData.getInt("yon"),  tempData.getInt("total_diff")));
         }
     }
 
