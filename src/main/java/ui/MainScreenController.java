@@ -87,6 +87,7 @@ public class MainScreenController implements Initializable {
                     return Integer.valueOf(vb1.getId()).compareTo(Integer.valueOf(vb2.getId()));
                 }
             });
+            Collections.reverse(dataRows);
             uiBusContainer.getChildren().setAll(dataRows);
         } catch (IndexOutOfBoundsException e ){
             e.printStackTrace();
