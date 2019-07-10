@@ -21,7 +21,7 @@ public class Filo_Task {
                     .method(org.jsoup.Connection.Method.POST)
                     .timeout(40*1000)
                     .execute();
-        } catch (IOException | NullPointerException e) {
+        } catch (Exception e) {
             //System.out.println( "["+Common.get_current_hmin() + "]  "+ aktif_tarih  + " " +  oto + " " + logprefix + "veri alım hatası. Tekrar deneniyor.");
             e.printStackTrace();
         }
@@ -30,7 +30,7 @@ public class Filo_Task {
     protected Document parse_html(org.jsoup.Connection.Response req ){
         try {
             return req.parse();
-        } catch( IOException | NullPointerException e ){
+        } catch( Exception e ){
             e.printStackTrace();
             //System.out.println(  "["+Common.get_current_hmin() + "]  "+ aktif_tarih  + " " +  oto + " "+ logprefix + " parse hatası. Tekrar deneniyor.");
         }
