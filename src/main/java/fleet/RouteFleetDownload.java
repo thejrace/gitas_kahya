@@ -29,7 +29,6 @@ public class RouteFleetDownload extends Filo_Task {
                 org.jsoup.Connection.Response request = istek_yap("https://filotakip.iett.gov.tr/_FYS/000/sorgu.php?konum=ana&konu=sefer&hat="+routes.get(k));
                 Document document = parse_html( request );
                 parseData( document );
-                System.out.println(routes.get(k) + " break");
             } catch( Exception e ){
                 e.printStackTrace();
             }
@@ -43,8 +42,7 @@ public class RouteFleetDownload extends Filo_Task {
         } catch( NullPointerException e ){
             e.printStackTrace();
             errorMessage = "Document is empty.";
-            errorFlag = true;
-
+            return;
         }
         Elements table = null;
         Elements rows = null;
@@ -57,8 +55,7 @@ public class RouteFleetDownload extends Filo_Task {
             int rowsSize = rows.size();
             if ( rowsSize == 0 || rowsSize == 1) {
                 errorMessage = "No data to fetch.";
-                errorFlag = true;
-
+                return;
             } else {
                 JSONObject runTemp;
                 String busCode;
@@ -71,11 +68,8 @@ public class RouteFleetDownload extends Filo_Task {
                 for (int i = 1; i < rowsSize; i++) {
                     row = rows.get(i);
                     cols = row.select("td");
-
                     addToOutputFlag = false; // reset the active run flag
-
                     busCode = Common.regexTrim(cols.get(5).text());
-
                     statusText = "";
                     status = "";
                     statusCode = "";
@@ -114,9 +108,6 @@ public class RouteFleetDownload extends Filo_Task {
                         }
                     } else {
 
-
-
-
                         // for normal runs we need all run data of the all busses to determine route direction
                         // using route_details data.
                         // status and status_text checks are done in the KahyaClient
@@ -129,7 +120,6 @@ public class RouteFleetDownload extends Filo_Task {
                         runTemp.put("status_code", statusCode);
                         addToOutputFlag = true; // this is true for all for normal case
                     }
-
                     if( addToOutputFlag ) {
                         if( output.isNull(busCode) ) output.put(busCode, new JSONArray() );
                         output.getJSONArray(busCode).put( runTemp );
@@ -140,7 +130,6 @@ public class RouteFleetDownload extends Filo_Task {
         } catch( Exception e ){
             e.printStackTrace();
         }
-        System.out.println(output);
     }
 
     public JSONObject getOutput(){
