@@ -42,10 +42,8 @@ public class MainScreen extends Application {
                     UIInit = false;
                     threadFlags.put(prevBusCode, false);
                     threadFlags.put(busCode, true);
-
-                    System.out.println(client);
+                    // if there is a previous client, kill it
                     if( client != null ) client.shutdown();
-
                     client = new KahyaClient(busCode);
                     client.setUIListener( () -> {
                         controller.update( client.getActiveBusData(), client.getOutput() );

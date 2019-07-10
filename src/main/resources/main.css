@@ -71,10 +71,10 @@
     -fx-font-weight:bold;
 }
 .forward .diff-label {
-    -fx-text-fill:#ec0606;
+    -fx-text-fill:#1dd519;
 }
 .backward .diff-label {
-    -fx-text-fill:#1dd519;
+    -fx-text-fill:#ec0606;
 }
 
 .active .diff-label {
@@ -89,10 +89,11 @@
 
 }
 .backward .led {
-    -fx-fill:#1dd519;
+
+    -fx-fill:#ec0606;
 }
 .forward .led {
-    -fx-fill:#ec0606;
+    -fx-fill:#1dd519;
 }
 .active .led {
     -fx-fill: #2f4bbc;
@@ -121,21 +122,21 @@
 }
 
 .bus-box.forward .bus-box-container {
-    -fx-border-color:#5c3434;
+    -fx-border-color:#3a5539;
 }
 
 .bus-box.backward .bus-box-container {
-    -fx-border-color:#3a5539;
+    -fx-border-color:#5c3434;
 }
 
 .bus-box .right .label {
     -fx-text-fill:#6d6d6d;
 }
 .bus-box.forward .left .label {
-    -fx-text-fill:#ff0000;
+    -fx-text-fill: #47ff3e;
 }
 .bus-box.backward .left .label {
-    -fx-text-fill: #47ff3e;
+    -fx-text-fill:#ff0000;
 }
 
 

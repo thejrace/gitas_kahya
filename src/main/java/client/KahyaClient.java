@@ -29,7 +29,7 @@ public class KahyaClient {
     private String route;
 
     private Map<Integer, ArrayList<String>> stops = new HashMap<>(); // holds the stops in form; [0: JSONARRAY{name, no}, 1: JSONARRAY{name, no}]
-    private ArrayList<IntersectionData> routeIntersections = new ArrayList<>(); // contains intersection data of the active route
+    private Map<String, IntersectionData> routeIntersections = new HashMap<>(); // contains intersection data of the active route
     private ArrayList<String> routesToDownload = new ArrayList<>(); // contains routes to scan including active route )
     private boolean ringRouteFlag = false;
 
@@ -48,6 +48,7 @@ public class KahyaClient {
     private Map<String, RunData> fleetDirections = new HashMap<>(); // array that holds fleet's direction information
     private Map<String, Integer> fleetActiveRunIndexes = new HashMap<>(); // holds active run index for fleet busses
     private Map<String, Integer> totalStopDiffs = new HashMap<>(); // holds stop count difference between active routes from parallel routes
+    private Map<String, Integer> intersectionIndexesInActiveRoute = new HashMap<>(); // holds the stop index of the intersections in active route stops list
 
     public KahyaClient( String busCode ) {
         this.activeBusCode = busCode;
@@ -173,7 +174,6 @@ public class KahyaClient {
                                             activeBusDirection = RouteDirection.FORWARD;
                                             activeBusDirectionFoundFlag = true;
                                         }
-
                                     } else {
                                         fleetDirections.put(entry.getKey(), new RunData( entry.getKey(), entry.getValue().getRoute(), RouteDirection.FORWARD) );
                                         if( debugFlag ) System.out.println(entry.getKey() + "  GİDİŞ");
@@ -267,20 +267,20 @@ public class KahyaClient {
     private void requestFleetData(){
         // request all bus data working on the route
         JSONObject fleetData = new JSONObject();
-        //fleetRunData = new HashMap<>();
+        fleetRunData = new HashMap<>();
         if( activeBusDirection > -1 && !activeBusStop.equals("N/A")){
             // if we know the direction, we can look at the intersections
-            for( IntersectionData intersectionData : routeIntersections ){
-                if( intersectionData.getDirection() != activeBusDirection || routesToDownload.contains(intersectionData.getComparedRoute())) continue;
+            for( Map.Entry<String, IntersectionData> entry : routeIntersections.entrySet() ){
+                if( entry.getValue().getDirection() != activeBusDirection || routesToDownload.contains(entry.getValue().getComparedRoute())) continue;
                 int activeStopIndex = 0, intersectionStopIndex = 0;
                 // check if activebus passed that stop or not
                 for( int k = 0; k < stops.get(activeBusDirection).size(); k++ ){
                     if( stops.get(activeBusDirection).get(k).equals(fetchStopName(activeBusStop)) ) activeStopIndex = k;
-                    if( stops.get(activeBusDirection).get(k).equals(intersectionData.getIntersectedAt()) ) intersectionStopIndex = k;
+                    if( stops.get(activeBusDirection).get(k).equals(entry.getValue().getIntersectedAt()) ) intersectionStopIndex = k;
                 }
                 if( activeStopIndex >= intersectionStopIndex ){
-                    routesToDownload.add(intersectionData.getComparedRoute());
-                    totalStopDiffs.put(intersectionData.getComparedRoute(), intersectionData.getTotalDiff());
+                    routesToDownload.add(entry.getValue().getComparedRoute());
+                    totalStopDiffs.put(entry.getValue().getComparedRoute(), entry.getValue().getTotalDiff());
                 }
             }
         }
@@ -366,9 +366,25 @@ public class KahyaClient {
                 if( debugFlag ) System.out.println(runData.getBusCode() + " @ " + stop.substring(0, stop.indexOf('-')) );
                 int diff;
                 if( !runData.getRoute().equals(route) ){
+                    // we only take the ones which are passed the intersection stop.
+                    // find the stop index where the intersection happens from active route's stop list
+                    int intersectionStopIndexActiveRoute = 0;
+                    if( intersectionIndexesInActiveRoute.containsKey(runData.getRoute())){ // check if previously found
+                        intersectionStopIndexActiveRoute = intersectionIndexesInActiveRoute.get(runData.getRoute());
+                    } else {
+                        for( int k = 0; k < stops.get(activeBusDirection).size(); k++ ){
+                            if( stops.get(activeBusDirection).get(k).equals(routeIntersections.get(runData.getRoute()).getIntersectedAt())  ){
+                                intersectionStopIndexActiveRoute = k + 1; // stops indexed from 1
+                                intersectionIndexesInActiveRoute.put(runData.getRoute(), intersectionStopIndexActiveRoute);
+                                break;
+                            }
+                        }
+                    }
+                    // sum the index with the total difference to find the stop index from intersection route's list
+                    intersectionStopIndexActiveRoute += ( -1 * routeIntersections.get(runData.getRoute()).getTotalDiff() );
+                    // if intersection route is not yet arrived the intersection point, we skip it
+                    if( fetchStopNo(stop) < intersectionStopIndexActiveRoute ) continue;
                     diff = fetchStopNo(stop) - activeBusStopNo + totalStopDiffs.get(runData.getRoute());
-                    if( activeBusDirection == RouteDirection.FORWARD && diff < 0 ) continue; // @todo FIXXX!!!
-                    if( activeBusDirection == RouteDirection.BACKWARD && diff > 0 ) continue; // @todo FIXXX!!!
                 } else {
                     diff = fetchStopNo(stop) - activeBusStopNo;
                 }
@@ -400,7 +416,7 @@ public class KahyaClient {
         JSONArray data = FetchRouteIntersections.action(route);
         for( int k = 0; k < data.length(); k++ ){
             JSONObject tempData = data.getJSONObject(k);
-            routeIntersections.add(new IntersectionData(route,tempData.getString("kesisen_hat"), tempData.getString("durak_adi"), tempData.getInt("yon"),  tempData.getInt("total_diff")));
+            routeIntersections.put(tempData.getString("kesisen_hat"), new IntersectionData(route,tempData.getString("kesisen_hat"), tempData.getString("durak_adi"), tempData.getInt("yon"),  tempData.getInt("total_diff")));
         }
     }
 
