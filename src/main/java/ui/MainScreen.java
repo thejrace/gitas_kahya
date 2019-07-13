@@ -4,10 +4,13 @@ import client.KahyaActionListener;
 import client.KahyaClient;
 import fleet.ClientFinishListener;
 import javafx.application.Application;
+import javafx.application.Platform;
+import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 import utils.StringSimilarity;
 
 import java.util.HashMap;
@@ -83,6 +86,15 @@ public class MainScreen extends Application {
                     prevBusCode = busCode;
                 }
             });
+
+           primaryStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
+                @Override
+                public void handle(WindowEvent e) {
+                    Platform.exit();
+                    System.exit(0);
+                }
+            });
+
         } catch( Exception e ){
             e.printStackTrace();
         }
