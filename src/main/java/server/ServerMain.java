@@ -5,6 +5,7 @@ import fleet.RouteFleetDownload;
 import javafx.application.Application;
 import javafx.stage.Stage;
 import org.json.JSONObject;
+import utils.StringSimilarity;
 
 import java.util.ArrayList;
 
@@ -50,8 +51,6 @@ public class ServerMain extends Application {
         });
         th.setDaemon(true);
         //th.start();
-
-
     }
 
 

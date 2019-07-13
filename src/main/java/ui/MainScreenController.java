@@ -1,20 +1,25 @@
 package ui;
 
 import client.KahyaActionListener;
+import client.StatusListener;
 import fleet.UIBusData;
 import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 import utils.Common;
+import utils.Web_Request;
 
 import java.net.URL;
 import java.util.*;
@@ -30,7 +35,9 @@ public class MainScreenController implements Initializable {
     @FXML private Label uiLastUpdatedLabel;
     @FXML private Label uiErrorLabel;
     @FXML private Label uiStatusLabel;
-
+    @FXML private CheckBox uiRequestUrlCheckbox;
+    @FXML private Label uiDebugLabel;
+    @FXML private CheckBox uiDebugCheckbox;
     protected ObservableList<Node> dataRowsTemp;
 
     private String activeBusCode;
@@ -39,6 +46,7 @@ public class MainScreenController implements Initializable {
     private double activeBusPos;
     private Map<String, Bus> busList = new HashMap<>();
     private KahyaActionListener actionListener;
+    private boolean debugFlag = true;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -47,6 +55,35 @@ public class MainScreenController implements Initializable {
             kahyaActionStart();
         });
 
+        uiRequestUrlCheckbox.selectedProperty().addListener(new ChangeListener<Boolean>() {
+            @Override
+            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+                if( newValue ){
+                    Web_Request.API_URL_PREFIX = "http://gitsistem.com:81/kahya_test.php";
+                } else {
+                    Web_Request.API_URL_PREFIX = "http://192.168.2.177:81/kahya_test.php";
+                }
+            }
+        });
+
+        uiDebugCheckbox.selectedProperty().addListener(new ChangeListener<Boolean>() {
+            @Override
+            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+                if( !newValue ){
+                    uiDebugLabel.setText("");
+                    debugFlag = false;
+                }
+                debugFlag = newValue;
+            }
+        });
+
+
+
+    }
+    public void updateDebugMessage( String message ){
+        Platform.runLater(() -> {
+            if( debugFlag ) uiDebugLabel.setText( message );
+        });
 
     }
 
@@ -95,6 +132,7 @@ public class MainScreenController implements Initializable {
     }
 
     public void update( UIBusData activeBusData,  ArrayList<UIBusData> fleetBusData ){
+        // @todo -> -1000 vs gibiyse atla ya da uçur listeden
         Platform.runLater(() -> {
             activeBusPos = activeBusData.getDiff() * splitCount;
             for( UIBusData busData : fleetBusData ){

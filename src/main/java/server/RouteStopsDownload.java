@@ -6,6 +6,7 @@ import fleet.RouteDirection;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.jsoup.Jsoup;
+import utils.Web_Request;
 
 import java.io.IOException;
 import java.sql.Connection;
@@ -24,7 +25,7 @@ public class RouteStopsDownload {
     public JSONArray action(){
         org.jsoup.Connection.Response res;
         try {
-            res = Jsoup.connect("http://gitsistem.com:81/kahya_test.php?req=route_stops_download&route="+route)
+            res = Jsoup.connect(Web_Request.API_URL_PREFIX+"?req=route_stops_download&route="+route)
                     .method(org.jsoup.Connection.Method.GET)
                     .timeout(0)
                     .execute();

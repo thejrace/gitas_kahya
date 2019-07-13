@@ -18,7 +18,7 @@ public class FetchRouteIntersections {
     public static JSONArray action( String activeRoute ){
         org.jsoup.Connection.Response res;
         try {
-            res = Jsoup.connect("http://gitsistem.com:81/kahya_test.php?req=route_intersection&route="+activeRoute)
+            res = Jsoup.connect(Web_Request.API_URL_PREFIX+"?req=route_intersection&route="+activeRoute)
                     .method(org.jsoup.Connection.Method.GET)
                     .timeout(0)
                     .execute();

@@ -21,6 +21,7 @@ public class Web_Request {
     public static String SERVIS_URL = MAIN_URL + "servis2.php";
     public static String SERVIS_URL2 = MAIN_URL + "servis2.php";
 
+    public static String API_URL_PREFIX = "http://192.168.2.177:81/kahya_test.php";
     // @todo internet baglantisi yoksa hata ver
 
     public Web_Request( String url, String params ){

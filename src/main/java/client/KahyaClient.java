@@ -9,6 +9,7 @@ import server.IntersectionData;
 import server.RouteIntersection;
 import server.RouteStopsDownload;
 import utils.RunNoComparator;
+import utils.StringSimilarity;
 import utils.Web_Request;
 
 import java.io.*;
@@ -36,11 +37,14 @@ public class KahyaClient {
     private boolean errorFlag = false;
     private String errorMessage; // error flags are used to notify UI
     private boolean debugFlag = false;
+    private String debugMessage;
     private boolean activeBusDirectionFoundFlag = false;
 
     private ArrayList<UIBusData> output = new ArrayList<>(); // main output ( contains activeBus data as well )
     private ClientFinishListener listener; // notify main UI
     private StatusListener statusListener; // notify status label UI
+    private StatusListener debugListener; // notify debug listeners
+
 
     // fleet definitions ( same for ring and normal )
     private Map<String, ArrayList<RunData>> fleetRunData = new HashMap<>();
@@ -49,6 +53,9 @@ public class KahyaClient {
     private Map<String, Integer> fleetActiveRunIndexes = new HashMap<>(); // holds active run index for fleet busses
     private Map<String, Integer> totalStopDiffs = new HashMap<>(); // holds stop count difference between active routes from parallel routes
     private Map<String, Integer> intersectionIndexesInActiveRoute = new HashMap<>(); // holds the stop index of the intersections in active route stops list
+    private Map<String, DirectionCounter> directionCounters = new HashMap<>();
+    private Map<String, ArrayList<String>> busDownloadedStops = new HashMap<>();
+
 
     public KahyaClient( String busCode ) {
         this.activeBusCode = busCode;
@@ -63,7 +70,7 @@ public class KahyaClient {
         output = new ArrayList<>(); // reset
         statusListener.onNotify("start action...");
         JSONObject oaddData = oaddDownload();
-        if( debugFlag )  System.out.println(oaddData.toString());
+        if( debugFlag )  System.out.println(oaddData.toString()); // @todo sadece hattı al, aktif seferin onemi yok
         if( oaddData.has("error") ){
             errorMessage = oaddData.getString("message");
             errorFlag = true;
@@ -108,14 +115,14 @@ public class KahyaClient {
         } else {
             if( debugFlag ) System.out.println("STOPS ARE ALREADY DOWNLOADED");
         }
-
+        debugMessage = "";
 
         if( activeBusDirection == RouteDirection.RING ){
             ringRouteFlag = true;
 
             Map<String, Integer> prevActiveStopIndexData = new HashMap<>();
             int counter = 0;
-            int activeStopIndex = -1;
+            int activeStopIndex;
             // we will fetch the whole fleets data( including active bus )
             // and will compare active stop with previous stop etc to determine direction.
             // #NOTE: this loop will continue during whole client session, after determined the direction
@@ -124,6 +131,7 @@ public class KahyaClient {
             // compareDirections method.
             // #NOTE3: this loop won't trigger the UI listeners until activeBus's direction is found
             while( run ){
+                debugMessage = "";
                 statusListener.onNotify("RING: yön loop...");
                 output = new ArrayList<>(); // reset
                 requestFleetData();
@@ -133,22 +141,36 @@ public class KahyaClient {
                     // compare stops until all busses' directions are found
                     for( Map.Entry<String, RunData> entry : fleetStopsData.entrySet() ){
                         if( fleetDirections.containsKey(entry.getKey()) ) continue; // already found
+                        activeStopIndex = -1; // reset
                         String activeStopName = fetchStopName(entry.getValue().getCurrentStop());
                         // if there is no stop data of the current bus, we skip the cycle
                         if( activeStopName.equals("[NODATA]") ) continue;
+                        if( !busDownloadedStops.containsKey(entry.getKey())) busDownloadedStops.put(entry.getKey(), new ArrayList<>());
+                        busDownloadedStops.get(entry.getKey()).add(activeStopName);
                         for( int k = 0; k < stops.get(RouteDirection.FORWARD).size(); k++ ){
                             if( activeStopName.equals(stops.get(RouteDirection.FORWARD).get(k)) ){
-                                activeStopIndex = k;
+                                activeStopIndex = k; // @todo Ya bulamazsa
                                 if( debugFlag ) System.out.println("FOUND INDEX " + entry.getKey() + "   " + activeStopIndex);
                                 break;
                             }
                         }
                         try {
-                            if( debugFlag ) System.out.println(entry.getKey() + " ["+stops.get(RouteDirection.FORWARD).get(prevActiveStopIndexData.get(entry.getKey()))+"] ["+activeStopName+"]");
+                            //System.out.println(entry.getKey() + " ["+stops.get(RouteDirection.FORWARD).get(prevActiveStopIndexData.get(entry.getKey()))+"] ["+activeStopName+"]");
+                            System.out.println(entry.getKey() + " ["+busDownloadedStops.get(entry.getKey()).get(busDownloadedStops.get(entry.getKey()).size()-2)+"] ["+activeStopName+"]");
+                            debugMessage += entry.getKey() + " ["+busDownloadedStops.get(entry.getKey()).get(busDownloadedStops.get(entry.getKey()).size()-2)+"] ["+activeStopName+"]\n";
+                            // if stoplist does not contain the active stop, skip for now
+                            if( activeStopIndex == - 1 ){
+                                System.out.println("SKIP  " + entry.getKey());
+                                continue;
+                            }
                             // this flag will let us know if current busses direction is found or not
                             boolean found = false;
                             // if last two stop information is same for the current bus, we will skip the direction check
-                            if( stops.get(RouteDirection.FORWARD).get(prevActiveStopIndexData.get(entry.getKey())).equals(activeStopName) ) continue;
+                            //if( stops.get(RouteDirection.FORWARD).get(prevActiveStopIndexData.get(entry.getKey())).equals(activeStopName) ) continue;
+
+                            // skip loop if last downloaded stop is the same with the last one
+                            if( activeStopName.equals(busDownloadedStops.get(entry.getKey()).get(busDownloadedStops.get(entry.getKey()).size()-2)) ) continue;
+
                             // following for loop:: from active stop, we will make a backward scan in stops lists to check if we can find the previous
                             // stop data. If we would we can say bus moves forward direction.
                             /*
@@ -164,36 +186,49 @@ public class KahyaClient {
                                 - If Alvarlızade Camii is not found, we can say bus goes backward.
                              */
                             for( int x = activeStopIndex - 1; x > 0; x-- ){
-                                if(  stops.get(RouteDirection.FORWARD).get(x).equals( stops.get(RouteDirection.FORWARD).get(prevActiveStopIndexData.get(entry.getKey())) ) ){
-                                    // if active bus direction is found, we dont put it in fleetDirections, we update the class properties
-                                    if( entry.getKey().equals(activeBusCode)  ) {
-                                        // @FIX aktif otobusun yönü değişince sıçıyor suan
-                                        activeBusStopNo = fetchStopNo(entry.getValue().getCurrentStop());
-                                        activeBusStop = entry.getValue().getCurrentStop();
-                                        if( !activeBusDirectionFoundFlag ) { // @todo: sefer bittiginde vs. bunun sifirlayacagiz
-                                            activeBusDirection = RouteDirection.FORWARD;
-                                            activeBusDirectionFoundFlag = true;
-                                        }
+                                if(  stops.get(RouteDirection.FORWARD).get(x).equals( stops.get(RouteDirection.FORWARD).get(prevActiveStopIndexData.get(entry.getKey())) ) ||
+                                        StringSimilarity.similarity(stops.get(RouteDirection.FORWARD).get(x),stops.get(RouteDirection.FORWARD).get(prevActiveStopIndexData.get(entry.getKey())) ) > 0.8){
+                                    // initalize counter
+                                    if( !directionCounters.containsKey(entry.getKey()) ){
+                                        directionCounters.put(entry.getKey(), new DirectionCounter());
+                                    }
+                                    int directionTemp = directionCounters.get(entry.getKey()).getDirection();
+                                    if( directionTemp == -1 ){
+                                        System.out.println(entry.getKey() + "   increment " + RouteDirection.returnText(RouteDirection.FORWARD));
+                                        directionCounters.get(entry.getKey()).increment( RouteDirection.FORWARD );
                                     } else {
-                                        fleetDirections.put(entry.getKey(), new RunData( entry.getKey(), entry.getValue().getRoute(), RouteDirection.FORWARD) );
-                                        if( debugFlag ) System.out.println(entry.getKey() + "  GİDİŞ");
+                                        System.out.println(entry.getKey() + "  DIR: " + RouteDirection.returnText(directionTemp));
+                                        if( entry.getKey().equals(activeBusCode) ){
+                                            activeBusDirection = directionTemp;
+                                            activeBusDirectionFoundFlag = true;
+                                            activeBusStopNo = fetchStopNo(entry.getValue().getCurrentStop());
+                                            activeBusStop = entry.getValue().getCurrentStop();
+                                        } else {
+                                            fleetDirections.put(entry.getKey(), new RunData( entry.getKey(), entry.getValue().getRoute(), RouteDirection.FORWARD) );
+                                            if( debugFlag ) System.out.println(entry.getKey() + "  " + RouteDirection.returnText(directionTemp));
+                                        }
                                     }
                                     found = true;
                                     break;
                                 }
                             }
                             if( !found ){
-                                if( entry.getKey().equals(activeBusCode)) {
-                                    activeBusStopNo = fetchStopNo(entry.getValue().getCurrentStop());
-                                    activeBusStop = entry.getValue().getCurrentStop();
-                                    if( !activeBusDirectionFoundFlag ) {
-                                        activeBusDirection = RouteDirection.BACKWARD;
-                                        activeBusDirectionFoundFlag = true;
-                                    }
+                                System.out.println(entry.getKey() + "   increment " + RouteDirection.returnText(RouteDirection.BACKWARD));
+                                int directionTemp = directionCounters.get(entry.getKey()).getDirection();
+                                if( directionTemp == -1 ){
+                                    directionCounters.get(entry.getKey()).increment( RouteDirection.BACKWARD );
                                 } else {
-                                    fleetDirections.put(entry.getKey(), new RunData( entry.getKey(), entry.getValue().getRoute(), RouteDirection.BACKWARD));
+                                    System.out.println(entry.getKey() + "  DIR: " + RouteDirection.returnText(directionTemp));
+                                    if( entry.getKey().equals(activeBusCode) ){
+                                        activeBusDirection = directionTemp;
+                                        activeBusDirectionFoundFlag = true;
+                                        activeBusStopNo = fetchStopNo(entry.getValue().getCurrentStop());
+                                        activeBusStop = entry.getValue().getCurrentStop();
+                                    } else {
+                                        fleetDirections.put(entry.getKey(), new RunData( entry.getKey(), entry.getValue().getRoute(), RouteDirection.BACKWARD) );
+                                        if( debugFlag ) System.out.println(entry.getKey() + "  " + RouteDirection.returnText(directionTemp));
+                                    }
                                 }
-                                if( debugFlag )  System.out.println(entry.getKey() + "  DÖNÜŞ");
                             }
                         } catch( NullPointerException | IndexOutOfBoundsException e ){
                             //e.printStackTrace();
@@ -214,6 +249,7 @@ public class KahyaClient {
                     }
                 }
                 if( counter == 0 ) counter++;
+                debugListener.onNotify(debugMessage);
                 try{
                     Thread.sleep(10000);
                 } catch( InterruptedException e ){
@@ -256,6 +292,7 @@ public class KahyaClient {
             }
             statusListener.onNotify("NORMAL: durak farkları hesaplanıyor..");
             compareDirections();
+            debugListener.onNotify(debugMessage);
             try{
                 statusListener.onNotify("NORMAL: updateUI");
                 listener.onFinish();
@@ -365,7 +402,10 @@ public class KahyaClient {
             try {
                 if( debugFlag ) System.out.println(runData.getBusCode() + " @ " + stop.substring(0, stop.indexOf('-')) );
                 int diff;
-                if( !runData.getRoute().equals(route) ){
+
+                diff = fetchStopNoDB(stop) - fetchStopNoDB(activeBusStop);
+
+               /* if( !runData.getRoute().equals(route) ){
                     // we only take the ones which are passed the intersection stop.
                     // find the stop index where the intersection happens from active route's stop list
                     int intersectionStopIndexActiveRoute = 0;
@@ -387,7 +427,7 @@ public class KahyaClient {
                     diff = fetchStopNo(stop) - activeBusStopNo + totalStopDiffs.get(runData.getRoute());
                 } else {
                     diff = fetchStopNo(stop) - activeBusStopNo;
-                }
+                }*/
 
                 fleetPositions.put( diff, runData.getBusCode() );
                 if( ringRouteFlag ){
@@ -409,6 +449,17 @@ public class KahyaClient {
             }
         }
 
+    }
+
+    // finds the db index of the gien stop
+    public int fetchStopNoDB( String stop ){
+        ArrayList<String> stopList = stops.get(activeBusDirection);
+        for( int k = 0; k < stopList.size(); k++ ){
+            if( stopList.get(k).equals(fetchStopName(stop)) || StringSimilarity.similarity(stopList.get(k), fetchStopName(stop)) > 0.8 ){
+                return k+1;
+            }
+        }
+        return -999;
     }
 
     public void fetchRouteIntersections(){
@@ -513,6 +564,10 @@ public class KahyaClient {
 
         }
         return "[NODATA]";
+    }
+
+    public void setDebugListener( StatusListener listener ){
+        debugListener = listener;
     }
 
     public void shutdown( ){
