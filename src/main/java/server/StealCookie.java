@@ -25,8 +25,6 @@ public class StealCookie {
         });
         thread.setDaemon(true);
         thread.start();
-
-
     }
     public void addListener( Refresh_Listener listener ){
         this.listener = listener;
