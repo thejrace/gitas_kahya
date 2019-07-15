@@ -35,7 +35,6 @@ public class MainScreenController implements Initializable {
     @FXML private Label uiLastUpdatedLabel;
     @FXML private Label uiErrorLabel;
     @FXML private Label uiStatusLabel;
-    @FXML private CheckBox uiRequestUrlCheckbox;
     @FXML private Label uiDebugLabel;
     @FXML private CheckBox uiDebugCheckbox;
     protected ObservableList<Node> dataRowsTemp;
@@ -53,17 +52,6 @@ public class MainScreenController implements Initializable {
 
         uiActionBtn.setOnMousePressed( ev -> {
             kahyaActionStart();
-        });
-
-        uiRequestUrlCheckbox.selectedProperty().addListener(new ChangeListener<Boolean>() {
-            @Override
-            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-                if( newValue ){
-                    Web_Request.API_URL_PREFIX = "http://gitsistem.com:81/kahya_test.php";
-                } else {
-                    Web_Request.API_URL_PREFIX = "http://192.168.2.177:81/kahya_test.php";
-                }
-            }
         });
 
         uiDebugCheckbox.selectedProperty().addListener(new ChangeListener<Boolean>() {

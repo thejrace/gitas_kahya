@@ -15,14 +15,8 @@ import java.net.URL;
 public class Web_Request {
 
     private String url, params, output;
-    //public static String MAIN_URL = "http://192.168.2.177:81/";
-    public static String MAIN_URL = "http://gitsistem.com:81/";
-    public static String FTS_ADMIN_URL = "http://ahsaphobby.net/fts_admin/";
-    public static String SERVIS_URL = MAIN_URL + "servis2.php";
-    public static String SERVIS_URL2 = MAIN_URL + "servis2.php";
-
-    public static String API_URL_PREFIX = "http://192.168.2.177:81/kahya_test.php";
-    // @todo internet baglantisi yoksa hata ver
+    public static String SERVER_URL = "";
+    public static String API_URL_PREFIX = SERVER_URL+":81/kahya_test.php";
 
     public Web_Request( String url, String params ){
 

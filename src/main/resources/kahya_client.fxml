@@ -9,7 +9,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<AnchorPane fx:id="uiContainer" prefHeight="700.0" prefWidth="1018.0" styleClass="main-bg-color" stylesheets="@main.css" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.MainScreenController">
+<AnchorPane fx:id="uiContainer" prefHeight="700.0" prefWidth="1018.0" styleClass="main-bg-color" stylesheets="@main.css" xmlns="http://javafx.com/javafx/8.0.201" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.MainScreenController">
    <children>
       <HBox alignment="CENTER" layoutX="35.0" layoutY="32.0" spacing="10.0">
          <children>
@@ -203,7 +203,6 @@
       </VBox>
       <Label layoutX="934.0" layoutY="6.0" text="kahya_client" textFill="#535353" />
       <Label fx:id="uiStatusLabel" layoutX="35.0" layoutY="4.0" text="{{status}}" textFill="#535353" />
-      <CheckBox fx:id="uiRequestUrlCheckbox" layoutX="287.0" layoutY="36.0" mnemonicParsing="false" text="Disardayim" textFill="WHITE" />
       <Label fx:id="uiDebugLabel" alignment="TOP_LEFT" layoutX="486.0" layoutY="53.0" prefHeight="526.0" prefWidth="347.0" textFill="WHITE" wrapText="true">
          <styleClass>
             <String fx:value="lbl-gray" />
