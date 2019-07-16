@@ -3,6 +3,8 @@ package routescanner;
 import fleet.RouteDirection;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import server.FetchRouteIntersections;
+import server.IntersectionData;
 import server.RouteStopsDownload;
 import utils.StringSimilarity;
 
@@ -13,42 +15,55 @@ import java.util.Map;
 public class RouteMap {
 
     private String route;
+    private String activeBusCode;
     private ArrayList<RouteStop> map; // forwardstops->backwardstops ( merge two directions together )
-    private Map<String, Integer> busPositions; // collect bus positions
+    private Map<String, Bus> buses; // buses on the map
     private int directionMergePoint; // index where merge happens
+    private Map<String, Boolean> intersectionBeginFlags; // holds the flag for whether intersection action began or not for given route
 
     public RouteMap( String route ){
         this.route = route;
         this.map = new ArrayList<>();
-        this.busPositions = new HashMap<>();
+        this.buses = new HashMap<>();
+        this.intersectionBeginFlags = new HashMap<>();
     }
 
-    public void create(){
-        // fetch stops
-        RouteStopsDownload routeStopsDownload = new RouteStopsDownload(route);
-        JSONArray routeStopsDownloaded = routeStopsDownload.action();
-        JSONArray tempStops;
-        JSONObject stopDataTemp;
-        for( int j = 0; j < 2; j++ ){
-            tempStops = routeStopsDownloaded.getJSONArray(j);
-            int k;
-            for( k = 0; k < tempStops.length(); k++ ){
-                if( tempStops.isNull(k) ) continue;
-                stopDataTemp = tempStops.getJSONObject(k);
-                map.add(new RouteStop( stopDataTemp.getInt("no"), stopDataTemp.getString("isim")));
-            }
-            if( j == 0 ) directionMergePoint = k;
-        }
-    }
 
-    public void updateBusPosition( String busCode, int direction, String stopName ){
-        if( !busPositions.containsKey(busCode) ) busPositions.put(busCode, -999); // default
+    public synchronized void updateBusPosition( String busCode, int direction, String stopName ){
+        if( !buses.containsKey(busCode) ) addBus( new Bus(busCode));
         int pos = findStopIndex( direction, stopName );
         if( pos != -1 ){
-            busPositions.put(busCode, pos);
+            buses.get(busCode).setPosition(pos);
         } else {
             System.out.println(busCode + " stop index is not found!");
         }
+        // check if we update the position of active bus,
+        // if so, check whether it crossed the intersection with the other routes
+        if( busCode.equals(activeBusCode) ){
+            ArrayList<IntersectionData> routeIntersectionData = map.get(pos).getIntersections();
+            if( routeIntersectionData.size() > 0 ){
+                for( IntersectionData intersectionData : routeIntersectionData ){
+                    if( intersectionData.getDirection() != direction ) continue;
+                    // check if active bus is between intersection point and the end
+                    int intersectionPos = findStopIndex(intersectionData.getDirection(), intersectionData.getIntersectedAt() );
+                    if( pos >= intersectionPos && pos <= (( intersectionData.getDirection() == RouteDirection.FORWARD ) ? directionMergePoint : map.size()-1 ) ){
+                        // set begin flag for that route
+                        if( !intersectionBeginFlags.get(intersectionData.getComparedRoute())){
+                            intersectionBeginFlags.put(intersectionData.getComparedRoute(), true);
+                        }
+                    } else {
+                        // clear previous flags ( this will be reached when direction changes )
+                        if( intersectionBeginFlags.get(intersectionData.getComparedRoute())){
+                            intersectionBeginFlags.put(intersectionData.getComparedRoute(), false);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    public void addBus( Bus bus ){
+        if( !buses.containsKey(bus.getCode())) buses.put(bus.getCode(), bus );
     }
 
     private int findStopIndex( int direction, String stopName ){
@@ -61,6 +76,37 @@ public class RouteMap {
         }
         return -1;
     }
+
+    // get intersected routes and mark them on the map
+    public void setRouteIntersections( Map<String, IntersectionData> routeIntersections ){
+        for( Map.Entry<String, IntersectionData> entry : routeIntersections.entrySet() ){
+            if( !intersectionBeginFlags.containsKey(entry.getKey() ) ) intersectionBeginFlags.put(entry.getKey(), false);
+            int k = 0;
+            if( entry.getValue().getDirection() == RouteDirection.BACKWARD ){
+                k += directionMergePoint;
+            }
+            for( ; k < map.size(); k++ ){
+                if( entry.getValue().getIntersectedAt().equals(map.get(k).getName()) || StringSimilarity.similarity(entry.getValue().getIntersectedAt(), map.get(k).getName()) > 0.8 ){
+                    map.get(k).markIntersection( entry.getValue() );
+                    break;
+                }
+            }
+        }
+    }
+
+    public int getDirectionMergePoint() {
+        return directionMergePoint;
+    }
+
+    public void setDirectionMergePoint(int directionMergePoint) {
+        this.directionMergePoint = directionMergePoint;
+    }
+
+    public void setActiveBusCode( String activeBusCode ){
+        this.activeBusCode = activeBusCode;
+    }
+
+
 
     public String getRoute() {
         return route;

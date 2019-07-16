@@ -1,13 +1,27 @@
 package routescanner;
 
+import server.IntersectionData;
+
+import java.util.ArrayList;
+
 public class RouteStop {
 
     private int no;
     private String name;
+    private ArrayList<IntersectionData> routeIntersections;
 
     public RouteStop( int no, String name ){
         this.no = no;
         this.name = name;
+        routeIntersections = new ArrayList<>();
+    }
+
+    public void markIntersection( IntersectionData intersectionData ){
+        this.routeIntersections.add(intersectionData);
+    }
+
+    public ArrayList<IntersectionData> getIntersections(){
+        return this.routeIntersections;
     }
 
     public String toString(){

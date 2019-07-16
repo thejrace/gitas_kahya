@@ -72,24 +72,15 @@ public class OADDDownload extends Filo_Task {
                         route = route.substring(2, route.length());
                     }
                     routeFetched = true;
-                }
-
-                routeDetailsData.put(Common.regexTrim(cols.get(4).getAllElements().get(1).text()));
-
-                if( status.equals("A") ){
-                    output.put("bus_code", busCode);
                     output.put("route", route);
+                    output.put("bus_code", busCode);
+                }
+                routeDetailsData.put(Common.regexTrim(cols.get(4).getAllElements().get(1).text()));
+                if( status.equals("A") ){
                     output.put("active_run_index", i);
-                    activeRunFound = true;
-                    errorFlag = false;
                 }
             }
-            if( !activeRunFound ){
-                errorMessage = "Aktif sefer yok!";
-                errorFlag = true;
-            } else {
-                output.put("run_details_data", routeDetailsData );
-            }
+            output.put("run_details_data", routeDetailsData );
         } catch( Exception e ){
             e.printStackTrace();
         }
