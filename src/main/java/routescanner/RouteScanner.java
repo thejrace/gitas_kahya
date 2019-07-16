@@ -1,16 +1,17 @@
 package routescanner;
 
 import fleet.OADDDownload;
+import fleet.RouteFleetDownload;
+import fleet.RunData;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import server.FetchRouteIntersections;
 import server.IntersectionData;
 import server.RouteStopsDownload;
+import utils.RunNoComparator;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class RouteScanner {
 
@@ -19,13 +20,12 @@ public class RouteScanner {
     private ArrayList<String> routesToDownload;
     private String activeBusCode;
     private RouteMap routeMap;
+    private Map<String, ArrayList<RunData>> fleetRunData = new HashMap<>();
 
     private boolean downloadIntersectedRoutesFlag = false;
 
     public RouteScanner( String activeBusCode ){
         this.activeBusCode = activeBusCode;
-        routesToDownload = new ArrayList<>();
-        routesToDownload.add(route);
     }
 
     public void start(){
@@ -35,7 +35,7 @@ public class RouteScanner {
             // begin scan loop
             while( !shutdown ){
 
-                downloadIntersectedRoutesFlag = routeMap.getRouteIntersectionOccuredFlag();
+               downloadFleetData();
 
                 try {
                     Thread.sleep(10000);
@@ -50,8 +50,33 @@ public class RouteScanner {
     }
 
     private void downloadFleetData(){
-        if( downloadIntersectedRoutesFlag ){
-
+        routesToDownload = routeMap.getIntersectedRoutes();
+        RouteFleetDownload routeFleetDownload = new RouteFleetDownload(routesToDownload);
+        routeFleetDownload.action();
+        JSONObject fleetData = routeFleetDownload.getOutput();
+        // convert jsonobjects to <BusCode, ArrayList<RunData>>
+        Iterator<String> busCodes = fleetData.keys();
+        JSONArray tempData;
+        JSONObject tempRunData;
+        while( busCodes.hasNext() ) {
+            String key = busCodes.next(); // bus code
+            if( !fleetRunData.containsKey(key) ) fleetRunData.put(key, new ArrayList<>());
+            tempData = fleetData.getJSONArray(key);
+            for( int k = 0; k < tempData.length(); k++ ){
+                tempRunData = tempData.getJSONObject(k);
+                fleetRunData.get(key).add( new RunData(
+                        tempRunData.getString("bus_code"),
+                        tempRunData.getString("route"),
+                        Integer.valueOf(tempRunData.getString("no")),
+                        tempRunData.getString("stop"),
+                        tempRunData.getString("dep_time"),
+                        tempRunData.getString("route_details"),
+                        tempRunData.getString("status"),
+                        tempRunData.getString("status_code")
+                ));
+            }
+            Collections.sort(fleetRunData.get(key), new RunNoComparator() ); // sort by run no
+            routeMap.passBusData( key, fleetRunData.get(key) );
         }
     }
 

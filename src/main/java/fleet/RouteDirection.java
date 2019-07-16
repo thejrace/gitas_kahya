@@ -139,7 +139,7 @@ public class RouteDirection {
         }
     }
 
-    private static int getDirectionLetter(int hat_length, String guzergah_str) {
+    public static int getDirectionLetter(int hat_length, String guzergah_str) {
         try {
             String orta_harf = guzergah_str.substring(hat_length + 1, hat_length + 2);
             if (orta_harf.equals("G")) {

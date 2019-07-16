@@ -113,7 +113,9 @@ public class RouteFleetDownload extends Filo_Task {
                         // status and status_text checks are done in the KahyaClient
                         runTemp.put("dep_time", Common.regexTrim(cols.get(9).getAllElements().get(2).text()));
                         runTemp.put("no", Common.regexTrim(cols.get(0).text()));
-                        runTemp.put("stop", cols.get(15).text() );
+                        if( status.equals("A") && !statusCode.equals("CA") ){
+                            runTemp.put("stop", cols.get(15).text() );
+                        }
                         runTemp.put("route", route );
                         runTemp.put("route_details", Common.regexTrim(cols.get(4).getAllElements().get(1).text()));
                         runTemp.put("status", status);

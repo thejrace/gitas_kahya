@@ -1,6 +1,7 @@
 package routescanner;
 
 import fleet.RouteDirection;
+import fleet.RunData;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import server.FetchRouteIntersections;
@@ -30,7 +31,6 @@ public class RouteMap {
 
 
     public synchronized void updateBusPosition( String busCode, int direction, String stopName ){
-        if( !buses.containsKey(busCode) ) addBus( new Bus(busCode));
         int pos = findStopIndex( direction, stopName );
         if( pos != -1 ){
             buses.get(busCode).setPosition(pos);
@@ -62,8 +62,13 @@ public class RouteMap {
         }
     }
 
-    public void addBus( Bus bus ){
-        if( !buses.containsKey(bus.getCode())) buses.put(bus.getCode(), bus );
+    public void passBusData( String busCode, ArrayList<RunData> runData ){
+        if( !buses.containsKey(busCode) ){
+            buses.put(busCode, new Bus( busCode, runData ) );
+        } else {
+            buses.get(busCode).setRunData(runData);
+        }
+        buses.get(busCode).updateStatus();
     }
 
     private int findStopIndex( int direction, String stopName ){
@@ -92,6 +97,16 @@ public class RouteMap {
                 }
             }
         }
+    }
+
+    // returns the routes to be fetched to route scanner
+    public ArrayList<String> getIntersectedRoutes(){
+        ArrayList<String> output = new ArrayList<>();
+        for( Map.Entry<String, Boolean> entry : intersectionBeginFlags.entrySet() ){
+            if( entry.getValue() ) output.add(entry.getKey());
+        }
+        output.add(route); // we fetch the active route all the time
+        return output;
     }
 
     public int getDirectionMergePoint() {
