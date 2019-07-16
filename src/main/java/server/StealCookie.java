@@ -43,7 +43,8 @@ public class StealCookie {
             FILO5_COOKIE = res.parse().text();
             listener.on_refresh();
         } catch( IOException e) {
-            e.printStackTrace();
+            System.out.println("switch request adress!");
+            //e.printStackTrace();
             return false;
         }
         return true;

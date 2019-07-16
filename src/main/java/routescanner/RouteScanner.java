@@ -14,7 +14,7 @@ import utils.RunNoComparator;
 import java.util.*;
 
 public class RouteScanner {
-
+    public static boolean DEBUG = true;
     private boolean shutdown = false;
     private String route;
     private ArrayList<String> routesToDownload;
@@ -25,6 +25,7 @@ public class RouteScanner {
     private boolean downloadIntersectedRoutesFlag = false;
 
     public RouteScanner( String activeBusCode ){
+        if( DEBUG ) System.out.println("route scanner initialized ("+activeBusCode+")");
         this.activeBusCode = activeBusCode;
     }
 
@@ -52,8 +53,10 @@ public class RouteScanner {
     private void downloadFleetData(){
         routesToDownload = routeMap.getIntersectedRoutes();
         RouteFleetDownload routeFleetDownload = new RouteFleetDownload(routesToDownload);
+        if( DEBUG ) System.out.println("downloading fleet data. ("+routesToDownload+")");
         routeFleetDownload.action();
         JSONObject fleetData = routeFleetDownload.getOutput();
+        if( DEBUG ) System.out.println("fleet data:  ||"+fleetData+"||");
         // convert jsonobjects to <BusCode, ArrayList<RunData>>
         Iterator<String> busCodes = fleetData.keys();
         JSONArray tempData;
@@ -78,9 +81,11 @@ public class RouteScanner {
             Collections.sort(fleetRunData.get(key), new RunNoComparator() ); // sort by run no
             routeMap.passBusData( key, fleetRunData.get(key) );
         }
+
     }
 
     private void initializeRouteMap(){
+        if( DEBUG ) System.out.println("route map initializing ("+route+")");
         int directionMergePoint = -1; // index where merge happens
         Map<String, IntersectionData> routeIntersections = new HashMap<>(); // contains intersection data of the active route
         ArrayList<RouteStop> map = new ArrayList<>(); // forwardstops->backwardstops ( merge two directions together )
@@ -111,6 +116,7 @@ public class RouteScanner {
         routeMap.setDirectionMergePoint(directionMergePoint);
         routeMap.setRouteIntersections(routeIntersections);
         routeMap.setActiveBusCode(activeBusCode);
+        if( DEBUG ) System.out.println("route map created. ("+route+")");
     }
 
     private void findRoute(){
@@ -119,6 +125,7 @@ public class RouteScanner {
         JSONObject activeBusOADDData = activeBusOADDDownload.getOutput();
         try {
             route = activeBusOADDData.getString("route");
+            if( DEBUG ) System.out.println("route found ("+route+")");
         } catch( JSONException e ){
             e.printStackTrace();
         }

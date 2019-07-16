@@ -7,7 +7,7 @@ public class RouteDirection {
     public static int FORWARD = 0, BACKWARD = 1, RING = 2;
 
     public static int action( String hat, int aktif_sefer_index, ArrayList<String> guzergahlar ) {
-
+        aktif_sefer_index++; // new system returns zero based active run index
         String onceki = "VY", sonraki = "VY";
         String aktif_sefer = guzergahlar.get(aktif_sefer_index-1);
         int hat_length = hat.length();

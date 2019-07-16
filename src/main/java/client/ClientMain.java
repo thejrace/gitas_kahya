@@ -3,6 +3,7 @@ package client;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.stage.Stage;
+import routescanner.RouteScanner;
 import server.StealCookie;
 import ui.MainScreen;
 
@@ -16,8 +17,13 @@ public class ClientMain extends Application {
         stealCookie.addListener(() -> {
             Platform.runLater(()-> {
                 try {
-                    MainScreen mainScreen = new MainScreen();
-                    mainScreen.start(new Stage());
+                    //MainScreen mainScreen = new MainScreen();
+                    //mainScreen.start(new Stage());
+
+                    RouteScanner routeScanner = new RouteScanner("C-763");
+                    routeScanner.start();
+
+
                 } catch ( Exception e ){
                     e.printStackTrace();
                 }

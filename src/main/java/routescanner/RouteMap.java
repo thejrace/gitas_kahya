@@ -64,6 +64,7 @@ public class RouteMap {
 
     public void passBusData( String busCode, ArrayList<RunData> runData ){
         if( !buses.containsKey(busCode) ){
+            if( RouteScanner.DEBUG ) System.out.println("adding a bus to route map:  ||"+busCode+"||");
             Bus bus = new Bus( busCode, runData );
             bus.setDirectionListener( ( stops ) -> {
                 ArrayList<Integer> prevFoundIndexes = new ArrayList<>();
@@ -76,7 +77,7 @@ public class RouteMap {
                             foundIndexes.add(k);
                         }
                     }
-                    if( foundIndexes.size() == 1 ){
+                    if( foundIndexes.size() == 1 ){ // @todo eger sacma sapan bi durak algılarsa onu da bulamayacak direk yöne karar vermek dogru mu?
                         // if there is only one match, means this stop is on one direction
                         // we can determine which way by comparing it with merge point
                         if( foundIndexes.get(0) > directionMergePoint ){
@@ -103,6 +104,7 @@ public class RouteMap {
             });
             buses.put( busCode, bus );
         } else {
+            if( RouteScanner.DEBUG ) System.out.println("updating a bus to route map:  ||"+busCode+"||");
             buses.get(busCode).setRunData(runData);
         }
         buses.get(busCode).updateStatus();

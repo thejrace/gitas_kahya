@@ -115,6 +115,8 @@ public class RouteFleetDownload extends Filo_Task {
                         runTemp.put("no", Common.regexTrim(cols.get(0).text()));
                         if( status.equals("A") && !statusCode.equals("CA") ){
                             runTemp.put("stop", cols.get(15).text() );
+                        } else {
+                            runTemp.put("stop", "N/A");
                         }
                         runTemp.put("route", route );
                         runTemp.put("route_details", Common.regexTrim(cols.get(4).getAllElements().get(1).text()));

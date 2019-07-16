@@ -25,7 +25,6 @@ public class RouteStopsDownload {
     public JSONArray action(){
         org.jsoup.Connection.Response res;
         try {
-            System.out.println(Web_Request.API_URL_PREFIX+"?req=route_stops_downloa");
             res = Jsoup.connect(Web_Request.API_URL_PREFIX+"?req=route_stops_download&route="+route)
                     .method(org.jsoup.Connection.Method.GET)
                     .timeout(0)

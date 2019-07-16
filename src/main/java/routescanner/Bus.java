@@ -15,8 +15,8 @@ public class Bus {
     private BusStatus prevStatus;
     private int position;
     private int stopAccumulateCounter = 0;
-    private ArrayList<RunData> runData;
-    private ArrayList<Integer> runTypes;
+    private ArrayList<RunData> runData = new ArrayList<>();
+    private ArrayList<Integer> runTypes = new ArrayList<>();
     private ArrayList<String> stopData = new ArrayList<>();
 
     private boolean dirFoundFlag = false;
@@ -27,8 +27,6 @@ public class Bus {
         this.code = code;
         this.status = BusStatus.UNDEFINED;
         this.position = -1;
-        runData = new ArrayList<>();
-        runTypes = new ArrayList<>();
     }
 
     public Bus( String code, ArrayList<RunData> runData ){
@@ -48,6 +46,7 @@ public class Bus {
         // 1) find the active run index
         // 2) find the run type of the all runs
         if( activeRunIndex == -1 ){
+            if( RouteScanner.DEBUG ) System.out.println(code + " initializing..");
             // first init
             // 1 - find active run index
             ArrayList<String> runDetailsList = new ArrayList<>();
@@ -60,21 +59,13 @@ public class Bus {
                 runTypes.add( RouteDirection.action(route, k, runDetailsList) );
             }
             checkStatus();
-            if( direction == RouteDirection.RING ){
-                // ring, we will compare stop information
-                ringDirectionFlag = true;
-                stopAccumulateCounter++;
-            } else {
-                // normal
-                dirFoundFlag = true;
-            }
-            stopData.add(runData.get(activeRunIndex).getCurrentStop());
             prevStatus = status;
         } else {
-            // this block is called when run is route and direction is not yet found
+            // this block is called when run is ring route and direction is not yet found
             if( prevStatus == BusStatus.ACTIVE ){
                 checkStatus();
                 if( status == BusStatus.ACTIVE ){ // still on active run
+                    if( RouteScanner.DEBUG ) System.out.println(code + " was active and still active..");
                     if( stopAccumulateCounter == 3 ){ // after 4 collection determine the direction
                         accumulatorListener.afterAcculumate(stopData);
                         stopAccumulateCounter = 0;
@@ -84,16 +75,19 @@ public class Bus {
                     if( !runData.get(activeRunIndex).getCurrentStop().equals(stopData.get(stopData.size()-1 ) ) ){ // accumulate if stop has changed
                         stopData.add(runData.get(activeRunIndex).getCurrentStop());
                         stopAccumulateCounter++;
+                        if( RouteScanner.DEBUG ) System.out.println(code + " was active and accumulate stops ("+runData.get(activeRunIndex).getCurrentStop()+")");
                     }
                 } else if( status == BusStatus.WAITING ){ // finished the run
                     // on ring routes, when run is finished, next run's direction can be determined from route details
                     direction = RouteDirection.getDirectionLetter(route.length(), runData.get(activeRunIndex).getRouteDetails());
+                    if( RouteScanner.DEBUG ) System.out.println(code + " was active and now finished DIR: " + RouteDirection.returnText(direction));
                 }
             } else if( prevStatus == BusStatus.WAITING ){
                 checkStatus();
                 if( status == BusStatus.ACTIVE ){ // starting the run
                     // active run index wont' be changed, we can get the dir from route details
                     direction = RouteDirection.getDirectionLetter(route.length(), runData.get(activeRunIndex).getRouteDetails());
+                    if( RouteScanner.DEBUG ) System.out.println(code + " was waiting and now active DIR: " + RouteDirection.returnText(direction));
                 }
             }
 
@@ -102,7 +96,8 @@ public class Bus {
 
     private void update(){
 
-
+        checkStatus();
+        System.out.println(code + "  " + RouteDirection.returnText(direction) + "  -->  " + status );
 
     }
 
@@ -121,13 +116,18 @@ public class Bus {
         if( activeIndex > 0 ){
             status = BusStatus.ACTIVE;
             activeRunIndex = activeIndex;
+            System.out.println(code + " is active!");
         } else if( waitingIndex > 0 ){
             status = BusStatus.WAITING;
             activeRunIndex = waitingIndex;
+            System.out.println(code + " is waiting!");
         } else {
             // done or failed the runs
             System.out.println(code + "   FINISHED OR FAILED");
+            return;
         }
+        direction = runTypes.get(activeRunIndex); // get the direction of the current run
+        System.out.println(code + " on a " + RouteDirection.returnText(direction) + "  RUN");
     }
 
     public void setDirectionListener( BusStopAccumulatorListener listener ){
