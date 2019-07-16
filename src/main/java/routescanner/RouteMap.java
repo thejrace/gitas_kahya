@@ -64,19 +64,60 @@ public class RouteMap {
 
     public void passBusData( String busCode, ArrayList<RunData> runData ){
         if( !buses.containsKey(busCode) ){
-            buses.put(busCode, new Bus( busCode, runData ) );
+            Bus bus = new Bus( busCode, runData );
+            bus.setDirectionListener( ( stops ) -> {
+                ArrayList<Integer> prevFoundIndexes = new ArrayList<>();
+                for( int j = 0; j < stops.size(); j++ ){
+                    String stop = stops.get(j);
+                    ArrayList<Integer> foundIndexes = new ArrayList<>();
+                    for( int k = 0; k < map.size(); k++ ){
+                        int occurence = findStopOccurences( stop, 0 );
+                        if( occurence > -1 ){
+                            foundIndexes.add(k);
+                        }
+                    }
+                    if( foundIndexes.size() == 1 ){
+                        // if there is only one match, means this stop is on one direction
+                        // we can determine which way by comparing it with merge point
+                        if( foundIndexes.get(0) > directionMergePoint ){
+                            bus.setDirection(RouteDirection.BACKWARD);
+                            break;
+                        } else {
+                            bus.setDirection(RouteDirection.FORWARD);
+                            break;
+                        }
+                    } else if( foundIndexes.size() == 2 ){ // this is expected most of the time
+                        // if we have previous indexes, compare them with current pair by pair
+                        if( prevFoundIndexes.size() > 0 ){
+                           if( ( prevFoundIndexes.get(0) < foundIndexes.get(0) ) && ( prevFoundIndexes.get(1) > foundIndexes.get(1) ) ){ // best case
+                                bus.setDirection(RouteDirection.FORWARD);
+                                break;
+                           } else if( ( prevFoundIndexes.get(0) > foundIndexes.get(0) ) && ( prevFoundIndexes.get(1) < foundIndexes.get(1) )  ){ // best case
+                               bus.setDirection(RouteDirection.BACKWARD);
+                               break;
+                           }
+                        }
+                    }
+                    prevFoundIndexes = foundIndexes;
+                }
+            });
+            buses.put( busCode, bus );
         } else {
             buses.get(busCode).setRunData(runData);
         }
         buses.get(busCode).updateStatus();
     }
 
-    private int findStopIndex( int direction, String stopName ){
+    public int findStopIndex( int direction, String stopName ){
         int k = 0;
         if( direction == RouteDirection.BACKWARD ) k = directionMergePoint;
-        for( ; k < map.size(); k++ ){
-            if( map.get(k).getName().equals(stopName) || StringSimilarity.similarity(map.get(k).getName(), stopName ) >= 0.8 ){
-                return k;
+        return findStopOccurences(stopName, k );
+    }
+
+    private int findStopOccurences( String stopName, int startIndex ){
+        for( ; startIndex < map.size(); startIndex++ ){
+            if( map.get(startIndex).getName().equals(stopName) || StringSimilarity.similarity(map.get(startIndex).getName(), stopName ) >= 0.8 ){
+                return startIndex;
             }
         }
         return -1;

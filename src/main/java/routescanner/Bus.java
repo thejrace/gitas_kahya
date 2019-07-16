@@ -14,6 +14,7 @@ public class Bus {
     private BusStatus status;
     private BusStatus prevStatus;
     private int position;
+    private int stopAccumulateCounter = 0;
     private ArrayList<RunData> runData;
     private ArrayList<Integer> runTypes;
     private ArrayList<String> stopData = new ArrayList<>();
@@ -21,7 +22,7 @@ public class Bus {
     private boolean dirFoundFlag = false;
     private boolean ringDirectionFlag = false;
     private int activeRunIndex = -1;
-
+    private BusStopAccumulatorListener accumulatorListener;
     public Bus( String code ){
         this.code = code;
         this.status = BusStatus.UNDEFINED;
@@ -62,6 +63,7 @@ public class Bus {
             if( direction == RouteDirection.RING ){
                 // ring, we will compare stop information
                 ringDirectionFlag = true;
+                stopAccumulateCounter++;
             } else {
                 // normal
                 dirFoundFlag = true;
@@ -73,10 +75,16 @@ public class Bus {
             if( prevStatus == BusStatus.ACTIVE ){
                 checkStatus();
                 if( status == BusStatus.ACTIVE ){ // still on active run
-                    stopData.add(runData.get(activeRunIndex).getCurrentStop());
-                    // compare stops to determine the direction
-
-
+                    if( stopAccumulateCounter == 3 ){ // after 4 collection determine the direction
+                        accumulatorListener.afterAcculumate(stopData);
+                        stopAccumulateCounter = 0;
+                        // @todo reset stop data as well after tests
+                        return;
+                    }
+                    if( !runData.get(activeRunIndex).getCurrentStop().equals(stopData.get(stopData.size()-1 ) ) ){ // accumulate if stop has changed
+                        stopData.add(runData.get(activeRunIndex).getCurrentStop());
+                        stopAccumulateCounter++;
+                    }
                 } else if( status == BusStatus.WAITING ){ // finished the run
                     // on ring routes, when run is finished, next run's direction can be determined from route details
                     direction = RouteDirection.getDirectionLetter(route.length(), runData.get(activeRunIndex).getRouteDetails());
@@ -120,6 +128,10 @@ public class Bus {
             // done or failed the runs
             System.out.println(code + "   FINISHED OR FAILED");
         }
+    }
+
+    public void setDirectionListener( BusStopAccumulatorListener listener ){
+        this.accumulatorListener = listener;
     }
 
     private void initializeOLD(){
@@ -186,6 +198,11 @@ public class Bus {
 
     public void setRunData(ArrayList<RunData> runData) {
         this.runData = runData;
+    }
+
+    public void setDirection( int direction ){
+        this.direction = direction;
+        dirFoundFlag = true;
     }
 
     public int getPosition() {
