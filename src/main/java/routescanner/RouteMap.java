@@ -67,23 +67,21 @@ public class RouteMap {
             if( RouteScanner.DEBUG ) System.out.println("adding a bus to route map:  ||"+busCode+"||");
             Bus bus = new Bus( busCode, runData );
             bus.setDirectionListener( ( stops ) -> {
+                System.out.println(busCode +"  DIRACITON!!!");
                 ArrayList<Integer> prevFoundIndexes = new ArrayList<>();
                 for( int j = 0; j < stops.size(); j++ ){
                     String stop = stops.get(j);
-                    ArrayList<Integer> foundIndexes = new ArrayList<>();
-                    for( int k = 0; k < map.size(); k++ ){
-                        int occurence = findStopOccurences( stop, 0 );
-                        if( occurence > -1 ){
-                            foundIndexes.add(k);
-                        }
-                    }
-                    if( foundIndexes.size() == 1 ){ // @todo eger sacma sapan bi durak algılarsa onu da bulamayacak direk yöne karar vermek dogru mu?
+                    ArrayList<Integer> foundIndexes = findStopOccurences( stop, 0 );
+                    System.out.println("FOUND INDEXES: " + foundIndexes );
+                    if( foundIndexes.size() == 1 ){ // @todo eger sacma sapan bi durak algılarsa onu da bulamayacak direk yöne karar vermek dogru mu? OLUYOR!!
                         // if there is only one match, means this stop is on one direction
                         // we can determine which way by comparing it with merge point
                         if( foundIndexes.get(0) > directionMergePoint ){
+                            System.out.println(bus.getCode() + "  singleton stop DIR: " + RouteDirection.returnText(RouteDirection.BACKWARD));
                             bus.setDirection(RouteDirection.BACKWARD);
                             break;
                         } else {
+                            System.out.println(bus.getCode() + "  singleton stop DIR: " + RouteDirection.returnText(RouteDirection.FORWARD));
                             bus.setDirection(RouteDirection.FORWARD);
                             break;
                         }
@@ -91,9 +89,11 @@ public class RouteMap {
                         // if we have previous indexes, compare them with current pair by pair
                         if( prevFoundIndexes.size() > 0 ){
                            if( ( prevFoundIndexes.get(0) < foundIndexes.get(0) ) && ( prevFoundIndexes.get(1) > foundIndexes.get(1) ) ){ // best case
+                                System.out.println(bus.getCode() + "  DIR: " + RouteDirection.returnText(RouteDirection.FORWARD));
                                 bus.setDirection(RouteDirection.FORWARD);
                                 break;
                            } else if( ( prevFoundIndexes.get(0) > foundIndexes.get(0) ) && ( prevFoundIndexes.get(1) < foundIndexes.get(1) )  ){ // best case
+                               System.out.println(bus.getCode() + "  DIR: " + RouteDirection.returnText(RouteDirection.BACKWARD));
                                bus.setDirection(RouteDirection.BACKWARD);
                                break;
                            }
@@ -104,7 +104,6 @@ public class RouteMap {
             });
             buses.put( busCode, bus );
         } else {
-            if( RouteScanner.DEBUG ) System.out.println("updating a bus to route map:  ||"+busCode+"||");
             buses.get(busCode).setRunData(runData);
         }
         buses.get(busCode).updateStatus();
@@ -113,16 +112,17 @@ public class RouteMap {
     public int findStopIndex( int direction, String stopName ){
         int k = 0;
         if( direction == RouteDirection.BACKWARD ) k = directionMergePoint;
-        return findStopOccurences(stopName, k );
+        return findStopOccurences(stopName, k ).get(0);
     }
 
-    private int findStopOccurences( String stopName, int startIndex ){
+    private ArrayList<Integer> findStopOccurences( String stopName, int startIndex ){
+        ArrayList<Integer> occurences = new ArrayList<>();
         for( ; startIndex < map.size(); startIndex++ ){
             if( map.get(startIndex).getName().equals(stopName) || StringSimilarity.similarity(map.get(startIndex).getName(), stopName ) >= 0.8 ){
-                return startIndex;
+                occurences.add(startIndex);
             }
         }
-        return -1;
+        return occurences;
     }
 
     // get intersected routes and mark them on the map

@@ -1,5 +1,6 @@
 package fleet;
 
+import fakedatagenerator.FakeDataGenerator;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.jsoup.nodes.Document;
@@ -7,6 +8,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import utils.Common;
 
+import java.io.File;
 import java.util.ArrayList;
 
 public class RouteFleetDownload extends Filo_Task {
@@ -24,7 +26,7 @@ public class RouteFleetDownload extends Filo_Task {
     }
 
     public void action(){
-        for( int k = 0; k < routes.size(); k++ ){
+        /*for( int k = 0; k < routes.size(); k++ ){
             try {
                 org.jsoup.Connection.Response request = istek_yap("https://filotakip.iett.gov.tr/_FYS/000/sorgu.php?konum=ana&konu=sefer&hat="+routes.get(k));
                 Document document = parse_html( request );
@@ -32,7 +34,10 @@ public class RouteFleetDownload extends Filo_Task {
             } catch( Exception e ){
                 e.printStackTrace();
             }
-        }
+        }*/
+
+        //output = FakeDataGenerator.statusChangeTest();
+        output = FakeDataGenerator.stopChangeTest();
     }
 
     public void parseData( Document document ){

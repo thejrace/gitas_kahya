@@ -51,6 +51,7 @@ public class RouteScanner {
     }
 
     private void downloadFleetData(){
+        fleetRunData = new HashMap<>();
         routesToDownload = routeMap.getIntersectedRoutes();
         RouteFleetDownload routeFleetDownload = new RouteFleetDownload(routesToDownload);
         if( DEBUG ) System.out.println("downloading fleet data. ("+routesToDownload+")");
@@ -71,7 +72,7 @@ public class RouteScanner {
                         tempRunData.getString("bus_code"),
                         tempRunData.getString("route"),
                         Integer.valueOf(tempRunData.getString("no")),
-                        tempRunData.getString("stop"),
+                        RouteStop.fetchStopName(tempRunData.getString("stop")),
                         tempRunData.getString("dep_time"),
                         tempRunData.getString("route_details"),
                         tempRunData.getString("status"),

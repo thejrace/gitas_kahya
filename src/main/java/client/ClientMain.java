@@ -3,16 +3,14 @@ package client;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.stage.Stage;
+import org.json.JSONObject;
 import routescanner.RouteScanner;
 import server.StealCookie;
-import ui.MainScreen;
 
 public class ClientMain extends Application {
 
     @Override
     public void start(Stage primaryStage ) throws Exception{
-
-
         StealCookie stealCookie = new StealCookie();
         stealCookie.addListener(() -> {
             Platform.runLater(()-> {
@@ -20,7 +18,7 @@ public class ClientMain extends Application {
                     //MainScreen mainScreen = new MainScreen();
                     //mainScreen.start(new Stage());
 
-                    RouteScanner routeScanner = new RouteScanner("C-763");
+                    RouteScanner routeScanner = new RouteScanner("C-766");
                     routeScanner.start();
 
 

@@ -44,4 +44,14 @@ public class RouteStop {
         this.name = name;
     }
 
+
+    public static String fetchStopName( String stop ){
+        try {
+            return stop.substring(stop.indexOf('-')+1, stop.indexOf(" ("));
+        } catch( StringIndexOutOfBoundsException e ){
+
+        }
+        return "N/A";
+    }
+
 }

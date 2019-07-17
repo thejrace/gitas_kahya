@@ -1,0 +1,138 @@
+[
+  {
+    "C-1883": [
+      {
+        "no": "13",
+        "route": "11ÜS",
+        "status_code": "",
+        "stop": "N/A",
+        "dep_time": "06:35",
+        "route_details": "11ÜS_G_D2278",
+        "bus_code": "C-1883",
+        "status": "T"
+      },
+      {
+        "no": "40",
+        "route": "11ÜS",
+        "status_code": "",
+        "stop": "N/A",
+        "dep_time": "09:44",
+        "route_details": "11ÜS_G_D2278",
+        "bus_code": "C-1883",
+        "status": "A"
+      },
+      {
+        "no": "67",
+        "route": "11ÜS",
+        "status_code": "",
+        "stop": "N/A",
+        "dep_time": "13:12",
+        "route_details": "11ÜS_G_D2278",
+        "bus_code": "C-1883",
+        "status": "B"
+      }
+    ]
+  },
+  {
+    "C-1883": [
+      {
+        "no": "13",
+        "route": "11ÜS",
+        "status_code": "",
+        "stop": "N/A",
+        "dep_time": "06:35",
+        "route_details": "11ÜS_G_D2278",
+        "bus_code": "C-1883",
+        "status": "T"
+      },
+      {
+        "no": "40",
+        "route": "11ÜS",
+        "status_code": "",
+        "stop": "69-FİDANLIK (11:25 Üsküdar - 87m)",
+        "dep_time": "09:44",
+        "route_details": "11ÜS_G_D2278",
+        "bus_code": "C-1883",
+        "status": "A"
+      },
+      {
+        "no": "67",
+        "route": "11ÜS",
+        "status_code": "",
+        "stop": "N/A",
+        "dep_time": "13:12",
+        "route_details": "11ÜS_G_D2278",
+        "bus_code": "C-1883",
+        "status": "B"
+      }
+    ]
+  },
+  {
+    "C-1883": [
+      {
+        "no": "13",
+        "route": "11ÜS",
+        "status_code": "",
+        "stop": "N/A",
+        "dep_time": "06:35",
+        "route_details": "11ÜS_G_D2278",
+        "bus_code": "C-1883",
+        "status": "T"
+      },
+      {
+        "no": "40",
+        "route": "11ÜS",
+        "status_code": "",
+        "stop": "70-ALVARLIZADE CAMİİ (11:25 Üsküdar - 87m)",
+        "dep_time": "09:44",
+        "route_details": "11ÜS_G_D2278",
+        "bus_code": "C-1883",
+        "status": "A"
+      },
+      {
+        "no": "67",
+        "route": "11ÜS",
+        "status_code": "",
+        "stop": "N/A",
+        "dep_time": "13:12",
+        "route_details": "11ÜS_G_D2278",
+        "bus_code": "C-1883",
+        "status": "B"
+      }
+    ]
+  },
+  {
+    "C-1883": [
+      {
+        "no": "13",
+        "route": "11ÜS",
+        "status_code": "",
+        "stop": "N/A",
+        "dep_time": "06:35",
+        "route_details": "11ÜS_G_D2278",
+        "bus_code": "C-1883",
+        "status": "T"
+      },
+      {
+        "no": "40",
+        "route": "11ÜS",
+        "status_code": "",
+        "stop": "70-ÜMRANİYE EĞİTİM ARAŞTIRMA HASTANESİ (11:25 Üsküdar - 87m)",
+        "dep_time": "09:44",
+        "route_details": "11ÜS_G_D2278",
+        "bus_code": "C-1883",
+        "status": "A"
+      },
+      {
+        "no": "67",
+        "route": "11ÜS",
+        "status_code": "",
+        "stop": "N/A",
+        "dep_time": "13:12",
+        "route_details": "11ÜS_G_D2278",
+        "bus_code": "C-1883",
+        "status": "B"
+      }
+    ]
+  }
+]
