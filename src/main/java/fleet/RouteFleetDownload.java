@@ -26,7 +26,7 @@ public class RouteFleetDownload extends Filo_Task {
     }
 
     public void action(){
-        /*for( int k = 0; k < routes.size(); k++ ){
+        for( int k = 0; k < routes.size(); k++ ){
             try {
                 org.jsoup.Connection.Response request = istek_yap("https://filotakip.iett.gov.tr/_FYS/000/sorgu.php?konum=ana&konu=sefer&hat="+routes.get(k));
                 Document document = parse_html( request );
@@ -34,10 +34,11 @@ public class RouteFleetDownload extends Filo_Task {
             } catch( Exception e ){
                 e.printStackTrace();
             }
-        }*/
-
+        }
         //output = FakeDataGenerator.statusChangeTest();
-        output = FakeDataGenerator.stopChangeTest();
+        //output = FakeDataGenerator.stopChangeTest();
+        //output = FakeDataGenerator.routeIntersectionTest();
+        //output = FakeDataGenerator.ringPositionTest();
     }
 
     public void parseData( Document document ){
@@ -118,9 +119,9 @@ public class RouteFleetDownload extends Filo_Task {
                         // status and status_text checks are done in the KahyaClient
                         runTemp.put("dep_time", Common.regexTrim(cols.get(9).getAllElements().get(2).text()));
                         runTemp.put("no", Common.regexTrim(cols.get(0).text()));
-                        if( status.equals("A") && !statusCode.equals("CA") ){
+                        try{
                             runTemp.put("stop", cols.get(15).text() );
-                        } else {
+                        } catch( Exception e ){
                             runTemp.put("stop", "N/A");
                         }
                         runTemp.put("route", route );

@@ -1,0 +1,194 @@
+[
+  {
+    "C-1883": [
+      {
+        "no": "13",
+        "route": "15BK",
+        "status_code": "",
+        "stop": "N/A",
+        "dep_time": "06:35",
+        "route_details": "15BK_D_D23",
+        "bus_code": "C-1883",
+        "status": "T"
+      },
+      {
+        "no": "40",
+        "route": "15BK",
+        "status_code": "",
+        "stop": "69-NUMUNE HASTANESİ (11:25 Üsküdar - 87m)",
+        "dep_time": "09:44",
+        "route_details": "15BK_G_D25",
+        "bus_code": "C-1883",
+        "status": "A"
+      },
+      {
+        "no": "67",
+        "route": "15BK",
+        "status_code": "",
+        "stop": "N/A",
+        "dep_time": "13:12",
+        "route_details": "15BK_D_D23",
+        "bus_code": "C-1883",
+        "status": "B"
+      },
+      {
+        "no": "94",
+        "route": "15BK",
+        "status_code": "",
+        "stop": "N/A",
+        "dep_time": "16:40",
+        "route_details": "15BK_G_D25",
+        "bus_code": "C-1883",
+        "status": "B"
+      },
+      {
+        "no": "123",
+        "route": "15BK",
+        "status_code": "",
+        "stop": "N/A",
+        "dep_time": "20:44",
+        "route_details": "15BK_D_D23",
+        "bus_code": "C-1883",
+        "status": "B"
+      },
+      {
+        "no": "140",
+        "route": "15BK",
+        "status_code": "",
+        "stop": "N/A",
+        "dep_time": "22:20",
+        "route_details": "15BK_G_D25",
+        "bus_code": "C-1883",
+        "status": "B"
+      }
+    ]
+  },
+  {
+    "C-1883": [
+      {
+        "no": "13",
+        "route": "15BK",
+        "status_code": "",
+        "stop": "N/A",
+        "dep_time": "06:35",
+        "route_details": "15BK_D_D23",
+        "bus_code": "C-1883",
+        "status": "T"
+      },
+      {
+        "no": "40",
+        "route": "15BK",
+        "status_code": "",
+        "stop": "69-HAYDARPAŞA TEKNİK LİSESİ (11:25 Üsküdar - 87m)",
+        "dep_time": "09:44",
+        "route_details": "15BK_G_D25",
+        "bus_code": "C-1883",
+        "status": "A"
+      },
+      {
+        "no": "67",
+        "route": "15BK",
+        "status_code": "",
+        "stop": "N/A",
+        "dep_time": "13:12",
+        "route_details": "15BK_D_D23",
+        "bus_code": "C-1883",
+        "status": "B"
+      },
+      {
+        "no": "94",
+        "route": "15BK",
+        "status_code": "",
+        "stop": "N/A",
+        "dep_time": "16:40",
+        "route_details": "15BK_G_D25",
+        "bus_code": "C-1883",
+        "status": "B"
+      },
+      {
+        "no": "123",
+        "route": "15BK",
+        "status_code": "",
+        "stop": "N/A",
+        "dep_time": "20:44",
+        "route_details": "15BK_D_D23",
+        "bus_code": "C-1883",
+        "status": "B"
+      },
+      {
+        "no": "140",
+        "route": "15BK",
+        "status_code": "",
+        "stop": "N/A",
+        "dep_time": "22:20",
+        "route_details": "15BK_G_D25",
+        "bus_code": "C-1883",
+        "status": "B"
+      }
+    ]
+  },
+  {
+    "C-1883": [
+      {
+        "no": "13",
+        "route": "15BK",
+        "status_code": "",
+        "stop": "N/A",
+        "dep_time": "06:35",
+        "route_details": "15BK_D_D23",
+        "bus_code": "C-1883",
+        "status": "T"
+      },
+      {
+        "no": "40",
+        "route": "15BK",
+        "status_code": "",
+        "stop": "69-HAMZA YERLİKAYA(11:25 Üsküdar - 87m)",
+        "dep_time": "09:44",
+        "route_details": "15BK_G_D25",
+        "bus_code": "C-1883",
+        "status": "A"
+      },
+      {
+        "no": "67",
+        "route": "15BK",
+        "status_code": "",
+        "stop": "N/A",
+        "dep_time": "13:12",
+        "route_details": "15BK_D_D23",
+        "bus_code": "C-1883",
+        "status": "B"
+      },
+      {
+        "no": "94",
+        "route": "15BK",
+        "status_code": "",
+        "stop": "N/A",
+        "dep_time": "16:40",
+        "route_details": "15BK_G_D25",
+        "bus_code": "C-1883",
+        "status": "B"
+      },
+      {
+        "no": "123",
+        "route": "15BK",
+        "status_code": "",
+        "stop": "N/A",
+        "dep_time": "20:44",
+        "route_details": "15BK_D_D23",
+        "bus_code": "C-1883",
+        "status": "B"
+      },
+      {
+        "no": "140",
+        "route": "15BK",
+        "status_code": "",
+        "stop": "N/A",
+        "dep_time": "22:20",
+        "route_details": "15BK_G_D25",
+        "bus_code": "C-1883",
+        "status": "B"
+      }
+    ]
+  }
+]

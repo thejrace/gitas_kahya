@@ -12,6 +12,7 @@ public class Bus {
     // @todo hat degisiebiliyor onları ayikla
     private String code;
     private String route;
+    private String stop;
     private int direction = -1;
     private BusStatus status;
     private BusStatus prevStatus;
@@ -20,6 +21,7 @@ public class Bus {
     private ArrayList<RunData> runData = new ArrayList<>();
     private ArrayList<Integer> runTypes = new ArrayList<>();
     private ArrayList<String> stopData = new ArrayList<>();
+    private int directionMergePoint;
 
     private boolean dirFoundFlag = false;
     private boolean ringDirectionFlag = false;
@@ -43,8 +45,8 @@ public class Bus {
         } else {
             update();
         }
-        System.out.println("");
-        System.out.println("---------");
+        if( RouteScanner.DEBUG ) System.out.println("");
+        if( RouteScanner.DEBUG ) System.out.println("---------");
     }
 
     private void initialize(){
@@ -79,7 +81,7 @@ public class Bus {
                             stopData.add(runData.get(activeRunIndex).getCurrentStop());
                             stopAccumulateCounter++;
                         } else {
-                            System.out.println("["+runData.get(activeRunIndex).getCurrentStop()+"]" + " -- [" + stopData.get(stopData.size()-1 )+"]  ");
+                            if( RouteScanner.DEBUG ) System.out.println("["+runData.get(activeRunIndex).getCurrentStop()+"]" + " -- [" + stopData.get(stopData.size()-1 )+"]  ");
                             if( !runData.get(activeRunIndex).getCurrentStop().equals(stopData.get(stopData.size()-1 ) ) ){ // accumulate if stop has changed
                                 stopData.add(runData.get(activeRunIndex).getCurrentStop());
                                 stopAccumulateCounter++;
@@ -113,10 +115,7 @@ public class Bus {
     }
 
     private void update(){
-
         checkStatus();
-        System.out.println(code + "  " + RouteDirection.returnText(direction) + "  -->  " + status );
-
     }
 
     private void checkStatus(){
@@ -135,19 +134,50 @@ public class Bus {
             if( activeIndex > -1 ){
                 status = BusStatus.ACTIVE;
                 activeRunIndex = activeIndex;
-                System.out.print(code + " is active ## ");
+                if( RouteScanner.DEBUG ) System.out.print(code + " is active ## ");
             } else if( waitingIndex > -1 ){
                 status = BusStatus.WAITING;
                 activeRunIndex = waitingIndex;
-                System.out.print(code + " is waiting ##");
+                if( RouteScanner.DEBUG ) System.out.print(code + " is waiting ##");
             } else {
                 // done or failed the runs
-                System.out.print(code + "   FINISHED OR FAILED ##");
+                if( RouteScanner.DEBUG )  System.out.print(code + "   FINISHED OR FAILED ##");
                 status = BusStatus.UNDEFINED;
                 return;
             }
-            direction = runTypes.get(activeRunIndex); // get the direction of the current run
-            System.out.print(code + " on a " + RouteDirection.returnText(direction) + "  RUN  ## ");
+            stop = runData.get(activeRunIndex).getCurrentStop();
+            int tempDirection = runTypes.get(activeRunIndex); // get the direction of the current run
+            // for ring routes we need to check active status in order to update
+            // direction information after initialization
+            if( tempDirection == RouteDirection.RING ){
+                if( prevStatus == BusStatus.ACTIVE ){
+                    if( status == BusStatus.WAITING ){
+                        // was active, now finished means it will start over
+                        direction = RouteDirection.getDirectionLetter(route.length(), runData.get(activeRunIndex).getRouteDetails());
+                        dirFoundFlag = true;
+                    } else if( status == BusStatus.UNDEFINED ){
+                        // @todo what to do? warn RouteMap to remove it?
+                    }/* else {
+                        // if status stays same, check if run to backward direction
+                        if( direction == RouteDirection.FORWARD ){
+                            if( position >= directionMergePoint )  direction = RouteDirection.BACKWARD;
+                        }
+                    }*/
+                } else if( prevStatus == BusStatus.WAITING ){
+                    if( status == BusStatus.ACTIVE ){
+                        // was waiting now on the move
+                        direction = RouteDirection.getDirectionLetter(route.length(), runData.get(activeRunIndex).getRouteDetails());
+                        dirFoundFlag = true;
+                    } else if( status == BusStatus.UNDEFINED ){
+                        // @todo what to do? warn RouteMap to remove it?
+                    }
+                }
+            } else {
+                direction = tempDirection;
+                dirFoundFlag = true;
+            }
+            if( RouteScanner.DEBUG ) System.out.print(code + " on a " + RouteDirection.returnText(direction) + "  RUN  ## ");
+            prevStatus = status;
         } catch( Exception e ){
             e.printStackTrace();
         }
@@ -169,6 +199,18 @@ public class Bus {
         this.direction = direction;
         dirFoundFlag = true;
     }
+    public String getStop() {
+        return stop;
+    }
+
+    public void setStop(String stop) {
+        this.stop = stop;
+    }
+
+    public int getDirection() {
+        return direction;
+    }
+
 
     public int getPosition() {
         return position;
@@ -188,6 +230,15 @@ public class Bus {
 
     public String getCode() {
         return code;
+    }
+
+
+    public void setDirectionMergePoint(int directionMergePoint) {
+        this.directionMergePoint = directionMergePoint;
+    }
+
+    public String toString(){
+        return "["+code+"] ["+route+"] ["+RouteDirection.returnText(direction)+"] ["+status+"] [@"+stop+"] [POS:"+position+"] [ARInd:"+activeRunIndex+"]";
     }
 
 }

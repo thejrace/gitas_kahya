@@ -1,0 +1,274 @@
+[
+  {
+    "C-1883": [
+      {
+        "no": "13",
+        "route": "11ÜS",
+        "status_code": "",
+        "stop": "N/A",
+        "dep_time": "06:35",
+        "route_details": "11ÜS_G_D2278",
+        "bus_code": "C-1883",
+        "status": "T"
+      },
+      {
+        "no": "40",
+        "route": "11ÜS",
+        "status_code": "",
+        "stop": "45-FATİH BULVARI (10:49 Çekmeköy - 542m)",
+        "dep_time": "09:44",
+        "route_details": "11ÜS_G_D2278",
+        "bus_code": "C-1883",
+        "status": "A"
+      }
+    ],
+    "C-1884": [
+      {
+        "no": "13",
+        "route": "11ÜS",
+        "status_code": "",
+        "stop": "N/A",
+        "dep_time": "06:35",
+        "route_details": "11ÜS_G_D2278",
+        "bus_code": "C-1883",
+        "status": "T"
+      },
+      {
+        "no": "40",
+        "route": "11ÜS",
+        "status_code": "",
+        "stop": "45-SARDUNYA EVLERİ (10:49 Çekmeköy - 542m)",
+        "dep_time": "09:44",
+        "route_details": "11ÜS_G_D2278",
+        "bus_code": "C-1883",
+        "status": "A"
+      }
+    ],
+    "C-1885": [
+      {
+        "no": "13",
+        "route": "11ÜS",
+        "status_code": "",
+        "stop": "N/A",
+        "dep_time": "06:35",
+        "route_details": "11ÜS_G_D2278",
+        "bus_code": "C-1883",
+        "status": "T"
+      },
+      {
+        "no": "40",
+        "route": "11ÜS",
+        "status_code": "",
+        "stop": "45-FISTIKAĞACI (10:49 Çekmeköy - 542m)",
+        "dep_time": "09:44",
+        "route_details": "11ÜS_G_D2278",
+        "bus_code": "C-1883",
+        "status": "A"
+      }
+    ]
+  },
+  {
+    "C-1883": [
+      {
+        "no": "13",
+        "route": "11ÜS",
+        "status_code": "",
+        "stop": "N/A",
+        "dep_time": "06:35",
+        "route_details": "11ÜS_G_D2278",
+        "bus_code": "C-1883",
+        "status": "T"
+      },
+      {
+        "no": "40",
+        "route": "11ÜS",
+        "status_code": "",
+        "stop": "45-SULTANÇEŞME (10:49 Çekmeköy - 542m)",
+        "dep_time": "09:44",
+        "route_details": "11ÜS_G_D2278",
+        "bus_code": "C-1883",
+        "status": "A"
+      }
+    ],
+    "C-1884": [
+      {
+        "no": "13",
+        "route": "11ÜS",
+        "status_code": "",
+        "stop": "N/A",
+        "dep_time": "06:35",
+        "route_details": "11ÜS_G_D2278",
+        "bus_code": "C-1883",
+        "status": "T"
+      },
+      {
+        "no": "40",
+        "route": "11ÜS",
+        "status_code": "",
+        "stop": "45-OSMANGAZİ SAPAĞI (10:49 Çekmeköy - 542m)",
+        "dep_time": "09:44",
+        "route_details": "11ÜS_G_D2278",
+        "bus_code": "C-1883",
+        "status": "A"
+      }
+    ],
+    "C-1885": [
+      {
+        "no": "13",
+        "route": "11ÜS",
+        "status_code": "",
+        "stop": "N/A",
+        "dep_time": "06:35",
+        "route_details": "11ÜS_G_D2278",
+        "bus_code": "C-1883",
+        "status": "T"
+      },
+      {
+        "no": "40",
+        "route": "11ÜS",
+        "status_code": "",
+        "stop": "45-KÜLTÜR MERKEZİ (10:49 Çekmeköy - 542m)",
+        "dep_time": "09:44",
+        "route_details": "11ÜS_G_D2278",
+        "bus_code": "C-1883",
+        "status": "A"
+      }
+    ]
+  },
+  {
+    "C-1883": [
+      {
+        "no": "13",
+        "route": "11ÜS",
+        "status_code": "",
+        "stop": "N/A",
+        "dep_time": "06:35",
+        "route_details": "11ÜS_G_D2278",
+        "bus_code": "C-1883",
+        "status": "T"
+      },
+      {
+        "no": "40",
+        "route": "11ÜS",
+        "status_code": "",
+        "stop": "45-SULTANBEYLİ MERKEZ (10:49 Çekmeköy - 542m)",
+        "dep_time": "09:44",
+        "route_details": "11ÜS_G_D2278",
+        "bus_code": "C-1883",
+        "status": "A"
+      }
+    ],
+    "C-1884": [
+      {
+        "no": "13",
+        "route": "11ÜS",
+        "status_code": "",
+        "stop": "N/A",
+        "dep_time": "06:35",
+        "route_details": "11ÜS_G_D2278",
+        "bus_code": "C-1883",
+        "status": "T"
+      },
+      {
+        "no": "40",
+        "route": "11ÜS",
+        "status_code": "",
+        "stop": "45-E.MESLEK LİSESİ (10:49 Çekmeköy - 542m)",
+        "dep_time": "09:44",
+        "route_details": "11ÜS_G_D2278",
+        "bus_code": "C-1883",
+        "status": "A"
+      }
+    ],
+    "C-1885": [
+      {
+        "no": "13",
+        "route": "11ÜS",
+        "status_code": "",
+        "stop": "N/A",
+        "dep_time": "06:35",
+        "route_details": "11ÜS_G_D2278",
+        "bus_code": "C-1883",
+        "status": "T"
+      },
+      {
+        "no": "40",
+        "route": "11ÜS",
+        "status_code": "",
+        "stop": "45-BAĞLARBAŞI (10:49 Çekmeköy - 542m)",
+        "dep_time": "09:44",
+        "route_details": "11ÜS_G_D2278",
+        "bus_code": "C-1883",
+        "status": "A"
+      }
+    ]
+  },
+  {
+    "C-1883": [
+      {
+        "no": "13",
+        "route": "11ÜS",
+        "status_code": "",
+        "stop": "N/A",
+        "dep_time": "06:35",
+        "route_details": "11ÜS_G_D2278",
+        "bus_code": "C-1883",
+        "status": "T"
+      },
+      {
+        "no": "40",
+        "route": "11ÜS",
+        "status_code": "",
+        "stop": "45-ÇİFTLİK (10:49 Çekmeköy - 542m)",
+        "dep_time": "09:44",
+        "route_details": "11ÜS_G_D2278",
+        "bus_code": "C-1883",
+        "status": "A"
+      }
+    ],
+    "C-1884": [
+      {
+        "no": "13",
+        "route": "11ÜS",
+        "status_code": "",
+        "stop": "N/A",
+        "dep_time": "06:35",
+        "route_details": "11ÜS_G_D2278",
+        "bus_code": "C-1883",
+        "status": "T"
+      },
+      {
+        "no": "40",
+        "route": "11ÜS",
+        "status_code": "",
+        "stop": "45-SAMANDIRA LİSESİ (10:49 Çekmeköy - 542m)",
+        "dep_time": "09:44",
+        "route_details": "11ÜS_G_D2278",
+        "bus_code": "C-1883",
+        "status": "A"
+      }
+    ],
+    "C-1885": [
+      {
+        "no": "13",
+        "route": "11ÜS",
+        "status_code": "",
+        "stop": "N/A",
+        "dep_time": "06:35",
+        "route_details": "11ÜS_G_D2278",
+        "bus_code": "C-1883",
+        "status": "T"
+      },
+      {
+        "no": "40",
+        "route": "11ÜS",
+        "status_code": "",
+        "stop": "45-ŞEHİT EROL OLÇOK (10:49 Çekmeköy - 542m)",
+        "dep_time": "09:44",
+        "route_details": "11ÜS_G_D2278",
+        "bus_code": "C-1883",
+        "status": "A"
+      }
+    ]
+  }
+]

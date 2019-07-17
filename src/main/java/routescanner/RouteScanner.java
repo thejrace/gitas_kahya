@@ -14,7 +14,7 @@ import utils.RunNoComparator;
 import java.util.*;
 
 public class RouteScanner {
-    public static boolean DEBUG = true;
+    public static boolean DEBUG = false;
     private boolean shutdown = false;
     private String route;
     private ArrayList<String> routesToDownload;
@@ -57,7 +57,7 @@ public class RouteScanner {
         if( DEBUG ) System.out.println("downloading fleet data. ("+routesToDownload+")");
         routeFleetDownload.action();
         JSONObject fleetData = routeFleetDownload.getOutput();
-        if( DEBUG ) System.out.println("fleet data:  ||"+fleetData+"||");
+        System.out.println("fleet data:  ||"+fleetData+"||");
         // convert jsonobjects to <BusCode, ArrayList<RunData>>
         Iterator<String> busCodes = fleetData.keys();
         JSONArray tempData;
@@ -130,5 +130,6 @@ public class RouteScanner {
         } catch( JSONException e ){
             e.printStackTrace();
         }
+        //route = "11ÜS";
     }
 }

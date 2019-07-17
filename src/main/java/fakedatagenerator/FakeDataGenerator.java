@@ -11,11 +11,19 @@ public class FakeDataGenerator {
     public static int counter = -1;
 
     public static JSONObject statusChangeTest(){
-        return getData("statusChangeTest.json");
+        return getData("statusChangeTest_normal.json");
     }
 
     public static JSONObject stopChangeTest(){
         return getData("stopChangeTest_regular_forward.json");
+    }
+
+    public static JSONObject routeIntersectionTest(){
+        return getData("routeIntersectionTest_normal.json");
+    }
+
+    public static JSONObject ringPositionTest(){
+        return getData("ringPositionTest.json");
     }
 
     private static JSONObject getData( String path ){

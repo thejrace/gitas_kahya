@@ -30,12 +30,14 @@ public class RouteMap {
     }
 
 
-    public synchronized void updateBusPosition( String busCode, int direction, String stopName ){
-        int pos = findStopIndex( direction, stopName );
+    public void updateBusPosition( String busCode ){
+        if( buses.get(busCode).getDirection() == RouteDirection.RING ) return;
+        int pos = findStopIndex( buses.get(busCode).getDirection(), buses.get(busCode).getStop() );
         if( pos != -1 ){
             buses.get(busCode).setPosition(pos);
         } else {
-            System.out.println(busCode + " stop index is not found!");
+            if( RouteScanner.DEBUG ) System.out.println(busCode + " stop index is not found!");
+            return;
         }
         // check if we update the position of active bus,
         // if so, check whether it crossed the intersection with the other routes
@@ -43,7 +45,7 @@ public class RouteMap {
             ArrayList<IntersectionData> routeIntersectionData = map.get(pos).getIntersections();
             if( routeIntersectionData.size() > 0 ){
                 for( IntersectionData intersectionData : routeIntersectionData ){
-                    if( intersectionData.getDirection() != direction ) continue;
+                    if( intersectionData.getDirection() != buses.get(busCode).getDirection() ) continue;
                     // check if active bus is between intersection point and the end
                     int intersectionPos = findStopIndex(intersectionData.getDirection(), intersectionData.getIntersectedAt() );
                     if( pos >= intersectionPos && pos <= (( intersectionData.getDirection() == RouteDirection.FORWARD ) ? directionMergePoint : map.size()-1 ) ){
@@ -60,28 +62,30 @@ public class RouteMap {
                 }
             }
         }
+        System.out.println( buses.get(busCode).toString() );
     }
 
     public void passBusData( String busCode, ArrayList<RunData> runData ){
         if( !buses.containsKey(busCode) ){
             if( RouteScanner.DEBUG ) System.out.println("adding a bus to route map:  ||"+busCode+"||");
             Bus bus = new Bus( busCode, runData );
+            bus.setDirectionMergePoint(directionMergePoint);
             bus.setDirectionListener( ( stops ) -> {
-                System.out.println(busCode +"  DIRACITON!!!");
+                if( RouteScanner.DEBUG ) System.out.println(busCode +"  DIRACITON!!!   " + stops);
                 ArrayList<Integer> prevFoundIndexes = new ArrayList<>();
                 for( int j = 0; j < stops.size(); j++ ){
                     String stop = stops.get(j);
                     ArrayList<Integer> foundIndexes = findStopOccurences( stop, 0 );
-                    System.out.println("FOUND INDEXES: " + foundIndexes );
+                    if( RouteScanner.DEBUG ) System.out.println("FOUND INDEXES: " + foundIndexes );
                     if( foundIndexes.size() == 1 ){ // @todo eger sacma sapan bi durak algılarsa onu da bulamayacak direk yöne karar vermek dogru mu? OLUYOR!!
                         // if there is only one match, means this stop is on one direction
                         // we can determine which way by comparing it with merge point
                         if( foundIndexes.get(0) > directionMergePoint ){
-                            System.out.println(bus.getCode() + "  singleton stop DIR: " + RouteDirection.returnText(RouteDirection.BACKWARD));
+                             System.out.println(bus.getCode() + "  singleton stop DIR: " + RouteDirection.returnText(RouteDirection.BACKWARD));
                             bus.setDirection(RouteDirection.BACKWARD);
                             break;
                         } else {
-                            System.out.println(bus.getCode() + "  singleton stop DIR: " + RouteDirection.returnText(RouteDirection.FORWARD));
+                           System.out.println(bus.getCode() + "  singleton stop DIR: " + RouteDirection.returnText(RouteDirection.FORWARD));
                             bus.setDirection(RouteDirection.FORWARD);
                             break;
                         }
@@ -93,7 +97,7 @@ public class RouteMap {
                                 bus.setDirection(RouteDirection.FORWARD);
                                 break;
                            } else if( ( prevFoundIndexes.get(0) > foundIndexes.get(0) ) && ( prevFoundIndexes.get(1) < foundIndexes.get(1) )  ){ // best case
-                               System.out.println(bus.getCode() + "  DIR: " + RouteDirection.returnText(RouteDirection.BACKWARD));
+                                System.out.println(bus.getCode() + "  DIR: " + RouteDirection.returnText(RouteDirection.BACKWARD));
                                bus.setDirection(RouteDirection.BACKWARD);
                                break;
                            }
@@ -102,21 +106,34 @@ public class RouteMap {
                     prevFoundIndexes = foundIndexes;
                 }
             });
+
             buses.put( busCode, bus );
         } else {
             buses.get(busCode).setRunData(runData);
         }
         buses.get(busCode).updateStatus();
+        updateBusPosition(busCode);
     }
 
     public int findStopIndex( int direction, String stopName ){
+        try{
+            if( stopName.equals("N/A") ) return -1; // @todo BUG FIX!!!!!
+        } catch( NullPointerException e ){
+            return -1;
+        }
         int k = 0;
         if( direction == RouteDirection.BACKWARD ) k = directionMergePoint;
-        return findStopOccurences(stopName, k ).get(0);
+        try {
+            return findStopOccurences(stopName, k ).get(0);
+        } catch( IndexOutOfBoundsException e ){
+            //e.printStackTrace();
+        }
+        return -1;
     }
 
     private ArrayList<Integer> findStopOccurences( String stopName, int startIndex ){
         ArrayList<Integer> occurences = new ArrayList<>();
+        if( stopName.equals("N/A")) return occurences;
         for( ; startIndex < map.size(); startIndex++ ){
             if( map.get(startIndex).getName().equals(stopName) || StringSimilarity.similarity(map.get(startIndex).getName(), stopName ) >= 0.8 ){
                 occurences.add(startIndex);
