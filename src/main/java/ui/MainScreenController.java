@@ -74,7 +74,7 @@ public class MainScreenController implements Initializable {
     public void setStatus( String status ){
         Platform.runLater( () -> {
             if( !debugFlag ) return;
-            if( uiStatusContainer.getItems().size() > 30 ){
+            if( uiStatusContainer.getItems().size() > 250 ){
                 uiStatusContainer.getItems().clear();
             }
             uiStatusContainer.getItems().add(status);

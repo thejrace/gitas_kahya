@@ -27,7 +27,7 @@ public class RouteMap {
     private Map<String, Boolean> intersectionBeginFlags; // holds the flag for whether intersection action began or not for given route
     private Map<String, DirectionCounter> dirCounters = new HashMap<>(); // direction counters
 
-    private static boolean DIR_DEBUG_FLAG = false;
+    private static boolean DIR_DEBUG_FLAG = true;
     private static boolean BUS_POS_DEBUG_FLAG = true;
 
     private StatusListener statusListener;
@@ -71,8 +71,8 @@ public class RouteMap {
                 }
             }
         }
-        kahyaUIListener.onFinish( buses.get(busCode).getUIData());
         statusListener.onNotify(buses.get(busCode).toString());
+        if( buses.get(busCode).getDirFoundFlag() ) kahyaUIListener.onFinish( buses.get(busCode).getUIData());
         System.out.println( buses.get(busCode).toString() );
     }
 
@@ -128,7 +128,7 @@ public class RouteMap {
                                 }
                             }
                         } else { // no data previously
-                            continue;
+
                         }
                     } else { // no match ??
                         return;

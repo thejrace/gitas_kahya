@@ -77,6 +77,13 @@
     -fx-text-fill:#ec0606;
 }
 
+.bs-active .diff-label {
+    -fx-text-fill:#1dd519;
+}
+.bs-waiting .diff-label {
+    -fx-text-fill: #cbcdc5;
+}
+
 .active .diff-label {
     -fx-text-fill: #6e6e6e;
 }
@@ -99,6 +106,12 @@
     -fx-fill: #2f4bbc;
 }
 
+.bs-waiting .led {
+    -fx-fill: #cbcdc5;
+}
+.bs-active .led {
+    -fx-fill:#1dd519;
+}
 /* test ui */
 
 .bus-box{
@@ -137,6 +150,13 @@
 }
 .bus-box.backward .left .label {
     -fx-text-fill:#ff0000;
+}
+
+.bus-box.bs-active .left .label {
+    -fx-text-fill: #47ff3e;
+}
+.bus-box.bs-waiting .left .label {
+    -fx-text-fill:#80827c;
 }
 
 

@@ -206,7 +206,7 @@ public class Bus {
     }
 
     public UIBusData getUIData(){
-        return new UIBusData(code, stop, RouteMap.ACTIVE_BUS_POSITION - position, runData.get(activeRunIndex).getRouteDetails(), RouteDirection.returnText(direction));
+        return new UIBusData(code, stop, RouteMap.ACTIVE_BUS_POSITION - position, runData.get(activeRunIndex).getRouteDetails(), RouteDirection.returnText(direction), status );
     }
 
     public int getPosition() {
@@ -227,6 +227,10 @@ public class Bus {
 
     public String getCode() {
         return code;
+    }
+
+    public boolean getDirFoundFlag(){
+        return dirFoundFlag;
     }
 
     public String toString(){

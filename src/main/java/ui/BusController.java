@@ -7,7 +7,9 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.shape.Circle;
+import routescanner.BusStatus;
 import routescanner.RouteMap;
+import routescanner.RouteScanner;
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -30,6 +32,9 @@ public class BusController implements Initializable {
 
     public void setActiveBusFlag(){
         activeBusFlag = true;
+        try {
+            uiContainer.getStyleClass().remove(0);
+        } catch( IndexOutOfBoundsException e ){ }
         uiContainer.getStyleClass().add("active");
     }
 
@@ -38,15 +43,25 @@ public class BusController implements Initializable {
         uiStopLabel.setText(data.getStop() + " ["+data.getDirectionText()+"] (" + data.getRouteDetails() + ")");
         uiDiffLabel.setText(String.valueOf(data.getDiff()));
 
-        uiContainer.getStyleClass().add(0, "forward");
         try {
             uiContainer.getStyleClass().remove(0);
         } catch( IndexOutOfBoundsException e ){ }
+
+        if( !data.getBusCode().equals(RouteScanner.ACTIVE_BUS_CODE )){
+            if( data.getStatus() == BusStatus.ACTIVE ){
+                uiContainer.getStyleClass().add(0, "bs-active");
+            } else if( data.getStatus() == BusStatus.WAITING ){
+                uiContainer.getStyleClass().add(0, "bs-waiting");
+            }
+        }
+
+
+       /*
         if( data.getDiff() < 0 ){
             uiContainer.getStyleClass().add(0, "backward");
         } else {
             uiContainer.getStyleClass().add(0, "forward");
-        }
+        }*/
     }
 
 }

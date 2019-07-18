@@ -15,7 +15,7 @@ public class FakeDataGenerator {
     }
 
     public static JSONObject stopChangeTest(){
-        return getData("stopChangeTest_regular_singletonMixup.json");
+        return getData("stopChangeTest_mixTest2.json");
     }
 
     public static JSONObject routeIntersectionTest(){
