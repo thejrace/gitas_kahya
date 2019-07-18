@@ -6,6 +6,7 @@ import javafx.stage.Stage;
 import org.json.JSONObject;
 import routescanner.RouteScanner;
 import server.StealCookie;
+import ui.MainScreen;
 
 public class ClientMain extends Application {
 
@@ -15,13 +16,8 @@ public class ClientMain extends Application {
         stealCookie.addListener(() -> {
             Platform.runLater(()-> {
                 try {
-                    //MainScreen mainScreen = new MainScreen();
-                    //mainScreen.start(new Stage());
-
-                    RouteScanner routeScanner = new RouteScanner("C-762");
-                    routeScanner.start();
-
-
+                    MainScreen mainScreen = new MainScreen();
+                    mainScreen.start(new Stage());
                 } catch ( Exception e ){
                     e.printStackTrace();
                 }

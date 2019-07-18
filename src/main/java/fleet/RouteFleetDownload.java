@@ -36,7 +36,7 @@ public class RouteFleetDownload extends Filo_Task {
             }
         }
         //output = FakeDataGenerator.statusChangeTest();
-        output = FakeDataGenerator.stopChangeTest();
+        //output = FakeDataGenerator.stopChangeTest();
         //output = FakeDataGenerator.routeIntersectionTest();
         //output = FakeDataGenerator.ringPositionTest();
     }

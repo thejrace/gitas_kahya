@@ -1,5 +1,6 @@
 package routescanner;
 
+import client.StatusListener;
 import fleet.OADDDownload;
 import fleet.RouteFleetDownload;
 import fleet.RunData;
@@ -9,11 +10,13 @@ import org.json.JSONObject;
 import server.FetchRouteIntersections;
 import server.IntersectionData;
 import server.RouteStopsDownload;
+import ui.KahyaUIListener;
 import utils.RunNoComparator;
 
 import java.util.*;
 
 public class RouteScanner {
+    public static String ACTIVE_BUS_CODE;
     public static boolean DEBUG = false;
     private boolean shutdown = false;
     private String route;
@@ -22,11 +25,13 @@ public class RouteScanner {
     private RouteMap routeMap;
     private Map<String, ArrayList<RunData>> fleetRunData = new HashMap<>();
 
-    private boolean downloadIntersectedRoutesFlag = false;
+    private StatusListener statusListener;
+    private KahyaUIListener kahyaUIListener;
 
     public RouteScanner( String activeBusCode ){
         if( DEBUG ) System.out.println("route scanner initialized ("+activeBusCode+")");
         this.activeBusCode = activeBusCode;
+        ACTIVE_BUS_CODE = activeBusCode;
     }
 
     public void start(){
@@ -36,7 +41,7 @@ public class RouteScanner {
             // begin scan loop
             while( !shutdown ){
 
-               downloadFleetData();
+                downloadFleetData();
 
                 try {
                     Thread.sleep(10000);
@@ -44,6 +49,7 @@ public class RouteScanner {
                     e.printStackTrace();
                 }
             }
+            System.out.println( activeBusCode + " shutdown!");
         });
         scannerThread.setDaemon(true);
         scannerThread.start();
@@ -117,6 +123,8 @@ public class RouteScanner {
         routeMap.setDirectionMergePoint(directionMergePoint);
         routeMap.setRouteIntersections(routeIntersections);
         routeMap.setActiveBusCode(activeBusCode);
+        routeMap.addStatusListener( statusListener );
+        routeMap.addKahyaUIListener( kahyaUIListener );
         if( DEBUG ) System.out.println("route map created. ("+route+")");
     }
 
@@ -131,5 +139,17 @@ public class RouteScanner {
             e.printStackTrace();
         }
         //route = "11ÜS";
+    }
+
+    public void addStatusListener( StatusListener listener ){
+        this.statusListener = listener;
+    }
+
+    public void addKahyaUIListener( KahyaUIListener listener ){
+        this.kahyaUIListener = listener;
+    }
+
+    public void shutdown(){
+        shutdown = true;
     }
 }

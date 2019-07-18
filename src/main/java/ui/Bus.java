@@ -1,46 +1,27 @@
 package ui;
 
+import fleet.UIBusData;
+
 public class Bus  extends UIComponent {
 
-    public String getBusCode() {
-        return busCode;
-    }
+    private UIBusData data;
 
-    private String busCode;
-
-
-
-    private String stop;
-
-    private int diff;
-
-    public Bus( String busCode, String stop, int diff ){
+    public Bus( UIBusData data ){
         loadFXML("bus");
-        ((BusController)(controller)).setData(busCode, stop, diff );
-        this.diff = diff;
-        this.busCode = busCode;
-        this.stop = stop;
+        ((BusController)(controller)).setData(data);
+        this.data = data;
     }
 
     public void notifyUI(){
-        ((BusController)(controller)).setData(busCode, stop, diff );
+        ((BusController)(controller)).setData(data);
     }
 
-    public int getDiff() {
-        return diff;
+    public UIBusData getData(){
+        return data;
     }
 
-    public void setDiff(int diff) {
-        this.diff = diff;
+    public void setData( UIBusData data ){
+        this.data = data;
     }
-
-    public String getStop() {
-        return stop;
-    }
-
-    public void setStop(String stop) {
-        this.stop = stop;
-    }
-
 
 }

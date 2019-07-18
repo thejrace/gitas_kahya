@@ -11,10 +11,7 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
-import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
@@ -39,6 +36,8 @@ public class MainScreenController implements Initializable {
     @FXML private CheckBox uiDebugCheckbox;
     protected ObservableList<Node> dataRowsTemp;
 
+    @FXML private ListView<String> uiStatusContainer;
+
     private String activeBusCode;
     private String route;
     private double splitCount;
@@ -58,8 +57,11 @@ public class MainScreenController implements Initializable {
             @Override
             public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
                 if( !newValue ){
-                    uiDebugLabel.setText("");
+                    uiStatusContainer.getItems().clear();
+                    uiStatusContainer.setVisible(false);
                     debugFlag = false;
+                } else {
+                    uiStatusContainer.setVisible(true);
                 }
                 debugFlag = newValue;
             }
@@ -68,11 +70,15 @@ public class MainScreenController implements Initializable {
 
 
     }
-    public void updateDebugMessage( String message ){
-        Platform.runLater(() -> {
-            if( debugFlag ) uiDebugLabel.setText( message );
-        });
 
+    public void setStatus( String status ){
+        Platform.runLater( () -> {
+            if( !debugFlag ) return;
+            if( uiStatusContainer.getItems().size() > 30 ){
+                uiStatusContainer.getItems().clear();
+            }
+            uiStatusContainer.getItems().add(status);
+        });
     }
 
     public void reset(){
@@ -86,14 +92,9 @@ public class MainScreenController implements Initializable {
         this.route = route;
     }
 
-    public void splitDims( int totalHeight ){
-        uiBusContainer.setPrefHeight(totalHeight);
-        uiBusContainerOverlay.setPrefHeight(totalHeight);
-    }
-
     public void addBus( Bus bus ){
         uiBusContainer.getChildren().add( bus.getUI() );
-        busList.put(bus.getBusCode(), bus );
+        busList.put(bus.getData().getBusCode(), bus );
     }
 
     public void setError( String message ){
@@ -119,9 +120,29 @@ public class MainScreenController implements Initializable {
         }
     }
 
+    public void updateBusData( UIBusData data ){
+        Platform.runLater(() ->{
+            if( !busList.containsKey(data.getBusCode())){
+                Bus busTemp = new Bus(data);
+                busTemp.getUI().setId(String.valueOf(data.getDiff()));
+                if( data.getBusCode().equals(activeBusCode) ) ((BusController)busTemp.getController()).setActiveBusFlag();
+                addBus( busTemp );
+            } else {
+                busList.get(data.getBusCode()).setData(data);
+                busList.get(data.getBusCode()).getUI().setId(String.valueOf(data.getDiff()));
+                busList.get(data.getBusCode()).notifyUI();
+            }
+            sort();
+            //@todo burda olan otobus, kahyaclient ten gelmediyse UI den uçur
+            uiLastUpdatedLabel.setText(Common.getDateTime());
+            uiErrorLabel.setText("");
+            uiRouteLabel.setText(route);
+        });
+    }
+
     public void update( UIBusData activeBusData,  ArrayList<UIBusData> fleetBusData ){
         // @todo -> -1000 vs gibiyse atla ya da uçur listeden
-        Platform.runLater(() -> {
+        /*Platform.runLater(() -> {
             activeBusPos = activeBusData.getDiff() * splitCount;
             for( UIBusData busData : fleetBusData ){
                 if( !busList.containsKey(busData.getBusCode())){
@@ -141,7 +162,7 @@ public class MainScreenController implements Initializable {
             uiLastUpdatedLabel.setText(Common.getDateTime());
             uiErrorLabel.setText("");
             uiRouteLabel.setText(route);
-        });
+        });*/
     }
 
     public void updateStatus( String msg ){

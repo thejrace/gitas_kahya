@@ -3,6 +3,7 @@ package ui;
 import client.KahyaActionListener;
 import client.KahyaClient;
 import fleet.ClientFinishListener;
+import fleet.UIBusData;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.event.EventHandler;
@@ -11,6 +12,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
+import routescanner.RouteScanner;
 import utils.StringSimilarity;
 
 import java.util.HashMap;
@@ -18,12 +20,7 @@ import java.util.Map;
 
 public class MainScreen extends Application {
 
-    private boolean UIInit = false;
-
-    private KahyaClient client;
-    private String prevBusCode;
-
-    private Map<String, Boolean> threadFlags = new HashMap<>();
+    private RouteScanner routeScanner;
 
     @Override
     public void start(Stage primaryStage) throws Exception{
@@ -37,57 +34,22 @@ public class MainScreen extends Application {
             primaryStage.show();
             MainScreenController controller = loader.getController();
 
-            // active bus definitions
             controller.setActionListener(new KahyaActionListener() {
                 @Override
                 public void onStart(String busCode) {
-                    controller.reset();
-                    UIInit = false;
-                    threadFlags.put(prevBusCode, false);
-                    threadFlags.put(busCode, true);
-                    // if there is a previous client, kill it
-                    if( client != null ) client.shutdown();
-                    client = new KahyaClient(busCode);
-                    client.setUIListener( () -> {
-                        controller.update( client.getActiveBusData(), client.getOutput() );
-                        controller.setRoute(client.getRoutes());
+                    if( routeScanner != null ) routeScanner.shutdown();
+                    routeScanner = new RouteScanner(busCode);
+                    routeScanner.addStatusListener( (status) -> {
+                        controller.setStatus(status);
                     });
-                    client.setStatusListener( message -> {
-                        controller.updateStatus(message);
+                    routeScanner.addKahyaUIListener( ( UIBusData ) -> {
+                        controller.updateBusData( UIBusData );
                     });
-                    client.setDebugListener( message -> {
-                        controller.updateDebugMessage(message);
-                    });
-                    Thread clientThread = new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-                            while( threadFlags.get(busCode) ){
-
-                                client.start();
-                                if( client.getErrorFlag() ){
-                                    controller.setError(client.getErrorMessage());
-                                } else {
-                                    if( !UIInit ){
-                                        controller.splitDims(750);
-                                        UIInit = true;
-                                    }
-                                }
-                                try {
-                                    Thread.sleep(20000);
-                                } catch( InterruptedException e ){
-                                    e.printStackTrace();
-                                }
-                            }
-                            System.out.println(busCode + " thread is killed!!!!!");
-                        }
-                    });
-                    clientThread.setDaemon(true);
-                    clientThread.start();
-                    prevBusCode = busCode;
+                    routeScanner.start();
                 }
             });
 
-           primaryStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
+            primaryStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
                 @Override
                 public void handle(WindowEvent e) {
                     Platform.exit();
@@ -99,6 +61,4 @@ public class MainScreen extends Application {
             e.printStackTrace();
         }
     }
-
-
 }
