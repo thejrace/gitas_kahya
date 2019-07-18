@@ -18,7 +18,7 @@ public class ClientMain extends Application {
                     //MainScreen mainScreen = new MainScreen();
                     //mainScreen.start(new Stage());
 
-                    RouteScanner routeScanner = new RouteScanner("C-766");
+                    RouteScanner routeScanner = new RouteScanner("C-762");
                     routeScanner.start();
 
 

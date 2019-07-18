@@ -1,5 +1,6 @@
 package routescanner;
 
+import fleet.DirectionCounter;
 import fleet.RouteDirection;
 import fleet.RunData;
 import org.json.JSONArray;
@@ -21,6 +22,7 @@ public class RouteMap {
     private Map<String, Bus> buses; // buses on the map
     private int directionMergePoint; // index where merge happens
     private Map<String, Boolean> intersectionBeginFlags; // holds the flag for whether intersection action began or not for given route
+    private Map<String, DirectionCounter> dirCounters = new HashMap<>(); // direction counters
 
     public RouteMap( String route ){
         this.route = route;
@@ -72,6 +74,7 @@ public class RouteMap {
             bus.setDirectionMergePoint(directionMergePoint);
             bus.setDirectionListener( ( stops ) -> {
                 if( RouteScanner.DEBUG ) System.out.println(busCode +"  DIRACITON!!!   " + stops);
+                dirCounters.put(busCode, new DirectionCounter() );
                 ArrayList<Integer> prevFoundIndexes = new ArrayList<>();
                 for( int j = 0; j < stops.size(); j++ ){
                     String stop = stops.get(j);
@@ -81,32 +84,57 @@ public class RouteMap {
                         // if there is only one match, means this stop is on one direction
                         // we can determine which way by comparing it with merge point
                         if( foundIndexes.get(0) > directionMergePoint ){
-                             System.out.println(bus.getCode() + "  singleton stop DIR: " + RouteDirection.returnText(RouteDirection.BACKWARD));
-                            bus.setDirection(RouteDirection.BACKWARD);
-                            break;
+                            System.out.println(bus.getCode() + "  singleton stop DIR INC: " + RouteDirection.returnText(RouteDirection.BACKWARD));
+                            //bus.setDirection(RouteDirection.BACKWARD);
+                            //break;
+                            dirCounters.get(busCode).increment(RouteDirection.BACKWARD);
                         } else {
-                           System.out.println(bus.getCode() + "  singleton stop DIR: " + RouteDirection.returnText(RouteDirection.FORWARD));
-                            bus.setDirection(RouteDirection.FORWARD);
-                            break;
+                            System.out.println(bus.getCode() + "  singleton stop DIR INC: " + RouteDirection.returnText(RouteDirection.FORWARD));
+                            //bus.setDirection(RouteDirection.FORWARD);
+                            //break;
+                            dirCounters.get(busCode).increment(RouteDirection.FORWARD);
                         }
                     } else if( foundIndexes.size() == 2 ){ // this is expected most of the time
                         // if we have previous indexes, compare them with current pair by pair
-                        if( prevFoundIndexes.size() > 0 ){
+                        if( prevFoundIndexes.size() > 1 ){
                            if( ( prevFoundIndexes.get(0) < foundIndexes.get(0) ) && ( prevFoundIndexes.get(1) > foundIndexes.get(1) ) ){ // best case
-                                System.out.println(bus.getCode() + "  DIR: " + RouteDirection.returnText(RouteDirection.FORWARD));
-                                bus.setDirection(RouteDirection.FORWARD);
-                                break;
+                                System.out.println(bus.getCode() + "  DIR INC: " + RouteDirection.returnText(RouteDirection.FORWARD));
+                                //bus.setDirection(RouteDirection.FORWARD);
+                                //break;
+                               dirCounters.get(busCode).increment(RouteDirection.FORWARD);
                            } else if( ( prevFoundIndexes.get(0) > foundIndexes.get(0) ) && ( prevFoundIndexes.get(1) < foundIndexes.get(1) )  ){ // best case
-                                System.out.println(bus.getCode() + "  DIR: " + RouteDirection.returnText(RouteDirection.BACKWARD));
-                               bus.setDirection(RouteDirection.BACKWARD);
-                               break;
+                                System.out.println(bus.getCode() + "  DIR INC: " + RouteDirection.returnText(RouteDirection.BACKWARD));
+                                //bus.setDirection(RouteDirection.BACKWARD);
+                                //break;
+                               dirCounters.get(busCode).increment(RouteDirection.BACKWARD);
                            }
+                        } else if( prevFoundIndexes.size() == 1 ){ // prev singleton
+                            if( prevFoundIndexes.get(0) > directionMergePoint){ // singleton stop on backward dir
+                                if( prevFoundIndexes.get(0) < foundIndexes.get(1) ){
+                                    dirCounters.get(busCode).increment(RouteDirection.BACKWARD);
+                                } else {
+                                    dirCounters.get(busCode).increment(RouteDirection.FORWARD);
+                                }
+                            } else { // singleton stop on forward dir
+                                if( prevFoundIndexes.get(0) > foundIndexes.get(0) ){
+                                    dirCounters.get(busCode).increment(RouteDirection.FORWARD);
+                                } else {
+                                    dirCounters.get(busCode).increment(RouteDirection.BACKWARD);
+                                }
+                            }
+                        } else { // no data previously
+                            continue;
                         }
+                    } else { // no match ??
+                        return;
                     }
                     prevFoundIndexes = foundIndexes;
                 }
+                int dir = dirCounters.get(busCode).getDirection();
+                if( dir != -1 ){
+                    bus.setDirection(dir);
+                }
             });
-
             buses.put( busCode, bus );
         } else {
             buses.get(busCode).setRunData(runData);

@@ -86,7 +86,7 @@ public class Bus {
                                 stopData.add(runData.get(activeRunIndex).getCurrentStop());
                                 stopAccumulateCounter++;
                                 if( RouteScanner.DEBUG ) System.out.print(code + " was active and accumulate stops ("+runData.get(activeRunIndex).getCurrentStop()+") COUNTER: "+stopAccumulateCounter+"  ###  ");
-                                if( stopAccumulateCounter == 3 ){ // after 4 collection determine the direction
+                                if( stopAccumulateCounter == 4 ){ // after 4 collection determine the direction
                                     accumulatorListener.afterAcculumate(stopData);
                                     stopAccumulateCounter = 0;
                                     // @todo reset stop data as well after tests
