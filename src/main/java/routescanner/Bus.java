@@ -67,6 +67,12 @@ public class Bus {
                     runTypes.add( RouteDirection.action(route, k, runDetailsList) );
                 }
                 checkStatus();
+
+                if( !runData.get(activeRunIndex).getCurrentStop().equals("N/A") ){
+                    stopData.add(runData.get(activeRunIndex).getCurrentStop());
+                    stopAccumulateCounter++;
+                }
+
                 prevStatus = status;
             } else {
                 // this block is called when run is ring route and direction is not yet found
@@ -157,11 +163,11 @@ public class Bus {
                         // @todo what to do? warn RouteMap to remove it?
                     }
                 } else if( prevStatus == BusStatus.WAITING ){
-                    if( status == BusStatus.ACTIVE ){
-                        // was waiting now on the move
+                    if( status != BusStatus.UNDEFINED ){
+                        // was waiting now on the move or still waiting
                         direction = RouteDirection.getDirectionLetter(route.length(), runData.get(activeRunIndex).getRouteDetails());
                         dirFoundFlag = true;
-                    } else if( status == BusStatus.UNDEFINED ){
+                    } else{
                         // @todo what to do? warn RouteMap to remove it?
                     }
                 }

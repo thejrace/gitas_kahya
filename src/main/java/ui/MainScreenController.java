@@ -174,6 +174,7 @@ public class MainScreenController implements Initializable {
         String busCode = Common.regexTrim(uiBusCodeInput.getText());
         if( busCode.equals("") ) return;
         activeBusCode = ( busCode.contains("-") ) ? busCode.toUpperCase() : busCode.substring(0,1).toUpperCase() + "-" + busCode.substring(1).toUpperCase();
+        uiStatusContainer.getItems().add("Kahya tetik.");
         actionListener.onStart( activeBusCode );
     }
 

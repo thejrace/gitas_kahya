@@ -204,7 +204,6 @@
          </children>
       </VBox>
       <Label layoutX="934.0" layoutY="6.0" text="kahya_client" textFill="#535353" />
-      <Label fx:id="uiStatusLabel" layoutX="35.0" layoutY="4.0" text="{{status}}" textFill="#535353" />
       <Label fx:id="uiDebugLabel" alignment="TOP_LEFT" layoutX="486.0" layoutY="53.0" prefHeight="526.0" prefWidth="347.0" textFill="WHITE" wrapText="true">
          <styleClass>
             <String fx:value="lbl-gray" />
