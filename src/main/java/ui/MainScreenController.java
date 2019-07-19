@@ -27,8 +27,6 @@ import java.util.*;
 
 public class MainScreenController implements Initializable {
 
-    @FXML private AnchorPane uiContainer;
-    @FXML private AnchorPane uiBusContainerOverlay;
     @FXML private VBox uiBusContainer;
     @FXML private TextField uiBusCodeInput;
     @FXML private Button uiActionBtn;
@@ -38,17 +36,12 @@ public class MainScreenController implements Initializable {
     @FXML private Label uiRouteLabel;
     @FXML private Label uiLastUpdatedLabel;
     @FXML private Label uiErrorLabel;
-    @FXML private Label uiStatusLabel;
-    @FXML private Label uiDebugLabel;
     @FXML private CheckBox uiDebugCheckbox;
-    protected ObservableList<Node> dataRowsTemp;
 
     @FXML private ListView<String> uiStatusContainer;
 
     private String activeBusCode;
     private String route;
-    private double splitCount;
-    private double activeBusPos;
     private Map<String, Bus> busList = new HashMap<>();
     private KahyaActionListener actionListener;
     private boolean debugFlag = true;
@@ -175,35 +168,6 @@ public class MainScreenController implements Initializable {
             uiErrorLabel.setText("");
             uiRouteLabel.setText(route);
         });
-    }
-
-    public void update( UIBusData activeBusData,  ArrayList<UIBusData> fleetBusData ){
-        // @todo -> -1000 vs gibiyse atla ya da uçur listeden
-        /*Platform.runLater(() -> {
-            activeBusPos = activeBusData.getDiff() * splitCount;
-            for( UIBusData busData : fleetBusData ){
-                if( !busList.containsKey(busData.getBusCode())){
-                    Bus busTemp = new Bus(busData.getBusCode(), busData.getStop() +  " - " + busData.getRouteDetails(), busData.getDiff() );
-                    busTemp.getUI().setId(String.valueOf(busTemp.getDiff()));
-                    if( busData.getBusCode().equals(activeBusCode) ) ((BusController)busTemp.getController()).setActiveBusFlag();
-                    addBus( busTemp);
-                } else {
-                    busList.get(busData.getBusCode()).setDiff( busData.getDiff() );
-                    busList.get(busData.getBusCode()).setStop( busData.getStop() +  " - " + busData.getRouteDetails() );
-                    busList.get(busData.getBusCode()).getUI().setId(String.valueOf(busData.getDiff()));
-                    busList.get(busData.getBusCode()).notifyUI();
-                }
-            }
-            sort();
-            //@todo burda olan otobus, kahyaclient ten gelmediyse UI den uçur
-            uiLastUpdatedLabel.setText(Common.getDateTime());
-            uiErrorLabel.setText("");
-            uiRouteLabel.setText(route);
-        });*/
-    }
-
-    public void updateStatus( String msg ){
-        Platform.runLater( () -> { uiStatusLabel.setText(msg); });
     }
 
     private void kahyaActionStart(){

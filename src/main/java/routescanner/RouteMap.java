@@ -108,15 +108,15 @@ public class RouteMap {
                         } else if( prevFoundIndexes.size() == 1 ){ // prev singleton
                             if( prevFoundIndexes.get(0) > directionMergePoint){ // singleton stop on backward dir
                                 if( prevFoundIndexes.get(0) < foundIndexes.get(1) ){
-                                    dirCounters.get(busCode).increment(RouteDirection.BACKWARD);
-                                } else {
                                     dirCounters.get(busCode).increment(RouteDirection.FORWARD);
+                                } else {
+                                    dirCounters.get(busCode).increment(RouteDirection.BACKWARD);
                                 }
                             } else { // singleton stop on forward dir
                                 if( prevFoundIndexes.get(0) > foundIndexes.get(0) ){
-                                    dirCounters.get(busCode).increment(RouteDirection.FORWARD);
-                                } else {
                                     dirCounters.get(busCode).increment(RouteDirection.BACKWARD);
+                                } else {
+                                    dirCounters.get(busCode).increment(RouteDirection.FORWARD);
                                 }
                             }
                         } else { // no data previously

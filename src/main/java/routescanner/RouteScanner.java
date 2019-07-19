@@ -19,7 +19,6 @@ public class RouteScanner {
     public static boolean DEBUG = false;
     private boolean shutdown = false;
     private String route;
-    private ArrayList<String> routesToDownload;
     private String activeBusCode;
     private RouteMap routeMap;
     private Map<String, ArrayList<RunData>> fleetRunData = new HashMap<>();
@@ -61,7 +60,7 @@ public class RouteScanner {
 
     private void downloadFleetData(){
         fleetRunData = new HashMap<>();
-        routesToDownload = routeMap.getIntersectedRoutes();
+        ArrayList<String> routesToDownload = routeMap.getIntersectedRoutes();
         RouteFleetDownload routeFleetDownload = new RouteFleetDownload(routesToDownload);
         if( DEBUG ) System.out.println("downloading fleet data. ("+routesToDownload+")");
         routeFleetDownload.action();
@@ -91,7 +90,6 @@ public class RouteScanner {
             Collections.sort(fleetRunData.get(key), new RunNoComparator() ); // sort by run no
             routeMap.passBusData( key, fleetRunData.get(key) );
         }
-
     }
 
     private void initializeRouteMap(){

@@ -64,10 +64,10 @@
 }
 .info-wrapper {
     -fx-background-color:#2c2a2a;
-    -fx-padding:0 5 0 5;
+    -fx-padding:0 3 0 3;
 }
 .diff-label{
-    -fx-font-size:25;
+    -fx-font-size:18;
     -fx-font-weight:bold;
 }
 .forward .diff-label {
@@ -85,11 +85,11 @@
 }
 
 .active .diff-label {
-    -fx-text-fill: #6e6e6e;
+    -fx-text-fill: #3a57ed;
 }
 
 .info-label {
-    -fx-font-size:11;
+    -fx-font-size:10;
     -fx-text-fill: #6e6e6e;
 }
 .led {
