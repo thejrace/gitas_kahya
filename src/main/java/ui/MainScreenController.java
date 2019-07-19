@@ -49,6 +49,8 @@ public class MainScreenController implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
 
+
+
         uiActionBtn.setOnMousePressed( ev -> {
             kahyaActionStart();
         });
@@ -98,6 +100,10 @@ public class MainScreenController implements Initializable {
             reset();
         });
 
+    }
+
+    public void setInitEvents(){
+        uiBusCodeInput.requestFocus();
     }
 
     public void setStatus( String status ){

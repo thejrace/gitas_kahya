@@ -26,7 +26,7 @@ public class MainScreen extends Application {
             primaryStage.setScene(new Scene(content, 1024, 700 )); // @todo - calculate client's width-height, give offset to that
             primaryStage.show();
             MainScreenController controller = loader.getController();
-
+            controller.setInitEvents();
             controller.setActionListener(new KahyaActionListener() {
                 @Override
                 public void onStart(String busCode) {
