@@ -1,9 +1,6 @@
 package ui;
 
-import client.KahyaActionListener;
-import client.KahyaClient;
-import fleet.ClientFinishListener;
-import fleet.UIBusData;
+import interfaces.KahyaActionListener;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.event.EventHandler;
@@ -13,10 +10,6 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import routescanner.RouteScanner;
-import utils.StringSimilarity;
-
-import java.util.HashMap;
-import java.util.Map;
 
 public class MainScreen extends Application {
 
@@ -37,10 +30,14 @@ public class MainScreen extends Application {
             controller.setActionListener(new KahyaActionListener() {
                 @Override
                 public void onStart(String busCode) {
-                    if( routeScanner != null ) routeScanner.shutdown();
+                    if( routeScanner != null ){
+                        routeScanner.shutdown();
+                        controller.reset();
+                    }
                     routeScanner = new RouteScanner(busCode);
                     routeScanner.addStatusListener( (status) -> {
                         controller.setStatus(status);
+                        controller.setRoute(routeScanner.getRoutes());
                     });
                     routeScanner.addKahyaUIListener( ( UIBusData ) -> {
                         controller.updateBusData( UIBusData );

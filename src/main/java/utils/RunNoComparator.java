@@ -1,6 +1,6 @@
 package utils;
 
-import fleet.RunData;
+import routescanner.RunData;
 
 import java.util.Comparator;
 

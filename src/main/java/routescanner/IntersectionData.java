@@ -1,6 +1,6 @@
-package server;
+package routescanner;
 
-import fleet.RouteDirection;
+import routescanner.RouteDirection;
 
 public class IntersectionData {
     private String activeRoute, comparedRoute, intersectedAt;

@@ -1,16 +1,20 @@
 package client;
 
 import fleet.*;
+import interfaces.ClientFinishListener;
+import interfaces.StatusListener;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import server.FetchRouteIntersections;
-import server.IntersectionData;
-import server.RouteIntersection;
-import server.RouteStopsDownload;
+import routescanner.DirectionCounter;
+import routescanner.RouteDirection;
+import routescanner.RunData;
+import routescanner.UIBusData;
+import fleet.FetchRouteIntersections;
+import routescanner.IntersectionData;
+import fleet.RouteStopsDownload;
 import utils.RunNoComparator;
 import utils.StringSimilarity;
-import utils.Web_Request;
 
 import java.io.*;
 import java.net.InetAddress;

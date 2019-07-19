@@ -3,9 +3,6 @@ package fleet;
 import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import server.StealCookie;
-
-import java.io.IOException;
 
 public class Filo_Task {
 

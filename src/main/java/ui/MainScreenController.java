@@ -1,10 +1,8 @@
 package ui;
 
-import client.KahyaActionListener;
-import client.StatusListener;
+import interfaces.KahyaActionListener;
 import fakedatagenerator.FakeDataGenerator;
-import fakedatagenerator.FakeDataGeneratorForm;
-import fleet.UIBusData;
+import routescanner.UIBusData;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -19,11 +17,9 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import utils.Common;
-import utils.Web_Request;
 
 import java.io.File;
 import java.net.URL;

@@ -1,5 +1,6 @@
-package fakedatagenerator;
+package ui;
 
+import fakedatagenerator.FakeRunData;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;

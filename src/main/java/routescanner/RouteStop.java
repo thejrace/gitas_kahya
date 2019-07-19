@@ -1,7 +1,5 @@
 package routescanner;
 
-import server.IntersectionData;
-
 import java.util.ArrayList;
 
 public class RouteStop {

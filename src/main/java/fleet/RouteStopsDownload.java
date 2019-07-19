@@ -1,8 +1,8 @@
-package server;
+package fleet;
 
 import database.DBC;
 import database.GitasDBT;
-import fleet.RouteDirection;
+import routescanner.RouteDirection;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.jsoup.Jsoup;

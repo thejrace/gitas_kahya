@@ -1,4 +1,4 @@
-package fleet;
+package interfaces;
 
 /**
  * Created by Jeppe on 11.04.2017.

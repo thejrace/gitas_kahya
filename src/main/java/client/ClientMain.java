@@ -1,17 +1,10 @@
 package client;
 
-import fakedatagenerator.FakeDataGenerator;
-import fakedatagenerator.FakeDataGeneratorForm;
-import fleet.RouteDirection;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.stage.Stage;
-import org.json.JSONObject;
-import routescanner.RouteScanner;
-import server.StealCookie;
+import fleet.StealCookie;
 import ui.MainScreen;
-
-import java.util.ArrayList;
 
 public class ClientMain extends Application {
 

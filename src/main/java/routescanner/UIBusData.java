@@ -1,4 +1,4 @@
-package fleet;
+package routescanner;
 
 import routescanner.BusStatus;
 

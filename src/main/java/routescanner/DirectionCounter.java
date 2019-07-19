@@ -1,4 +1,4 @@
-package fleet;
+package routescanner;
 
 public class DirectionCounter {
     private int forward = 0, backward = 0, total = 0;

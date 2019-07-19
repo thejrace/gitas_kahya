@@ -1,6 +1,6 @@
-package ui;
+package interfaces;
 
-import fleet.UIBusData;
+import routescanner.UIBusData;
 
 public interface KahyaUIListener {
     void onFinish( UIBusData data );

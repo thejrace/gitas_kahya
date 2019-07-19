@@ -1,6 +1,6 @@
 package ui;
 
-import fleet.UIBusData;
+import routescanner.UIBusData;
 
 public class Bus  extends UIComponent {
 

@@ -1,8 +1,6 @@
 package routescanner;
 
-import fleet.RouteDirection;
-import fleet.RunData;
-import fleet.UIBusData;
+import interfaces.BusStopAccumulatorListener;
 
 import java.util.ArrayList;
 

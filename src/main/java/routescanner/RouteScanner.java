@@ -1,17 +1,15 @@
 package routescanner;
 
-import client.StatusListener;
+import interfaces.StatusListener;
 import fakedatagenerator.FakeDataGenerator;
 import fleet.OADDDownload;
 import fleet.RouteFleetDownload;
-import fleet.RunData;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import server.FetchRouteIntersections;
-import server.IntersectionData;
-import server.RouteStopsDownload;
-import ui.KahyaUIListener;
+import fleet.FetchRouteIntersections;
+import fleet.RouteStopsDownload;
+import interfaces.KahyaUIListener;
 import utils.RunNoComparator;
 
 import java.util.*;
@@ -147,7 +145,10 @@ public class RouteScanner {
                 e.printStackTrace();
             }
         }
-        //route = "11ÜS";
+    }
+
+    public String getRoutes(){
+        return routeMap.getIntersectedRoutes().toString();
     }
 
     public void addStatusListener( StatusListener listener ){

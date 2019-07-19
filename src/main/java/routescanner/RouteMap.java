@@ -1,15 +1,7 @@
 package routescanner;
 
-import client.StatusListener;
-import fleet.DirectionCounter;
-import fleet.RouteDirection;
-import fleet.RunData;
-import org.json.JSONArray;
-import org.json.JSONObject;
-import server.FetchRouteIntersections;
-import server.IntersectionData;
-import server.RouteStopsDownload;
-import ui.KahyaUIListener;
+import interfaces.StatusListener;
+import interfaces.KahyaUIListener;
 import utils.StringSimilarity;
 
 import java.util.ArrayList;

@@ -1,14 +1,12 @@
 package ui;
 
-import fleet.UIBusData;
+import routescanner.UIBusData;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Label;
-import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.shape.Circle;
 import routescanner.BusStatus;
-import routescanner.RouteMap;
 import routescanner.RouteScanner;
 
 import java.net.URL;
