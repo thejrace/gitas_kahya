@@ -213,6 +213,7 @@
       </Label>
       <CheckBox fx:id="uiDebugCheckbox" layoutX="595.0" layoutY="24.0" mnemonicParsing="false" selected="true" text="DURUM" textFill="WHITE" />
       <ListView fx:id="uiStatusContainer" layoutX="595.0" layoutY="52.0" maxHeight="600.0" prefHeight="600.0" prefWidth="397.0" styleClass="lbl-small" />
-      <Button fx:id="uiFDGBtn" layoutX="452.0" layoutY="20.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="47.0" text="FDG" />
+      <Button fx:id="uiFDGBtn" layoutX="336.0" layoutY="54.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="47.0" text="FDG" />
+      <Button fx:id="uiSimulationResetBtn" layoutX="444.0" layoutY="20.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="64.0" text="RESET" />
    </children>
 </AnchorPane>

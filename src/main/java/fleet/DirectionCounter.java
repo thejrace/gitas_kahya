@@ -16,7 +16,7 @@ public class DirectionCounter {
         total++;
     }
     public int getDirection(){
-        if( total == 3 ){
+        if( total == 4 ){
             if( forward > backward ){
                 return RouteDirection.FORWARD;
             } else if( forward < backward ){

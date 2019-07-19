@@ -68,6 +68,8 @@ public class FakeDataGeneratorController implements Initializable {
         uiClearFormBtn.setOnMousePressed( ev -> {
             fakeRunDataList.clear();
             uiDataOutputList.getItems().clear();
+            fakeStopList.clear();
+            uiStopDataOutputList.getItems().clear();
         });
 
         uiFakeDataSaveBtn.setOnMousePressed( ev -> {

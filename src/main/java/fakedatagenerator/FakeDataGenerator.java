@@ -42,4 +42,9 @@ public class FakeDataGenerator {
         return new JSONArray(Common.readJSONFile(file)).getJSONObject(counter);
     }
 
+    public static void reset(){
+        SIM_DATA = new JSONArray();
+        counter = -1;
+    }
+
 }

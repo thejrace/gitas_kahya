@@ -38,6 +38,7 @@ public class MainScreenController implements Initializable {
     @FXML private Button uiActionBtn;
     @FXML private Button uiSimulationBtn;
     @FXML private Button uiFDGBtn;
+    @FXML private Button uiSimulationResetBtn;
     @FXML private Label uiRouteLabel;
     @FXML private Label uiLastUpdatedLabel;
     @FXML private Label uiErrorLabel;
@@ -103,7 +104,10 @@ public class MainScreenController implements Initializable {
             }
         });
 
-
+        uiSimulationResetBtn.setOnMousePressed( ev ->{
+            FakeDataGenerator.reset();
+            reset();
+        });
 
     }
 
@@ -121,6 +125,7 @@ public class MainScreenController implements Initializable {
         Platform.runLater(() -> {
             busList = new HashMap<>();
             uiBusContainer.getChildren().clear();
+            uiStatusContainer.getItems().clear();
         });
     }
 
