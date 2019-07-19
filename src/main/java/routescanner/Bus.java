@@ -68,6 +68,12 @@ public class Bus {
                 }
                 checkStatus();
 
+                if( status == BusStatus.UNDEFINED ){
+
+                    System.out.println( code+  " UNDEFINED!");
+                    return;
+                }
+
                 if( !runData.get(activeRunIndex).getCurrentStop().equals("N/A") ){
                     stopData.add(runData.get(activeRunIndex).getCurrentStop());
                     stopAccumulateCounter++;
