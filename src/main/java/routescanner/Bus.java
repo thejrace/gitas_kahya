@@ -26,8 +26,8 @@ public class Bus {
     private boolean dirFoundFlag = false;
     private BusStopAccumulatorListener accumulatorListener;
 
-    private static boolean INIT_DEBUG_FLAG = false;
-    private static boolean STATUS_DEBUG_FLAG = false;
+    private static boolean INIT_DEBUG_FLAG = true;
+    private static boolean STATUS_DEBUG_FLAG = true;
 
     public Bus( String code ){
         this.code = code;
@@ -84,7 +84,7 @@ public class Bus {
                             stopAccumulateCounter++;
                         } else {
                             if( INIT_DEBUG_FLAG ) System.out.println("["+runData.get(activeRunIndex).getCurrentStop()+"]" + " -- [" + stopData.get(stopData.size()-1 )+"]  ");
-                            if( !runData.get(activeRunIndex).getCurrentStop().equals(stopData.get(stopData.size()-1 ) ) ){ // accumulate if stop has changed
+                            if( !runData.get(activeRunIndex).getCurrentStop().equals(stopData.get(stopData.size()-1 ) ) || !stopData.contains(runData.get(activeRunIndex).getCurrentStop())){ // accumulate if stop has changed
                                 stopData.add(runData.get(activeRunIndex).getCurrentStop());
                                 stopAccumulateCounter++;
                                 if( INIT_DEBUG_FLAG ) System.out.print(code + " was active and accumulate stops ("+runData.get(activeRunIndex).getCurrentStop()+") COUNTER: "+stopAccumulateCounter+"  ###  ");
@@ -103,10 +103,13 @@ public class Bus {
                     }
                 } else if( prevStatus == BusStatus.WAITING ){
                     checkStatus();
+                    // todo gerek var mı la buraya
                     if( status == BusStatus.ACTIVE ){ // starting the run
                         // active run index wont' be changed, we can get the dir from route details
                         direction = RouteDirection.getDirectionLetter(route.length(), runData.get(activeRunIndex).getRouteDetails());
                         if( INIT_DEBUG_FLAG ) System.out.print(code + " was waiting and now active DIR: " + RouteDirection.returnText(direction) + " ##  ");
+                    } else if( status == BusStatus.WAITING ){
+                        direction = RouteDirection.getDirectionLetter(route.length(), runData.get(activeRunIndex).getRouteDetails());
                     }
                 }
             }
@@ -206,7 +209,7 @@ public class Bus {
     }
 
     public UIBusData getUIData(){
-        return new UIBusData(code, stop, RouteMap.ACTIVE_BUS_POSITION - position, runData.get(activeRunIndex).getRouteDetails(), RouteDirection.returnText(direction), status );
+        return new UIBusData(code, stop, position, runData.get(activeRunIndex).getRouteDetails(), RouteDirection.returnText(direction), status );
     }
 
     public int getPosition() {

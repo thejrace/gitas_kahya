@@ -12,6 +12,7 @@
 
 <AnchorPane fx:id="uiContainer" prefHeight="700.0" prefWidth="1018.0" styleClass="main-bg-color" stylesheets="@main.css" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.MainScreenController">
    <children>
+      <Button fx:id="uiSimulationBtn" layoutX="336.0" layoutY="20.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="100.0" text="SİMÜLASYON" />
       <HBox alignment="CENTER" layoutX="35.0" layoutY="32.0" spacing="10.0">
          <children>
             <TextField fx:id="uiBusCodeInput" promptText="Kod" />
@@ -212,5 +213,6 @@
       </Label>
       <CheckBox fx:id="uiDebugCheckbox" layoutX="595.0" layoutY="24.0" mnemonicParsing="false" selected="true" text="DURUM" textFill="WHITE" />
       <ListView fx:id="uiStatusContainer" layoutX="595.0" layoutY="52.0" maxHeight="600.0" prefHeight="600.0" prefWidth="397.0" styleClass="lbl-small" />
+      <Button fx:id="uiFDGBtn" layoutX="452.0" layoutY="20.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="47.0" text="FDG" />
    </children>
 </AnchorPane>

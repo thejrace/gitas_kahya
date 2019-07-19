@@ -1,6 +1,7 @@
 package fakedatagenerator;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import utils.Common;
 
@@ -9,6 +10,14 @@ import java.io.File;
 public class FakeDataGenerator {
 
     public static int counter = -1;
+    public static boolean ACTIVE = false;
+    public static JSONArray SIM_DATA;
+    public static String ROUTE;
+
+    public static JSONObject getSimData(){
+        counter++;
+        return SIM_DATA.getJSONObject(counter);
+    }
 
     public static JSONObject statusChangeTest(){
         return getData("statusChangeTest_normal.json");

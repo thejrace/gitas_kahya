@@ -1,6 +1,7 @@
 package routescanner;
 
 import client.StatusListener;
+import fakedatagenerator.FakeDataGenerator;
 import fleet.OADDDownload;
 import fleet.RouteFleetDownload;
 import fleet.RunData;
@@ -44,7 +45,11 @@ public class RouteScanner {
                 downloadFleetData();
 
                 try {
-                    Thread.sleep(20000);
+                    if( FakeDataGenerator.ACTIVE ){
+                        Thread.sleep(100);
+                    } else {
+                        Thread.sleep(20000);
+                    }
                 } catch( InterruptedException e ){
                     e.printStackTrace();
                 }
@@ -129,14 +134,18 @@ public class RouteScanner {
     }
 
     private void findRoute(){
-        OADDDownload activeBusOADDDownload = new OADDDownload(activeBusCode);
-        activeBusOADDDownload.action();
-        JSONObject activeBusOADDData = activeBusOADDDownload.getOutput();
-        try {
-            route = activeBusOADDData.getString("route");
-            if( DEBUG ) System.out.println("route found ("+route+")");
-        } catch( JSONException e ){
-            e.printStackTrace();
+        if(FakeDataGenerator.ACTIVE ){
+            route = FakeDataGenerator.ROUTE;
+        } else {
+            OADDDownload activeBusOADDDownload = new OADDDownload(activeBusCode);
+            activeBusOADDDownload.action();
+            JSONObject activeBusOADDData = activeBusOADDDownload.getOutput();
+            try {
+                route = activeBusOADDData.getString("route");
+                if( DEBUG ) System.out.println("route found ("+route+")");
+            } catch( JSONException e ){
+                e.printStackTrace();
+            }
         }
         //route = "11ÜS";
     }

@@ -112,7 +112,7 @@ public class RouteDirection {
 				[HAT]_G/D -- aktif_sefer_index
 				[HAT]_G/D -- sonraki
 			*/
-            if (onceki_sefer_yon == sonraki_sefer_yon && onceki_sefer_yon == aktif_sefer_yon) {
+            if (( onceki_sefer_yon == sonraki_sefer_yon && onceki_sefer_yon == aktif_sefer_yon ) || ( aktif_sefer_yon == sonraki_sefer_yon ) ) {
 				/*
 					# Ring
 					[HAT]_D -- onceki

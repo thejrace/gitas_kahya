@@ -26,13 +26,18 @@ public class RouteFleetDownload extends Filo_Task {
     }
 
     public void action(){
-        for( int k = 0; k < routes.size(); k++ ){
-            try {
-                org.jsoup.Connection.Response request = istek_yap("https://filotakip.iett.gov.tr/_FYS/000/sorgu.php?konum=ana&konu=sefer&hat="+routes.get(k));
-                Document document = parse_html( request );
-                parseData( document );
-            } catch( Exception e ){
-                e.printStackTrace();
+
+        if( FakeDataGenerator.ACTIVE ){
+            output = FakeDataGenerator.getSimData();
+        } else {
+            for( int k = 0; k < routes.size(); k++ ){
+                try {
+                    org.jsoup.Connection.Response request = istek_yap("https://filotakip.iett.gov.tr/_FYS/000/sorgu.php?konum=ana&konu=sefer&hat="+routes.get(k));
+                    Document document = parse_html( request );
+                    parseData( document );
+                } catch( Exception e ){
+                    e.printStackTrace();
+                }
             }
         }
         //output = FakeDataGenerator.statusChangeTest();

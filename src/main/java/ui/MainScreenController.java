@@ -2,6 +2,8 @@ package ui;
 
 import client.KahyaActionListener;
 import client.StatusListener;
+import fakedatagenerator.FakeDataGenerator;
+import fakedatagenerator.FakeDataGeneratorForm;
 import fleet.UIBusData;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
@@ -15,9 +17,15 @@ import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
+import javafx.stage.FileChooser;
+import javafx.stage.Stage;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import utils.Common;
 import utils.Web_Request;
 
+import java.io.File;
 import java.net.URL;
 import java.util.*;
 
@@ -28,6 +36,8 @@ public class MainScreenController implements Initializable {
     @FXML private VBox uiBusContainer;
     @FXML private TextField uiBusCodeInput;
     @FXML private Button uiActionBtn;
+    @FXML private Button uiSimulationBtn;
+    @FXML private Button uiFDGBtn;
     @FXML private Label uiRouteLabel;
     @FXML private Label uiLastUpdatedLabel;
     @FXML private Label uiErrorLabel;
@@ -64,6 +74,32 @@ public class MainScreenController implements Initializable {
                     uiStatusContainer.setVisible(true);
                 }
                 debugFlag = newValue;
+            }
+        });
+
+        uiSimulationBtn.setOnMousePressed( ev -> {
+            FileChooser fileChooser = new FileChooser();
+            FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("JSON files (*.json)", "*.json");
+            fileChooser.getExtensionFilters().add(extFilter);
+            File file = fileChooser.showOpenDialog(null);
+            try {
+                JSONObject fakeData = new JSONObject(Common.readJSONFile(file));
+                System.out.println(fakeData);
+                FakeDataGenerator.ACTIVE = true;
+                FakeDataGenerator.SIM_DATA = fakeData.getJSONArray("data");
+                FakeDataGenerator.ROUTE = fakeData.getJSONObject("info").getString("route");
+                actionListener.onStart("SIMULATION");
+            } catch( JSONException e ){
+
+            }
+        });
+
+        uiFDGBtn.setOnMousePressed( ev -> {
+            try {
+                FakeDataGeneratorForm fakeDataGeneratorForm = new FakeDataGeneratorForm();
+                fakeDataGeneratorForm.start(new Stage());
+            } catch ( Exception e ){
+                e.printStackTrace();
             }
         });
 
