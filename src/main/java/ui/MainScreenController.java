@@ -45,6 +45,8 @@ public class MainScreenController implements Initializable {
     private Map<String, Bus> busList = new HashMap<>();
     private KahyaActionListener actionListener;
     private boolean debugFlag = true;
+    private int shownBusLimit = 5;
+    private Thread updateUIThread;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -100,6 +102,30 @@ public class MainScreenController implements Initializable {
             reset();
         });
 
+        updateUIThread = new Thread( () -> {
+
+            while( true ){
+
+
+
+
+                for( Map.Entry<String, Bus> entry : busList.entrySet() ){
+
+
+
+                }
+
+                try {
+                    Thread.sleep(10000);
+                } catch( InterruptedException e ){
+                    e.printStackTrace();
+                }
+            }
+
+        });
+        updateUIThread.setDaemon(true);
+        updateUIThread.start();
+
     }
 
     public void setInitEvents(){
@@ -129,7 +155,7 @@ public class MainScreenController implements Initializable {
     }
 
     public void addBus( Bus bus ){
-        uiBusContainer.getChildren().add( bus.getUI() );
+        //uiBusContainer.getChildren().add( bus.getUI() );
         busList.put(bus.getData().getBusCode(), bus );
     }
 
