@@ -20,12 +20,13 @@ public class Bus {
     private ArrayList<RunData> runData = new ArrayList<>();
     private ArrayList<Integer> runTypes = new ArrayList<>();
     private ArrayList<String> stopData = new ArrayList<>();
+    private DirectionCounter dirCounter = new DirectionCounter();
 
     private boolean dirFoundFlag = false;
-    private BusStopAccumulatorListener accumulatorListener;
 
     private static boolean INIT_DEBUG_FLAG = true;
     private static boolean STATUS_DEBUG_FLAG = true;
+    private static boolean DIR_DEBUG_FLAG = true;
 
     public Bus( String code ){
         this.code = code;
@@ -99,9 +100,10 @@ public class Bus {
                                 stopAccumulateCounter++;
                                 if( INIT_DEBUG_FLAG ) System.out.print(code + " was active and accumulate stops ("+runData.get(activeRunIndex).getCurrentStop()+") COUNTER: "+stopAccumulateCounter+"  ###  ");
                                 if( stopAccumulateCounter == 4 ){ // after 4 collection determine the direction
-                                    accumulatorListener.afterAcculumate(stopData);
+                                    //accumulatorListener.afterAcculumate(stopData);
+                                    determineRingRouteDirection();
                                     stopAccumulateCounter = 0;
-                                    //stopData = null;
+                                    stopData = null;
                                     // @todo reset stop data as well after tests
                                 }
                             }
@@ -165,7 +167,16 @@ public class Bus {
                         // was active, now finished means it will start over
                         direction = RouteDirection.getDirectionLetter(route.length(), runData.get(activeRunIndex).getRouteDetails());
                         dirFoundFlag = true;
-                    } else if( status == BusStatus.UNDEFINED ){
+                    } else if( status == BusStatus.ACTIVE ){
+                        // if status is active, we have to check if bus crossed the intersection point
+                        // if it did we change the direction
+                        if( direction == RouteDirection.FORWARD ){
+                            /*if( stop >= RouteMap.directionMergePoint ){
+
+                            }*/
+                        }
+
+                    } else { // undefined
                         // @todo what to do? warn RouteMap to remove it?
                     }
                 } else if( prevStatus == BusStatus.WAITING ){
@@ -180,8 +191,6 @@ public class Bus {
             } else {
                 direction = tempDirection;
                 dirFoundFlag = true;
-                // remove direction listener
-                this.accumulatorListener = null;
             }
             if( STATUS_DEBUG_FLAG )  System.out.print(code + " on a " + RouteDirection.returnText(direction) + "  RUN  ## ");
             prevStatus = status;
@@ -190,12 +199,63 @@ public class Bus {
         }
     }
 
-    public void setDirectionListener( BusStopAccumulatorListener listener ){
-        this.accumulatorListener = listener;
-    }
+    private void determineRingRouteDirection(){
 
-    public ArrayList<RunData> getRunData() {
-        return runData;
+        if( DIR_DEBUG_FLAG ) System.out.println(code +"  DIR ACITON!!!   " + stopData );
+
+        ArrayList<Integer> prevFoundIndexes = new ArrayList<>();
+        for( int j = 0; j < stopData.size(); j++ ){
+            String stop = stopData.get(j);
+            ArrayList<Integer> foundIndexes = RouteMap.findStopOccurences( stop, 0 );
+            if( DIR_DEBUG_FLAG ) System.out.println("FOUND INDEXES: " + foundIndexes );
+            if( foundIndexes.size() == 1 ){ // singleton durak
+                // if there is only one match, means this stop is on one direction
+                // we can determine which way by comparing it with merge point
+                if( foundIndexes.get(0) > RouteMap.directionMergePoint ){
+                    if( DIR_DEBUG_FLAG ) System.out.println(code + "  singleton stop DIR INC: " + RouteDirection.returnText(RouteDirection.BACKWARD));
+                    dirCounter.increment(RouteDirection.BACKWARD);
+                } else {
+                    if( DIR_DEBUG_FLAG ) System.out.println(code + "  singleton stop DIR INC: " + RouteDirection.returnText(RouteDirection.FORWARD));
+                    dirCounter.increment(RouteDirection.FORWARD);
+                }
+            } else if( foundIndexes.size() == 2 ){ // this is expected most of the time
+                // if we have previous indexes, compare them with current pair by pair
+                if( prevFoundIndexes.size() > 1 ){
+                    if( ( prevFoundIndexes.get(0) < foundIndexes.get(0) ) && ( prevFoundIndexes.get(1) > foundIndexes.get(1) ) ){ // best case
+                        if( DIR_DEBUG_FLAG ) System.out.println(code + "  DIR INC: " + RouteDirection.returnText(RouteDirection.FORWARD));
+                        dirCounter.increment(RouteDirection.FORWARD);
+                    } else if( ( prevFoundIndexes.get(0) > foundIndexes.get(0) ) && ( prevFoundIndexes.get(1) < foundIndexes.get(1) )  ){ // best case
+                        if( DIR_DEBUG_FLAG ) System.out.println(code + "  DIR INC: " + RouteDirection.returnText(RouteDirection.BACKWARD));
+                        dirCounter.increment(RouteDirection.BACKWARD);
+                    }
+                } else if( prevFoundIndexes.size() == 1 ){ // prev singleton
+                    if( prevFoundIndexes.get(0) > RouteMap.directionMergePoint){ // singleton stop on backward dir
+                        if( prevFoundIndexes.get(0) < foundIndexes.get(1) ){
+                            dirCounter.increment(RouteDirection.FORWARD);
+                        } else {
+                            dirCounter.increment(RouteDirection.BACKWARD);
+                        }
+                    } else { // singleton stop on forward dir
+                        if( prevFoundIndexes.get(0) > foundIndexes.get(0) ){
+                            dirCounter.increment(RouteDirection.BACKWARD);
+                        } else {
+                            dirCounter.increment(RouteDirection.FORWARD);
+                        }
+                    }
+                } else { // no data previously
+
+                }
+            } else { // no match ??
+                return;
+            }
+            prevFoundIndexes = foundIndexes;
+        }
+        int dir = dirCounter.getDirection();
+        if( dir != -1 ){
+            direction = dir;
+            dirFoundFlag = true;
+        }
+
     }
 
     public void setRunData(ArrayList<RunData> runData) {

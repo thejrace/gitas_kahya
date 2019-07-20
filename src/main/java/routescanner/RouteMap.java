@@ -11,11 +11,12 @@ import java.util.Map;
 public class RouteMap {
 
     public static int ACTIVE_BUS_POSITION = -1;
-    private String route;
-    private String activeBusCode;
-    private ArrayList<RouteStop> map; // forwardstops->backwardstops ( merge two directions together )
+    public static ArrayList<RouteStop> map; // forwardstops->backwardstops ( merge two directions together )
+    public static String route;
+    public static String activeBusCode;
+    public static int directionMergePoint; // index where merge happens
+
     private Map<String, Bus> buses; // buses on the map
-    private int directionMergePoint; // index where merge happens
     private Map<String, Boolean> intersectionBeginFlags; // holds the flag for whether intersection action began or not for given route
     private Map<String, DirectionCounter> dirCounters = new HashMap<>(); // direction counters
 
@@ -73,65 +74,6 @@ public class RouteMap {
         if( !buses.containsKey(busCode) ){
             if( RouteScanner.DEBUG ) System.out.println("adding a bus to route map:  ||"+busCode+"||");
             Bus bus = new Bus( busCode, runData );
-            // when we initialize a new bus instance, we connect it with RouteMap to determine direction
-            // if bus is on a Ring route.
-            //( since all stop data is here, we do it this way rather than passing everything to every object )
-            // @todo map, mergePoint etc could be made static so we can access it everywhere, we wouldnt need directionListener
-            bus.setDirectionListener( ( stops ) -> {
-                if( DIR_DEBUG_FLAG ) System.out.println(busCode +"  DIR ACITON!!!   " + stops);
-                dirCounters.put(busCode, new DirectionCounter() );
-                ArrayList<Integer> prevFoundIndexes = new ArrayList<>();
-                for( int j = 0; j < stops.size(); j++ ){
-                    String stop = stops.get(j);
-                    ArrayList<Integer> foundIndexes = findStopOccurences( stop, 0 );
-                    if( DIR_DEBUG_FLAG ) System.out.println("FOUND INDEXES: " + foundIndexes );
-                    if( foundIndexes.size() == 1 ){ // singleton durak
-                        // if there is only one match, means this stop is on one direction
-                        // we can determine which way by comparing it with merge point
-                        if( foundIndexes.get(0) > directionMergePoint ){
-                            if( DIR_DEBUG_FLAG ) System.out.println(bus.getCode() + "  singleton stop DIR INC: " + RouteDirection.returnText(RouteDirection.BACKWARD));
-                            dirCounters.get(busCode).increment(RouteDirection.BACKWARD);
-                        } else {
-                            if( DIR_DEBUG_FLAG ) System.out.println(bus.getCode() + "  singleton stop DIR INC: " + RouteDirection.returnText(RouteDirection.FORWARD));
-                            dirCounters.get(busCode).increment(RouteDirection.FORWARD);
-                        }
-                    } else if( foundIndexes.size() == 2 ){ // this is expected most of the time
-                        // if we have previous indexes, compare them with current pair by pair
-                        if( prevFoundIndexes.size() > 1 ){
-                           if( ( prevFoundIndexes.get(0) < foundIndexes.get(0) ) && ( prevFoundIndexes.get(1) > foundIndexes.get(1) ) ){ // best case
-                               if( DIR_DEBUG_FLAG ) System.out.println(bus.getCode() + "  DIR INC: " + RouteDirection.returnText(RouteDirection.FORWARD));
-                               dirCounters.get(busCode).increment(RouteDirection.FORWARD);
-                           } else if( ( prevFoundIndexes.get(0) > foundIndexes.get(0) ) && ( prevFoundIndexes.get(1) < foundIndexes.get(1) )  ){ // best case
-                               if( DIR_DEBUG_FLAG ) System.out.println(bus.getCode() + "  DIR INC: " + RouteDirection.returnText(RouteDirection.BACKWARD));
-                               dirCounters.get(busCode).increment(RouteDirection.BACKWARD);
-                           }
-                        } else if( prevFoundIndexes.size() == 1 ){ // prev singleton
-                            if( prevFoundIndexes.get(0) > directionMergePoint){ // singleton stop on backward dir
-                                if( prevFoundIndexes.get(0) < foundIndexes.get(1) ){
-                                    dirCounters.get(busCode).increment(RouteDirection.FORWARD);
-                                } else {
-                                    dirCounters.get(busCode).increment(RouteDirection.BACKWARD);
-                                }
-                            } else { // singleton stop on forward dir
-                                if( prevFoundIndexes.get(0) > foundIndexes.get(0) ){
-                                    dirCounters.get(busCode).increment(RouteDirection.BACKWARD);
-                                } else {
-                                    dirCounters.get(busCode).increment(RouteDirection.FORWARD);
-                                }
-                            }
-                        } else { // no data previously
-
-                        }
-                    } else { // no match ??
-                        return;
-                    }
-                    prevFoundIndexes = foundIndexes;
-                }
-                int dir = dirCounters.get(busCode).getDirection();
-                if( dir != -1 ){
-                    bus.setDirection(dir);
-                }
-            });
             buses.put( busCode, bus );
         } else {
             buses.get(busCode).setRunData(runData);
@@ -140,7 +82,7 @@ public class RouteMap {
         updateBusPosition(busCode);
     }
 
-    public int findStopIndex( int direction, String stopName ){
+    public static int findStopIndex( int direction, String stopName ){
         try{
             if( stopName.equals("N/A") ) return -1; // @todo BUG FIX!!!!!
         } catch( NullPointerException e ){
@@ -156,7 +98,7 @@ public class RouteMap {
         return -1;
     }
 
-    private ArrayList<Integer> findStopOccurences( String stopName, int startIndex ){
+    public static ArrayList<Integer> findStopOccurences( String stopName, int startIndex ){
         ArrayList<Integer> occurences = new ArrayList<>();
         if( stopName.equals("N/A")) return occurences;
         for( ; startIndex < map.size(); startIndex++ ){
@@ -202,20 +144,8 @@ public class RouteMap {
         this.kahyaUIListener = listener;
     }
 
-    public void setDirectionMergePoint(int directionMergePoint) {
-        this.directionMergePoint = directionMergePoint;
-    }
-
-    public void setActiveBusCode( String activeBusCode ){
-        this.activeBusCode = activeBusCode;
-    }
-
     public String getRoute() {
         return route;
-    }
-
-    public void setRoute(String route) {
-        this.route = route;
     }
 
     public ArrayList<RouteStop> getMap() {

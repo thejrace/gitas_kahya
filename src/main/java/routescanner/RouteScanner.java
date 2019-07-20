@@ -120,10 +120,11 @@ public class RouteScanner {
             JSONObject tempData = data.getJSONObject(k);
             routeIntersections.put(tempData.getString("kesisen_hat"), new IntersectionData(route,tempData.getString("kesisen_hat"), tempData.getString("durak_adi"), tempData.getInt("yon"),  tempData.getInt("total_diff")));
         }
-        routeMap.setMap(map);
-        routeMap.setDirectionMergePoint(directionMergePoint);
+        RouteMap.activeBusCode = activeBusCode;
+        RouteMap.map = map;
+        RouteMap.directionMergePoint = directionMergePoint;
+        RouteMap.route = route;
         routeMap.setRouteIntersections(routeIntersections);
-        routeMap.setActiveBusCode(activeBusCode);
         routeMap.addStatusListener( statusListener );
         routeMap.addKahyaUIListener( kahyaUIListener );
         if( DEBUG ) System.out.println("route map created. ("+route+")");
