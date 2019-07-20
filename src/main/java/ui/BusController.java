@@ -28,6 +28,8 @@ public class BusController implements Initializable {
 
     }
 
+    //  [ÜMRANİYE EĞİTİM ARAŞTIRM, ŞİLE YOLU, HUZUR MAHALLESİ, ÇEKMEKÖY BELEDİYE SAPAĞI]
+
     public void setActiveBusFlag(){
         activeBusFlag = true;
         try {

@@ -127,7 +127,7 @@ public class Bus {
                     //accumulatorListener.afterAcculumate(stopData);
                     determineRingRouteDirection();
                     stopAccumulateCounter = 0;
-                    stopData = null;
+                    stopData = new ArrayList<>();
                     // @todo reset stop data as well after tests
                 }
             }
@@ -262,6 +262,8 @@ public class Bus {
         if( dir != -1 ){
             direction = dir;
             dirFoundFlag = true;
+        } else {
+            initialize(); // start over collecting
         }
 
     }

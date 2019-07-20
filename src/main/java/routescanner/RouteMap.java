@@ -96,7 +96,7 @@ public class RouteMap {
         ArrayList<Integer> occurences = new ArrayList<>();
         if( stopName.equals("N/A")) return occurences;
         for( ; startIndex < map.size(); startIndex++ ){
-            if( map.get(startIndex).getName().equals(stopName) || StringSimilarity.similarity(map.get(startIndex).getName(), stopName ) >= 0.8 ){
+            if( map.get(startIndex).getName().equals(stopName) || StringSimilarity.similarity(map.get(startIndex).getName(), stopName ) >= 0.6 ){
                 occurences.add(startIndex);
             }
         }
@@ -112,7 +112,7 @@ public class RouteMap {
                 k += directionMergePoint;
             }
             for( ; k < map.size(); k++ ){
-                if( entry.getValue().getIntersectedAt().equals(map.get(k).getName()) || StringSimilarity.similarity(entry.getValue().getIntersectedAt(), map.get(k).getName()) > 0.8 ){
+                if( entry.getValue().getIntersectedAt().equals(map.get(k).getName()) || StringSimilarity.similarity(entry.getValue().getIntersectedAt(), map.get(k).getName()) > 0.6 ){
                     map.get(k).markIntersection( entry.getValue() );
                     break;
                 }
