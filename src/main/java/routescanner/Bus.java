@@ -171,9 +171,9 @@ public class Bus {
                         // if status is active, we have to check if bus crossed the intersection point
                         // if it did we change the direction
                         if( direction == RouteDirection.FORWARD ){
-                            /*if( stop >= RouteMap.directionMergePoint ){
-
-                            }*/
+                            if( RouteMap.map.get(RouteMap.directionMergePoint).getName().equals(stop) ){
+                                direction = RouteDirection.BACKWARD;
+                            }
                         }
 
                     } else { // undefined
