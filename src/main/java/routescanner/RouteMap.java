@@ -18,17 +18,11 @@ public class RouteMap {
 
     private Map<String, Bus> buses; // buses on the map
     private Map<String, Boolean> intersectionBeginFlags; // holds the flag for whether intersection action began or not for given route
-    private Map<String, DirectionCounter> dirCounters = new HashMap<>(); // direction counters
-
-    private static boolean DIR_DEBUG_FLAG = true;
-    private static boolean BUS_POS_DEBUG_FLAG = true;
 
     private StatusListener statusListener;
     private KahyaUIListener kahyaUIListener;
 
-    public RouteMap( String route ){
-        this.route = route;
-        this.map = new ArrayList<>();
+    public RouteMap(){
         this.buses = new HashMap<>();
         this.intersectionBeginFlags = new HashMap<>();
     }
@@ -146,14 +140,6 @@ public class RouteMap {
 
     public String getRoute() {
         return route;
-    }
-
-    public ArrayList<RouteStop> getMap() {
-        return map;
-    }
-
-    public void setMap(ArrayList<RouteStop> map) {
-        this.map = map;
     }
 
 }

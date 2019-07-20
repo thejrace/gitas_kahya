@@ -98,7 +98,7 @@ public class RouteScanner {
         Map<String, IntersectionData> routeIntersections = new HashMap<>(); // contains intersection data of the active route
         ArrayList<RouteStop> map = new ArrayList<>(); // forwardstops->backwardstops ( merge two directions together )
         // create the route map
-        routeMap = new RouteMap(route);
+        routeMap = new RouteMap();
         // fetch stops
         RouteStopsDownload routeStopsDownload = new RouteStopsDownload(route);
         JSONArray routeStopsDownloaded = routeStopsDownload.action();

@@ -89,25 +89,7 @@ public class Bus {
                     checkStatus();
                     if( status == BusStatus.ACTIVE ){ // still on active run
                         if( INIT_DEBUG_FLAG ) System.out.print(code + " was active and still active..  ##");
-                        if( runData.get(activeRunIndex).getCurrentStop().equals("N/A") ) return;
-                        if( stopData.size() == 0 ){
-                            stopData.add(runData.get(activeRunIndex).getCurrentStop());
-                            stopAccumulateCounter++;
-                        } else {
-                            if( INIT_DEBUG_FLAG ) System.out.println("["+runData.get(activeRunIndex).getCurrentStop()+"]" + " -- [" + stopData.get(stopData.size()-1 )+"]  ");
-                            if( !runData.get(activeRunIndex).getCurrentStop().equals(stopData.get(stopData.size()-1 ) ) || !stopData.contains(runData.get(activeRunIndex).getCurrentStop())){ // accumulate if stop has changed
-                                stopData.add(runData.get(activeRunIndex).getCurrentStop());
-                                stopAccumulateCounter++;
-                                if( INIT_DEBUG_FLAG ) System.out.print(code + " was active and accumulate stops ("+runData.get(activeRunIndex).getCurrentStop()+") COUNTER: "+stopAccumulateCounter+"  ###  ");
-                                if( stopAccumulateCounter == 4 ){ // after 4 collection determine the direction
-                                    //accumulatorListener.afterAcculumate(stopData);
-                                    determineRingRouteDirection();
-                                    stopAccumulateCounter = 0;
-                                    stopData = null;
-                                    // @todo reset stop data as well after tests
-                                }
-                            }
-                        }
+                        collectStopForDirection();
                     } else if( status == BusStatus.WAITING ){ // finished the run
                         // on ring routes, when run is finished, next run's direction can be determined from route details
                         direction = RouteDirection.getDirectionLetter(route.length(), runData.get(activeRunIndex).getRouteDetails());
@@ -127,6 +109,28 @@ public class Bus {
             }
         } catch( Exception e){
             e.printStackTrace();
+        }
+    }
+
+    private void collectStopForDirection(){
+        if( runData.get(activeRunIndex).getCurrentStop().equals("N/A") ) return;
+        if( stopData.size() == 0 ){
+            stopData.add(runData.get(activeRunIndex).getCurrentStop());
+            stopAccumulateCounter++;
+        } else {
+            if( INIT_DEBUG_FLAG ) System.out.println("["+runData.get(activeRunIndex).getCurrentStop()+"]" + " -- [" + stopData.get(stopData.size()-1 )+"]  ");
+            if( !runData.get(activeRunIndex).getCurrentStop().equals(stopData.get(stopData.size()-1 ) ) || !stopData.contains(runData.get(activeRunIndex).getCurrentStop())){ // accumulate if stop has changed
+                stopData.add(runData.get(activeRunIndex).getCurrentStop());
+                stopAccumulateCounter++;
+                if( INIT_DEBUG_FLAG ) System.out.print(code + " was active and accumulate stops ("+runData.get(activeRunIndex).getCurrentStop()+") COUNTER: "+stopAccumulateCounter+"  ###  ");
+                if( stopAccumulateCounter == 4 ){ // after 4 collection determine the direction
+                    //accumulatorListener.afterAcculumate(stopData);
+                    determineRingRouteDirection();
+                    stopAccumulateCounter = 0;
+                    stopData = null;
+                    // @todo reset stop data as well after tests
+                }
+            }
         }
     }
 
@@ -168,6 +172,13 @@ public class Bus {
                         direction = RouteDirection.getDirectionLetter(route.length(), runData.get(activeRunIndex).getRouteDetails());
                         dirFoundFlag = true;
                     } else if( status == BusStatus.ACTIVE ){
+                        // if bus passed the merge point but direction is somehow calculated wrong
+                        // we check it and correct it
+                        if( direction == RouteDirection.FORWARD && position > RouteMap.directionMergePoint ){
+                            dirFoundFlag = false;
+                            initialize(); // reset everything
+                            return;
+                        }
                         // if status is active, we have to check if bus crossed the intersection point
                         // if it did we change the direction
                         if( direction == RouteDirection.FORWARD ){
@@ -175,7 +186,6 @@ public class Bus {
                                 direction = RouteDirection.BACKWARD;
                             }
                         }
-
                     } else { // undefined
                         // @todo what to do? warn RouteMap to remove it?
                     }
@@ -200,9 +210,7 @@ public class Bus {
     }
 
     private void determineRingRouteDirection(){
-
         if( DIR_DEBUG_FLAG ) System.out.println(code +"  DIR ACITON!!!   " + stopData );
-
         ArrayList<Integer> prevFoundIndexes = new ArrayList<>();
         for( int j = 0; j < stopData.size(); j++ ){
             String stop = stopData.get(j);

@@ -41,11 +41,13 @@ public class BusController implements Initializable {
         uiStopLabel.setText(data.getStop() + " ["+data.getDirectionText()+"] (" + data.getRouteDetails() + ")");
         uiDiffLabel.setText(String.valueOf(data.getDiff()));
 
-        try {
-            uiContainer.getStyleClass().remove(0);
-        } catch( IndexOutOfBoundsException e ){ }
+
 
         if( !data.getBusCode().equals(RouteScanner.ACTIVE_BUS_CODE )){
+            try {
+                uiContainer.getStyleClass().remove(0);
+            } catch( IndexOutOfBoundsException e ){ }
+
             if( data.getStatus() == BusStatus.ACTIVE ){
                 uiContainer.getStyleClass().add(0, "bs-active");
             } else if( data.getStatus() == BusStatus.WAITING ){
