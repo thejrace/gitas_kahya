@@ -26,9 +26,9 @@ public class ClientMain extends Application {
                 }
             });
         });
-        //stealCookie.action();
+        stealCookie.action();
 
-        Map<String, Bus> test = new HashMap<>();
+        /*Map<String, Bus> test = new HashMap<>();
         Bus bus1 = new Bus(new UIBusData("C-1882", "TEST", 44, "AT"));
         Bus bus2 = new Bus(new UIBusData("C-1883", "TEST", 6, "AT"));
         Bus bus3 = new Bus(new UIBusData("C-1884", "TEST", 9, "AT"));
@@ -55,10 +55,8 @@ public class ClientMain extends Application {
 
                     }
                 }
-
-
             }
-        }
+        }*/
 
     }
 

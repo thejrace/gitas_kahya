@@ -102,7 +102,7 @@ public class MainScreenController implements Initializable {
             reset();
         });
 
-        updateUIThread = new Thread( () -> {
+        /*updateUIThread = new Thread( () -> {
 
             while( true ){
 
@@ -124,7 +124,7 @@ public class MainScreenController implements Initializable {
 
         });
         updateUIThread.setDaemon(true);
-        updateUIThread.start();
+        updateUIThread.start();*/
 
     }
 
@@ -155,7 +155,7 @@ public class MainScreenController implements Initializable {
     }
 
     public void addBus( Bus bus ){
-        //uiBusContainer.getChildren().add( bus.getUI() );
+        uiBusContainer.getChildren().add( bus.getUI() );
         busList.put(bus.getData().getBusCode(), bus );
     }
 
