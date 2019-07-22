@@ -52,6 +52,7 @@ public class RouteFleetDownload extends Filo_Task {
             if( document == null ){}
         } catch( NullPointerException e ){
             e.printStackTrace();
+            System.out.println("ÖLÜYORUZ KAPTAAAAN");
             errorMessage = "Document is empty.";
             return;
         }
@@ -66,6 +67,7 @@ public class RouteFleetDownload extends Filo_Task {
             int rowsSize = rows.size();
             if ( rowsSize == 0 || rowsSize == 1) {
                 errorMessage = "No data to fetch.";
+                System.out.println("ÖLÜYORUZ KAPTAAAAN22222");
                 return;
             } else {
                 JSONObject runTemp;

@@ -141,7 +141,9 @@ public class RouteScanner {
                 route = activeBusOADDData.getString("route");
                 if( DEBUG ) System.out.println("route found ("+route+")");
             } catch( JSONException e ){
-                e.printStackTrace();
+                findRoute();
+                System.out.println("route error");
+                //e.printStackTrace();
             }
         }
     }
