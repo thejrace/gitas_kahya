@@ -27,7 +27,7 @@ public class MainScreen extends Application {
             primaryStage.show();
             MainScreenController controller = loader.getController();
             controller.setInitEvents();
-            controller.setActionListener(new KahyaActionListener() {
+            /*controller.setActionListener(new KahyaActionListener() {
                 @Override
                 public void onStart(String busCode) {
                     if( routeScanner != null ){
@@ -44,7 +44,7 @@ public class MainScreen extends Application {
                     });
                     routeScanner.start();
                 }
-            });
+            });*/
 
             primaryStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
                 @Override

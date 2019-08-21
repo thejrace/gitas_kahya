@@ -15,26 +15,21 @@ import utils.RunNoComparator;
 import java.util.*;
 
 public class RouteScanner {
-    public static String ACTIVE_BUS_CODE;
-    public static boolean DEBUG = false;
+
+    public boolean DEBUG = true;
     private boolean shutdown = false;
+    private boolean started = false;
     private String route;
     private String activeBusCode;
     private RouteMap routeMap;
-    private Map<String, ArrayList<RunData>> fleetRunData = new HashMap<>();
 
-    private StatusListener statusListener;
-    private KahyaUIListener kahyaUIListener;
-
-    public RouteScanner( String activeBusCode ){
-        if( DEBUG ) System.out.println("route scanner initialized ("+activeBusCode+")");
-        this.activeBusCode = activeBusCode;
-        ACTIVE_BUS_CODE = activeBusCode;
+    public RouteScanner( String route ){
+        if( DEBUG ) System.out.println("route scanner initialized ("+route+")");
+        this.route = route;
     }
 
     public void start(){
         Thread scannerThread = new Thread( () -> {
-            findRoute();
             initializeRouteMap();
             // begin scan loop
             while( !shutdown ){
@@ -45,7 +40,7 @@ public class RouteScanner {
                     if( FakeDataGenerator.ACTIVE ){
                         Thread.sleep(100);
                     } else {
-                        Thread.sleep(20000);
+                        Thread.sleep(15000);
                     }
                 } catch( InterruptedException e ){
                     e.printStackTrace();
@@ -55,11 +50,16 @@ public class RouteScanner {
         });
         scannerThread.setDaemon(true);
         scannerThread.start();
+        started = true;
+
+    }
+
+    public void updateSettings(JSONObject settings){
 
     }
 
     private void downloadFleetData(){
-        fleetRunData = new HashMap<>();
+        Map<String, ArrayList<RunData>> fleetRunData = new HashMap<>();
         ArrayList<String> routesToDownload = routeMap.getIntersectedRoutes();
         RouteFleetDownload routeFleetDownload = new RouteFleetDownload(routesToDownload);
         if( DEBUG ) System.out.println("downloading fleet data. ("+routesToDownload+")");
@@ -90,6 +90,10 @@ public class RouteScanner {
             Collections.sort(fleetRunData.get(key), new RunNoComparator() ); // sort by run no
             routeMap.passBusData( key, fleetRunData.get(key) );
         }
+
+        // @todo create json file here!!!!!!
+        System.out.println(route + " Route Scanner DONE!");
+
     }
 
     private void initializeRouteMap(){
@@ -120,44 +124,18 @@ public class RouteScanner {
             JSONObject tempData = data.getJSONObject(k);
             routeIntersections.put(tempData.getString("kesisen_hat"), new IntersectionData(route,tempData.getString("kesisen_hat"), tempData.getString("durak_adi"), tempData.getInt("yon"),  tempData.getInt("total_diff")));
         }
-        RouteMap.activeBusCode = activeBusCode;
-        RouteMap.map = map;
-        RouteMap.directionMergePoint = directionMergePoint;
-        RouteMap.route = route;
-        routeMap.setRouteIntersections(routeIntersections);
-        routeMap.addStatusListener( statusListener );
-        routeMap.addKahyaUIListener( kahyaUIListener );
+
+        routeMap.initialize(route, map, directionMergePoint);
+
         if( DEBUG ) System.out.println("route map created. ("+route+")");
     }
 
-    private void findRoute(){
-        if(FakeDataGenerator.ACTIVE ){
-            route = FakeDataGenerator.ROUTE;
-        } else {
-            OADDDownload activeBusOADDDownload = new OADDDownload(activeBusCode);
-            activeBusOADDDownload.action();
-            JSONObject activeBusOADDData = activeBusOADDDownload.getOutput();
-            try {
-                route = activeBusOADDData.getString("route");
-                if( DEBUG ) System.out.println("route found ("+route+")");
-            } catch( JSONException e ){
-                findRoute();
-                System.out.println("route error");
-                //e.printStackTrace();
-            }
-        }
+    public boolean isStarted(){
+        return started;
     }
 
     public String getRoutes(){
         return routeMap.getIntersectedRoutes().toString();
-    }
-
-    public void addStatusListener( StatusListener listener ){
-        this.statusListener = listener;
-    }
-
-    public void addKahyaUIListener( KahyaUIListener listener ){
-        this.kahyaUIListener = listener;
     }
 
     public void shutdown(){

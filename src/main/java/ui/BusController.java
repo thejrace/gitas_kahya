@@ -45,7 +45,7 @@ public class BusController implements Initializable {
 
 
 
-        if( !data.getBusCode().equals(RouteScanner.ACTIVE_BUS_CODE )){
+        /*if( !data.getBusCode().equals(RouteScanner.ACTIVE_BUS_CODE )){
             try {
                 uiContainer.getStyleClass().remove(0);
             } catch( IndexOutOfBoundsException e ){ }
@@ -55,7 +55,7 @@ public class BusController implements Initializable {
             } else if( data.getStatus() == BusStatus.WAITING ){
                 uiContainer.getStyleClass().add(0, "bs-waiting");
             }
-        }
+        }*/
 
 
        /*

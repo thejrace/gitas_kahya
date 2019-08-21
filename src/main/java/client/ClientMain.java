@@ -5,6 +5,8 @@ import javafx.application.Platform;
 import javafx.scene.Node;
 import javafx.stage.Stage;
 import fleet.StealCookie;
+import org.json.JSONObject;
+import pool.RouteScannerPool;
 import routescanner.UIBusData;
 import ui.Bus;
 import ui.MainScreen;
@@ -19,8 +21,14 @@ public class ClientMain extends Application {
         stealCookie.addListener(() -> {
             Platform.runLater(()-> {
                 try {
-                    MainScreen mainScreen = new MainScreen();
-                    mainScreen.start(new Stage());
+
+                    JSONObject testSettings = new JSONObject();
+                    testSettings.put("active_interval", 10000);
+                    testSettings.put("idle_interval", 15000);
+                    testSettings.put("status", true);
+                    RouteScannerPool routeScannerPool = new RouteScannerPool(testSettings);
+                    routeScannerPool.start();
+
                 } catch ( Exception e ){
                     e.printStackTrace();
                 }

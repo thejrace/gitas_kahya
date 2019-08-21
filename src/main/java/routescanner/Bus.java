@@ -1,46 +1,137 @@
 package routescanner;
 
-import interfaces.BusStopAccumulatorListener;
-
 import java.util.ArrayList;
 
 public class Bus {
 
     // @todo hat degisiebiliyor onları ayikla
+    /**
+     * Bus code
+     */
     private String code;
+
+    /**
+     * Active route
+     */
     private String route;
+
+    /**
+     * Active stop name
+     */
     private String stop;
+
+    /**
+     * Position on the RouteMap
+     */
     private int position;
+
+    /**
+     * Bus direction
+     */
     private int direction = -1;
+
+    /**
+     * Active run index in runData ( starts from 0 )
+     */
     private int activeRunIndex = -1;
+
+    /**
+     * Active status of the bus
+     */
     private BusStatus status;
+
+    /**
+     * Previous status of the bus for comparison
+     */
     private BusStatus prevStatus;
+
+    /**
+     * Counter for accumulating stops, on ring routes we need 4 stops to correctly determine direction
+     */
     private int stopAccumulateCounter = 0;
 
+    /**
+     * Merge point index in the RouteMap
+     */
+    private int directionMergePoint;
+
+    /**
+     * List of the bus runs, this is the main data source
+     */
     private ArrayList<RunData> runData = new ArrayList<>();
+
+    /**
+     * List of the direction type of each run
+     */
     private ArrayList<Integer> runTypes = new ArrayList<>();
+
+    /**
+     * List of the stops which accumulated while determining ring run's direction
+     */
     private ArrayList<String> stopData = new ArrayList<>();
+
+    /**
+     * Counter object to decide whether run is forward or backward
+     */
     private DirectionCounter dirCounter = new DirectionCounter();
 
+    /**
+     * RouteMap instance
+     */
+    private ArrayList<RouteStop> routeMap;
+
+    /**
+     * Flag to set when direction of the run is found
+     */
     private boolean dirFoundFlag = false;
 
-    private static boolean INIT_DEBUG_FLAG = true;
-    private static boolean STATUS_DEBUG_FLAG = true;
-    private static boolean DIR_DEBUG_FLAG = true;
+    /**
+     * Debug flag for initialize method
+     */
+    private boolean INIT_DEBUG_FLAG = false;
 
+    /**
+     * Debug flag for checkStatus method
+     */
+    private boolean STATUS_DEBUG_FLAG = false;
+
+    /**
+     * Debug flag for determineRingRouteDirection method
+     */
+    private boolean DIR_DEBUG_FLAG = false;
+
+    /**
+     *  Constructor 1
+     *
+     * @param code code of the active bus
+     */
     public Bus( String code ){
         this.code = code;
         this.status = BusStatus.UNDEFINED;
         this.position = -1;
     }
 
-    public Bus( String code, ArrayList<RunData> runData ){
+    /**
+     * Constructor 2
+     *
+     * @param code code of the active bus
+     * @param runData run data of the active bus
+     * @param routeMap routeMap list
+     * @param directionMergePoint direction merge point
+     */
+    public Bus( String code, ArrayList<RunData> runData, ArrayList<RouteStop> routeMap, int directionMergePoint ){
         this.code = code;
         this.runData = runData;
         this.status = BusStatus.UNDEFINED;
+        this.routeMap = routeMap;
+        this.directionMergePoint = directionMergePoint;
     }
 
-    public void updateStatus(){ // called everytime new fleet data is fetched
+    /**
+     * Main logic method, triggered from RouteMap.
+     * Called everytime fleet data is fetched.
+     */
+    public void updateStatus(){
         if( !dirFoundFlag ){
             initialize();
         } else {
@@ -50,6 +141,12 @@ public class Bus {
         if( INIT_DEBUG_FLAG ) System.out.println("---------");
     }
 
+    /**
+     * This is the method where we try to find following:
+     *   - activeRunIndex
+     *   - run type of the active run
+     *   - direction
+     */
     private void initialize(){
         try {
             // 1) find the active run index
@@ -71,7 +168,7 @@ public class Bus {
 
                 if( status == BusStatus.UNDEFINED ){
 
-                    System.out.println( code+  " UNDEFINED!");
+                    if( INIT_DEBUG_FLAG ) System.out.println( code+  " UNDEFINED!");
                     return;
                 }
 
@@ -112,6 +209,9 @@ public class Bus {
         }
     }
 
+    /**
+     * Collects the active stop data to determine run direction
+     */
     private void collectStopForDirection(){
         if( runData.get(activeRunIndex).getCurrentStop().equals("N/A") ) return;
         if( stopData.size() == 0 ){
@@ -134,6 +234,10 @@ public class Bus {
         }
     }
 
+    /**
+     * After finding activeRunIndex in initialize, this is where
+     * we determine the active status of the bus
+     */
     private void checkStatus(){
         try {
             int index = 0, activeIndex = -1, waitingIndex = -1;
@@ -174,7 +278,7 @@ public class Bus {
                     } else if( status == BusStatus.ACTIVE ){
                         // if bus passed the merge point but direction is somehow calculated wrong
                         // we check it and correct it
-                        if( direction == RouteDirection.FORWARD && position > RouteMap.directionMergePoint ){
+                        if( direction == RouteDirection.FORWARD && position > directionMergePoint ){
                             dirFoundFlag = false;
                             initialize(); // reset everything
                             return;
@@ -182,7 +286,7 @@ public class Bus {
                         // if status is active, we have to check if bus crossed the intersection point
                         // if it did we change the direction
                         if( direction == RouteDirection.FORWARD ){
-                            if( RouteMap.map.get(RouteMap.directionMergePoint).getName().equals(stop) ){
+                            if( routeMap.get(directionMergePoint).getName().equals(stop) ){
                                 direction = RouteDirection.BACKWARD;
                             }
                         }
@@ -209,17 +313,20 @@ public class Bus {
         }
     }
 
+    /**
+     * After accumulating 4 stop data, this is where we decide the direction
+     */
     private void determineRingRouteDirection(){
         if( DIR_DEBUG_FLAG ) System.out.println(code +"  DIR ACITON!!!   " + stopData );
         ArrayList<Integer> prevFoundIndexes = new ArrayList<>();
         for( int j = 0; j < stopData.size(); j++ ){
             String stop = stopData.get(j);
-            ArrayList<Integer> foundIndexes = RouteMap.findStopOccurences( stop, 0 );
+            ArrayList<Integer> foundIndexes = RouteMap.findStopOccurences( routeMap, stop, 0 );
             if( DIR_DEBUG_FLAG ) System.out.println("FOUND INDEXES: " + foundIndexes );
             if( foundIndexes.size() == 1 ){ // singleton durak
                 // if there is only one match, means this stop is on one direction
                 // we can determine which way by comparing it with merge point
-                if( foundIndexes.get(0) > RouteMap.directionMergePoint ){
+                if( foundIndexes.get(0) > directionMergePoint ){
                     if( DIR_DEBUG_FLAG ) System.out.println(code + "  singleton stop DIR INC: " + RouteDirection.returnText(RouteDirection.BACKWARD));
                     dirCounter.increment(RouteDirection.BACKWARD);
                 } else {
@@ -237,7 +344,7 @@ public class Bus {
                         dirCounter.increment(RouteDirection.BACKWARD);
                     }
                 } else if( prevFoundIndexes.size() == 1 ){ // prev singleton
-                    if( prevFoundIndexes.get(0) > RouteMap.directionMergePoint){ // singleton stop on backward dir
+                    if( prevFoundIndexes.get(0) > directionMergePoint){ // singleton stop on backward dir
                         if( prevFoundIndexes.get(0) < foundIndexes.get(1) ){
                             dirCounter.increment(RouteDirection.FORWARD);
                         } else {
@@ -268,54 +375,51 @@ public class Bus {
 
     }
 
+    /**
+     * Update the run data
+     *
+     * @param runData updated run data
+     */
     public void setRunData(ArrayList<RunData> runData) {
         this.runData = runData;
     }
 
-    public void setDirection( int direction ){
-        this.direction = direction;
-        dirFoundFlag = true;
-    }
+    /**
+     * Getter for stop
+     * @return stop name
+     */
     public String getStop() {
         return stop;
     }
 
-    public void setStop(String stop) {
-        this.stop = stop;
-    }
-
+    /**
+     * Getter for direction
+     * @return direction of the bus
+     */
     public int getDirection() {
         return direction;
     }
 
-    public UIBusData getUIData(){
-        return new UIBusData(code, stop, position, runData.get(activeRunIndex).getRouteDetails(), RouteDirection.returnText(direction), status );
-    }
-
-    public int getPosition() {
-        return position;
-    }
-
+    /**
+     * Setter for position
+     * @param position new position on the route map
+     */
     public void setPosition(int position) {
         this.position = position;
     }
 
+    /**
+     * Getter for status
+     * @return status of the bus
+     */
     public BusStatus getStatus() {
         return status;
     }
 
-    public void setStatus(BusStatus status) {
-        this.status = status;
-    }
-
-    public String getCode() {
-        return code;
-    }
-
-    public boolean getDirFoundFlag(){
-        return dirFoundFlag;
-    }
-
+    /**
+     * Serialize data for logging
+     * @return serialzed data
+     */
     public String toString(){
         return "["+code+"] ["+route+"] ["+RouteDirection.returnText(direction)+"] ["+status+"] [@"+stop+"] [POS:"+position+"] [ARInd:"+activeRunIndex+"]";
     }

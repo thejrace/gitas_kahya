@@ -1,7 +1,5 @@
 package routescanner;
 
-import interfaces.StatusListener;
-import interfaces.KahyaUIListener;
 import utils.StringSimilarity;
 
 import java.util.ArrayList;
@@ -10,17 +8,13 @@ import java.util.Map;
 
 public class RouteMap {
 
-    public static int ACTIVE_BUS_POSITION = -1;
-    public static ArrayList<RouteStop> map; // forwardstops->backwardstops ( merge two directions together )
-    public static String route;
-    public static String activeBusCode;
-    public static int directionMergePoint; // index where merge happens
+    public ArrayList<RouteStop> map; // forwardstops->backwardstops ( merge two directions together )
+    public String route;
+    public String activeBusCode;
+    public int directionMergePoint; // index where merge happens
 
     private Map<String, Bus> buses; // buses on the map
     private Map<String, Boolean> intersectionBeginFlags; // holds the flag for whether intersection action began or not for given route
-
-    private StatusListener statusListener;
-    private KahyaUIListener kahyaUIListener;
 
     public RouteMap(){
         this.buses = new HashMap<>();
@@ -28,46 +22,19 @@ public class RouteMap {
     }
 
     private void updateBusPosition( String busCode ){
-        int pos = findStopIndex( buses.get(busCode).getDirection(), buses.get(busCode).getStop() );
+        int pos = findStopIndex( map, buses.get(busCode).getDirection(), buses.get(busCode).getStop(), directionMergePoint );
         if( pos != -1 ){
             buses.get(busCode).setPosition(pos);
         } else {
             return;
         }
-        // check if we update the position of active bus,
-        // if so, check whether it crossed the intersection with the other routes
-        if( busCode.equals(activeBusCode) ){
-            ACTIVE_BUS_POSITION = buses.get(busCode).getPosition();
-            ArrayList<IntersectionData> routeIntersectionData = map.get(pos).getIntersections();
-            if( routeIntersectionData.size() > 0 ){
-                for( IntersectionData intersectionData : routeIntersectionData ){
-                    if( intersectionData.getDirection() != buses.get(busCode).getDirection() ) continue;
-                    // check if active bus is between intersection point and the end
-                    int intersectionPos = findStopIndex(intersectionData.getDirection(), intersectionData.getIntersectedAt() );
-                    if( pos >= intersectionPos && pos <= (( intersectionData.getDirection() == RouteDirection.FORWARD ) ? directionMergePoint : map.size()-1 ) ){
-                        // set begin flag for that route
-                        if( !intersectionBeginFlags.get(intersectionData.getComparedRoute())){
-                            intersectionBeginFlags.put(intersectionData.getComparedRoute(), true);
-                        }
-                    } else {
-                        // clear previous flags ( this will be reached when direction changes )
-                        if( intersectionBeginFlags.get(intersectionData.getComparedRoute())){
-                            intersectionBeginFlags.put(intersectionData.getComparedRoute(), false);
-                        }
-                    }
-                }
-            }
-        }
-        statusListener.onNotify(buses.get(busCode).toString());
-        if( buses.get(busCode).getDirFoundFlag() ) kahyaUIListener.onFinish( buses.get(busCode).getUIData());
-        System.out.println( buses.get(busCode).toString() );
+        //System.out.println( buses.get(busCode).toString() );
     }
 
     // called from RouteScanner to update the given buses run data
     public void passBusData( String busCode, ArrayList<RunData> runData ){
         if( !buses.containsKey(busCode) ){
-            if( RouteScanner.DEBUG ) System.out.println("adding a bus to route map:  ||"+busCode+"||");
-            Bus bus = new Bus( busCode, runData );
+            Bus bus = new Bus( busCode, runData, map, directionMergePoint );
             buses.put( busCode, bus );
         } else {
             buses.get(busCode).setRunData(runData);
@@ -76,7 +43,7 @@ public class RouteMap {
         updateBusPosition(busCode);
     }
 
-    public static int findStopIndex( int direction, String stopName ){
+    public static int findStopIndex( ArrayList<RouteStop> map, int direction, String stopName, int directionMergePoint ){
         try{
             if( stopName.equals("N/A") ) return -1; // @todo BUG FIX!!!!!
         } catch( NullPointerException e ){
@@ -85,14 +52,14 @@ public class RouteMap {
         int k = 0;
         if( direction == RouteDirection.BACKWARD ) k = directionMergePoint;
         try {
-            return findStopOccurences(stopName, k ).get(0);
+            return findStopOccurences(map, stopName, k ).get(0);
         } catch( IndexOutOfBoundsException e ){
             //e.printStackTrace();
         }
         return -1;
     }
 
-    public static ArrayList<Integer> findStopOccurences( String stopName, int startIndex ){
+    public static ArrayList<Integer> findStopOccurences( ArrayList<RouteStop> map, String stopName, int startIndex ){
         ArrayList<Integer> occurences = new ArrayList<>();
         if( stopName.equals("N/A")) return occurences;
         for( ; startIndex < map.size(); startIndex++ ){
@@ -120,6 +87,12 @@ public class RouteMap {
         }
     }
 
+    public void initialize( String route, ArrayList<RouteStop> routeMap, int directionMergePoint ){
+        this.route = route;
+        this.map = routeMap;
+        this.directionMergePoint = directionMergePoint;
+    }
+
     // returns the routes to be fetched to route scanner
     public ArrayList<String> getIntersectedRoutes(){
         ArrayList<String> output = new ArrayList<>();
@@ -128,14 +101,6 @@ public class RouteMap {
         }
         output.add(route); // we fetch the active route all the time
         return output;
-    }
-
-    public void addStatusListener( StatusListener listener ){
-        this.statusListener = listener;
-    }
-
-    public void addKahyaUIListener( KahyaUIListener listener ){
-        this.kahyaUIListener = listener;
     }
 
     public String getRoute() {
