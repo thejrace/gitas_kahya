@@ -3,8 +3,6 @@ package pool;
 import org.json.JSONObject;
 import routescanner.RouteScanner;
 import utils.ThreadHelper;
-
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
