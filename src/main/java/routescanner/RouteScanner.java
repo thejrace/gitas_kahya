@@ -1,33 +1,55 @@
 package routescanner;
 
-import interfaces.StatusListener;
 import fakedatagenerator.FakeDataGenerator;
-import fleet.OADDDownload;
 import fleet.RouteFleetDownload;
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 import fleet.FetchRouteIntersections;
 import fleet.RouteStopsDownload;
-import interfaces.KahyaUIListener;
 import utils.RunNoComparator;
 
 import java.util.*;
 
 public class RouteScanner {
 
+    /**
+     * Debug flag for logging
+     */
     public boolean DEBUG = true;
+
+    /**
+     * Flag to kill main thread
+     */
     private boolean shutdown = false;
+
+    /**
+     * Flag to notifiy pool that thread is started
+     */
     private boolean started = false;
+
+    /**
+     * Route code
+     */
     private String route;
-    private String activeBusCode;
+
+    /**
+     *  RouteMap instance
+     */
     private RouteMap routeMap;
 
+    /**
+     * Constructor
+     *
+     * @param route route code
+     */
     public RouteScanner( String route ){
         if( DEBUG ) System.out.println("route scanner initialized ("+route+")");
         this.route = route;
     }
 
+    /**
+     * Main logic thread
+     */
     public void start(){
         Thread scannerThread = new Thread( () -> {
             initializeRouteMap();
@@ -46,18 +68,62 @@ public class RouteScanner {
                     e.printStackTrace();
                 }
             }
-            System.out.println( activeBusCode + " shutdown!");
+            System.out.println( route + " shutdown!");
         });
         scannerThread.setDaemon(true);
         scannerThread.start();
         started = true;
-
     }
 
+    /**
+     * Download route stops and create the RouteMap
+     */
+    private void initializeRouteMap(){
+        if( DEBUG ) System.out.println("route map initializing ("+route+")");
+        int directionMergePoint = -1; // index where merge happens
+        Map<String, IntersectionData> routeIntersections = new HashMap<>(); // contains intersection data of the active route
+        ArrayList<RouteStop> map = new ArrayList<>(); // forwardstops->backwardstops ( merge two directions together )
+        // create the route map
+        routeMap = new RouteMap();
+        // fetch stops
+        RouteStopsDownload routeStopsDownload = new RouteStopsDownload(route);
+        JSONArray routeStopsDownloaded = routeStopsDownload.action();
+        JSONArray tempStops;
+        JSONObject stopDataTemp;
+        for( int j = 0; j < 2; j++ ){
+            tempStops = routeStopsDownloaded.getJSONArray(j);
+            int k;
+            for( k = 0; k < tempStops.length(); k++ ){
+                if( tempStops.isNull(k) ) continue;
+                stopDataTemp = tempStops.getJSONObject(k);
+                map.add(new RouteStop( stopDataTemp.getInt("no"), stopDataTemp.getString("isim")));
+            }
+            if( j == 0 ) directionMergePoint = k;
+        }
+        // fetch intersections
+        JSONArray data = FetchRouteIntersections.action(route);
+        for( int k = 0; k < data.length(); k++ ){
+            JSONObject tempData = data.getJSONObject(k);
+            routeIntersections.put(tempData.getString("kesisen_hat"), new IntersectionData(route,tempData.getString("kesisen_hat"), tempData.getString("durak_adi"), tempData.getInt("yon"),  tempData.getInt("total_diff")));
+        }
+
+        routeMap.initialize(route, map, directionMergePoint);
+
+        if( DEBUG ) System.out.println("route map created. ("+route+")");
+    }
+
+    /**
+     * Get updated settings
+     *
+     * @param settings updated settings
+     */
     public void updateSettings(JSONObject settings){
 
     }
 
+    /**
+     * Download the fleet data of the route
+     */
     private void downloadFleetData(){
         Map<String, ArrayList<RunData>> fleetRunData = new HashMap<>();
         ArrayList<String> routesToDownload = routeMap.getIntersectedRoutes();
@@ -96,49 +162,14 @@ public class RouteScanner {
 
     }
 
-    private void initializeRouteMap(){
-        if( DEBUG ) System.out.println("route map initializing ("+route+")");
-        int directionMergePoint = -1; // index where merge happens
-        Map<String, IntersectionData> routeIntersections = new HashMap<>(); // contains intersection data of the active route
-        ArrayList<RouteStop> map = new ArrayList<>(); // forwardstops->backwardstops ( merge two directions together )
-        // create the route map
-        routeMap = new RouteMap();
-        // fetch stops
-        RouteStopsDownload routeStopsDownload = new RouteStopsDownload(route);
-        JSONArray routeStopsDownloaded = routeStopsDownload.action();
-        JSONArray tempStops;
-        JSONObject stopDataTemp;
-        for( int j = 0; j < 2; j++ ){
-            tempStops = routeStopsDownloaded.getJSONArray(j);
-            int k;
-            for( k = 0; k < tempStops.length(); k++ ){
-                if( tempStops.isNull(k) ) continue;
-                stopDataTemp = tempStops.getJSONObject(k);
-                map.add(new RouteStop( stopDataTemp.getInt("no"), stopDataTemp.getString("isim")));
-            }
-            if( j == 0 ) directionMergePoint = k;
-        }
-        // fetch intersections
-        JSONArray data = FetchRouteIntersections.action(route);
-        for( int k = 0; k < data.length(); k++ ){
-            JSONObject tempData = data.getJSONObject(k);
-            routeIntersections.put(tempData.getString("kesisen_hat"), new IntersectionData(route,tempData.getString("kesisen_hat"), tempData.getString("durak_adi"), tempData.getInt("yon"),  tempData.getInt("total_diff")));
-        }
 
-        routeMap.initialize(route, map, directionMergePoint);
 
-        if( DEBUG ) System.out.println("route map created. ("+route+")");
-    }
-
+    /**
+     * Getter for start
+     *
+     * @return started flag
+     */
     public boolean isStarted(){
         return started;
-    }
-
-    public String getRoutes(){
-        return routeMap.getIntersectedRoutes().toString();
-    }
-
-    public void shutdown(){
-        shutdown = true;
     }
 }
