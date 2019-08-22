@@ -171,4 +171,8 @@ public class RouteMap {
         }
         return occurences;
     }
+
+    public Map<String, Bus> getBuses() {
+        return buses;
+    }
 }

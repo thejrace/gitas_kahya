@@ -21,15 +21,20 @@ public class RouteStopsDownload {
         this.route = route;
     }
 
-
     public JSONArray action(){
         org.jsoup.Connection.Response res;
         try {
-            res = Jsoup.connect(Web_Request.API_URL_PREFIX+"?req=route_stops_download&route="+route)
+            //res = Jsoup.connect(Web_Request.API_URL_PREFIX+"?req=route_stops_download&route="+route)
+            res = Jsoup.connect("http://kahya_api.test/api/routeStops/"+route)
                     .method(org.jsoup.Connection.Method.GET)
+                    .header("Accept", "application/json")
+                    .ignoreContentType(true)
                     .timeout(0)
                     .execute();
-            return new JSONArray(res.parse().text());
+
+            System.out.println(res.parse().text());
+            JSONArray data = new JSONObject(res.parse().text()).getJSONArray("data").getJSONArray(0);
+            return data;
         } catch( IOException e) {
             e.printStackTrace();
         }

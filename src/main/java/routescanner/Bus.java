@@ -1,5 +1,7 @@
 package routescanner;
 
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 
 public class Bus {
@@ -422,6 +424,21 @@ public class Bus {
      */
     public String toString(){
         return "["+code+"] ["+route+"] ["+RouteDirection.returnText(direction)+"] ["+status+"] [@"+stop+"] [POS:"+position+"] [ARInd:"+activeRunIndex+"]";
+    }
+
+    public JSONObject toJSON(){
+        JSONObject data = new JSONObject();
+        data.put("route", route);
+        data.put("code", code);
+        data.put("direction", direction);
+        data.put("status", status);
+        data.put("stop", stop);
+        data.put("position", position);
+        return data;
+    }
+
+    public String serialize(){
+        return toJSON().toString();
     }
 
 }

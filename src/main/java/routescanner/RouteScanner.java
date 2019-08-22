@@ -3,11 +3,15 @@ package routescanner;
 import fakedatagenerator.FakeDataGenerator;
 import fleet.RouteFleetDownload;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
-import fleet.FetchRouteIntersections;
 import fleet.RouteStopsDownload;
+import org.jsoup.Connection;
+import org.jsoup.HttpStatusException;
+import org.jsoup.Jsoup;
 import utils.RunNoComparator;
 
+import java.io.IOException;
 import java.util.*;
 
 public class RouteScanner {
@@ -36,6 +40,11 @@ public class RouteScanner {
      *  RouteMap instance
      */
     private RouteMap routeMap;
+
+    /**
+     * Config
+     */
+    private JSONObject settings;
 
     /**
      * Constructor
@@ -81,34 +90,27 @@ public class RouteScanner {
     private void initializeRouteMap(){
         if( DEBUG ) System.out.println("route map initializing ("+route+")");
         int directionMergePoint = -1; // index where merge happens
-        Map<String, IntersectionData> routeIntersections = new HashMap<>(); // contains intersection data of the active route
         ArrayList<RouteStop> map = new ArrayList<>(); // forwardstops->backwardstops ( merge two directions together )
+
         // create the route map
         routeMap = new RouteMap();
+
         // fetch stops
         RouteStopsDownload routeStopsDownload = new RouteStopsDownload(route);
         JSONArray routeStopsDownloaded = routeStopsDownload.action();
-        JSONArray tempStops;
         JSONObject stopDataTemp;
-        for( int j = 0; j < 2; j++ ){
-            tempStops = routeStopsDownloaded.getJSONArray(j);
-            int k;
-            for( k = 0; k < tempStops.length(); k++ ){
-                if( tempStops.isNull(k) ) continue;
-                stopDataTemp = tempStops.getJSONObject(k);
-                map.add(new RouteStop( stopDataTemp.getInt("no"), stopDataTemp.getString("isim")));
-            }
-            if( j == 0 ) directionMergePoint = k;
-        }
-        // fetch intersections
-        JSONArray data = FetchRouteIntersections.action(route);
-        for( int k = 0; k < data.length(); k++ ){
-            JSONObject tempData = data.getJSONObject(k);
-            routeIntersections.put(tempData.getString("kesisen_hat"), new IntersectionData(route,tempData.getString("kesisen_hat"), tempData.getString("durak_adi"), tempData.getInt("yon"),  tempData.getInt("total_diff")));
+        int activeDir = -2, prevDir = -1;
+
+        // merge directions
+        for( int k = 0; k < routeStopsDownloaded.length(); k++ ){
+            stopDataTemp = routeStopsDownloaded.getJSONObject(k);
+            activeDir = stopDataTemp.getInt("direction");
+            map.add(new RouteStop( stopDataTemp.getInt("no"), stopDataTemp.getString("name")));
+            if( prevDir != activeDir ) directionMergePoint = k;
+            prevDir = activeDir;
         }
 
         routeMap.initialize(route, map, directionMergePoint);
-
         if( DEBUG ) System.out.println("route map created. ("+route+")");
     }
 
@@ -118,7 +120,7 @@ public class RouteScanner {
      * @param settings updated settings
      */
     public void updateSettings(JSONObject settings){
-
+        this.settings = settings;
     }
 
     /**
@@ -160,9 +162,48 @@ public class RouteScanner {
         // @todo create json file here!!!!!!
         System.out.println(route + " Route Scanner DONE!");
 
+        JSONArray totalData = new JSONArray();
+        for( Map.Entry<String, Bus> entry : routeMap.getBuses().entrySet() ){
+            totalData.put(entry.getValue().toJSON());
+        }
+
+        sendDataToAPI("http://kahya_api.test/api/uploadRouteScannerData/"+route, totalData.toString());
     }
 
+    /**
+     * Sends the downloaded data to API
+     *
+     * @param data downloaded data
+     *
+     */
+    private void sendDataToAPI( String url, String data ){
+        try {
+            Connection.Response response = Jsoup.connect(url)
+                    .method(Connection.Method.GET)
+                    .data("data", data)
+                    .header("Accept", "application/json")
+                    .ignoreContentType(true)
+                    .execute();
 
+            JSONObject apiResponse = new JSONObject(response.parse().text());
+            try {
+                if( !apiResponse.getJSONObject("data").getBoolean("success") ){
+                    System.out.println("sendDataToAPI API response error!");
+                }
+            } catch( JSONException e ){
+                e.printStackTrace();
+            }
+        } catch (HttpStatusException e) {
+            e.printStackTrace();
+            System.out.println("sendDataToAPI !!!!check API Token!!!!");
+            return;
+        } catch( IOException e ) {
+            System.out.println("sendDataToAPI error!");
+            e.printStackTrace();
+            return;
+        }
+        System.out.println("sendDataToAPI completed!");
+    }
 
     /**
      * Getter for start
