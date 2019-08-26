@@ -93,7 +93,7 @@ public class RouteIntersection extends Filo_Task {
     }
 
     private static void fetchStops( String route ){
-        if( !routeStops.containsKey(route) ){
+        /*if( !routeStops.containsKey(route) ){
             RouteStopsDownload download = new RouteStopsDownload(route);
             JSONArray downloaded = download.action();
             routeStops.put(route, new ArrayList<>());
@@ -104,7 +104,7 @@ public class RouteIntersection extends Filo_Task {
                 }
                 routeStops.get(route).add(tempStops);
             }
-        }
+        }*/
     }
 
     private static JSONArray fetchRoutes() {
