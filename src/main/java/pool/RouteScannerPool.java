@@ -1,7 +1,9 @@
 package pool;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 import routescanner.RouteScanner;
+import utils.APIRequest;
 import utils.ThreadHelper;
 import java.util.HashMap;
 import java.util.Map;
@@ -12,6 +14,16 @@ public class RouteScannerPool extends Thread{
      * Config data
      */
     private JSONObject config;
+
+    /**
+     * Settings data
+     */
+    private JSONObject settings = new JSONObject();
+
+    /**
+     * Status flag
+     */
+    private boolean status = false;
 
     /**
      * Thread instance
@@ -46,16 +58,16 @@ public class RouteScannerPool extends Thread{
 
             getSettings();
 
-            if(!config.getBoolean("status") ){
+            if(!status){
                 ThreadHelper.logStatus(threadName, "IDLE!");
-                ThreadHelper.delay(config.getInt("idle_interval"));
+                ThreadHelper.delay(settings.getInt("idle_interval"));
                 continue;
             }
 
             getRouteScannerList();
             configureRouteScanners();
 
-            ThreadHelper.delay(config.getInt("active_interval"));
+            ThreadHelper.delay(settings.getInt("active_interval"));
         }
 
     }
@@ -65,15 +77,28 @@ public class RouteScannerPool extends Thread{
      */
     private void getSettings(){
 
+        JSONObject apiResponse = new JSONObject(APIRequest.GET(config.getString("get_settings_api_url"))).getJSONObject("data");
+        JSONArray settingsArray = apiResponse.getJSONArray("settings");
+        for( int k = 0; k < settingsArray.length(); k++ ){
+            JSONObject setting = settingsArray.getJSONObject((k));
+            settings.put(setting.getString("key"), setting.get("value"));
+        }
+        status = apiResponse.getBoolean("status");
+        System.out.println(settings);
+        getRouteScannerList();
     }
 
     /**
      * Get scanner list from API
      */
     private void getRouteScannerList(){
-        if( !routeScannerList.containsKey("15BK") ) routeScannerList.put("15BK", new RouteScanner("15BK"));
-        ThreadHelper.delay(100);
-        if( !routeScannerList.containsKey("11ÜS" ) ) routeScannerList.put("11ÜS",new RouteScanner("11ÜS"));
+        JSONArray routeScanners = new JSONObject(APIRequest.GET(config.getString("get_route_scanners_list_url"))).getJSONArray("data");
+        for( int k = 0; k < routeScanners.length(); k++ ){
+            String code = routeScanners.getJSONObject(k).getString("code");
+            if( !routeScannerList.containsKey(code) ) routeScannerList.put(code, new RouteScanner(code));
+        }
+
+        // @todo loop through routeScannerList if there is a shutdown, kill that scanner instance
     }
 
     /**
@@ -82,8 +107,11 @@ public class RouteScannerPool extends Thread{
     private void configureRouteScanners(){
         for( Map.Entry<String, RouteScanner> entry : routeScannerList.entrySet() ){
             RouteScanner routeScanner = entry.getValue();
-            routeScanner.updateSettings(new JSONObject());
-            if( !routeScanner.isStarted() ) routeScanner.start();
+            routeScanner.updateSettings(settings);
+            if( !routeScanner.isStarted() ){
+                routeScanner.start();
+                ThreadHelper.delay(100);
+            }
         }
     }
 

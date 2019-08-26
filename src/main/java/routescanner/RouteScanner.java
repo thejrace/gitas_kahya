@@ -3,15 +3,11 @@ package routescanner;
 import fakedatagenerator.FakeDataGenerator;
 import fleet.RouteFleetDownload;
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 import fleet.RouteStopsDownload;
-import org.jsoup.Connection;
-import org.jsoup.HttpStatusException;
-import org.jsoup.Jsoup;
+import utils.APIRequest;
 import utils.RunNoComparator;
-
-import java.io.IOException;
+import utils.ThreadHelper;
 import java.util.*;
 
 public class RouteScanner {
@@ -64,18 +60,13 @@ public class RouteScanner {
             initializeRouteMap();
             // begin scan loop
             while( !shutdown ){
-
                 downloadFleetData();
 
-                try {
                     if( FakeDataGenerator.ACTIVE ){
-                        Thread.sleep(100);
+                        ThreadHelper.delay(100);
                     } else {
-                        Thread.sleep(15000);
+                        ThreadHelper.delay(settings.getInt("scanner_active_interval"));
                     }
-                } catch( InterruptedException e ){
-                    e.printStackTrace();
-                }
             }
             System.out.println( route + " shutdown!");
         });
@@ -96,7 +87,7 @@ public class RouteScanner {
         routeMap = new RouteMap();
 
         // fetch stops
-        RouteStopsDownload routeStopsDownload = new RouteStopsDownload(route);
+        RouteStopsDownload routeStopsDownload = new RouteStopsDownload(settings.getString("route_stops_download_url"), route);
         JSONArray routeStopsDownloaded = routeStopsDownload.action();
         JSONObject stopDataTemp;
         int activeDir = -2, prevDir = -1;
@@ -159,7 +150,6 @@ public class RouteScanner {
             routeMap.passBusData( key, fleetRunData.get(key) );
         }
 
-        // @todo create json file here!!!!!!
         System.out.println(route + " Route Scanner DONE!");
 
         JSONArray totalData = new JSONArray();
@@ -167,42 +157,8 @@ public class RouteScanner {
             totalData.put(entry.getValue().toJSON());
         }
 
-        sendDataToAPI("http://kahya_api.test/api/uploadRouteScannerData/"+route, totalData.toString());
-    }
-
-    /**
-     * Sends the downloaded data to API
-     *
-     * @param data downloaded data
-     *
-     */
-    private void sendDataToAPI( String url, String data ){
-        try {
-            Connection.Response response = Jsoup.connect(url)
-                    .method(Connection.Method.GET)
-                    .data("data", data)
-                    .header("Accept", "application/json")
-                    .ignoreContentType(true)
-                    .execute();
-
-            JSONObject apiResponse = new JSONObject(response.parse().text());
-            try {
-                if( !apiResponse.getJSONObject("data").getBoolean("success") ){
-                    System.out.println("sendDataToAPI API response error!");
-                }
-            } catch( JSONException e ){
-                e.printStackTrace();
-            }
-        } catch (HttpStatusException e) {
-            e.printStackTrace();
-            System.out.println("sendDataToAPI !!!!check API Token!!!!");
-            return;
-        } catch( IOException e ) {
-            System.out.println("sendDataToAPI error!");
-            e.printStackTrace();
-            return;
-        }
-        System.out.println("sendDataToAPI completed!");
+        //sendDataToAPI("http://kahya_api.test/api/uploadRouteScannerData/"+route, totalData.toString());
+        APIRequest.POST(settings.getString("upload_data_url")+route, totalData.toString());
     }
 
     /**
