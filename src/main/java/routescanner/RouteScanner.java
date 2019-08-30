@@ -6,6 +6,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import fleet.RouteStopsDownload;
 import utils.APIRequest;
+import utils.Common;
 import utils.RunNoComparator;
 import utils.ThreadHelper;
 import java.util.*;
@@ -158,7 +159,10 @@ public class RouteScanner {
         }
 
         //sendDataToAPI("http://kahya_api.test/api/uploadRouteScannerData/"+route, totalData.toString());
-        APIRequest.POST(settings.getString("upload_data_url")+route, totalData.toString());
+        JSONObject data = new JSONObject();
+        data.put("data", totalData);
+        data.put("timestamp", Common.getDateTime());
+        APIRequest.POST(settings.getString("upload_data_url")+route, data.toString());
     }
 
     /**
