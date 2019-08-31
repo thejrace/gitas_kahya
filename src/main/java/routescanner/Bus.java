@@ -282,7 +282,6 @@ public class Bus {
                         // we check it and correct it
                         if( direction == RouteDirection.FORWARD && position > directionMergePoint ){
                             dirFoundFlag = false;
-                            initialize(); // reset everything
                             return;
                         }
                         // if status is active, we have to check if bus crossed the intersection point
