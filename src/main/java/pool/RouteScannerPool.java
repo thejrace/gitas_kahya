@@ -1,6 +1,7 @@
 package pool;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import routescanner.RouteScanner;
 import utils.APIRequest;
@@ -76,14 +77,17 @@ public class RouteScannerPool extends Thread{
      * Get service settings from API
      */
     private void getSettings(){
-
-        JSONObject apiResponse = new JSONObject(APIRequest.GET(config.getString("get_settings_api_url"))).getJSONObject("data");
-        JSONArray settingsArray = apiResponse.getJSONArray("settings");
-        for( int k = 0; k < settingsArray.length(); k++ ){
-            JSONObject setting = settingsArray.getJSONObject((k));
-            settings.put(setting.getString("key"), setting.get("value"));
+        try {
+            JSONObject apiResponse = new JSONObject(APIRequest.GET(config.getString("get_settings_api_url"))).getJSONObject("data");
+            JSONArray settingsArray = apiResponse.getJSONArray("settings");
+            for( int k = 0; k < settingsArray.length(); k++ ){
+                JSONObject setting = settingsArray.getJSONObject((k));
+                settings.put(setting.getString("key"), setting.get("value"));
+            }
+            status = apiResponse.getBoolean("status");
+        } catch( JSONException e ){
+            e.printStackTrace();
         }
-        status = apiResponse.getBoolean("status");
         System.out.println(settings);
         getRouteScannerList();
     }
