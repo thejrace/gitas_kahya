@@ -268,6 +268,8 @@ public class Bus {
                 return;
             }
             stop = runData.get(activeRunIndex).getCurrentStop();
+
+
             int tempDirection = runTypes.get(activeRunIndex); // get the direction of the current run
             // for ring routes we need to check active status in order to update
             // direction information after initialization
