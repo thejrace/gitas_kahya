@@ -162,7 +162,7 @@ public class RouteScanner {
         JSONObject data = new JSONObject();
         data.put("data", totalData);
         data.put("timestamp", Common.getDateTime());
-        APIRequest.POST(settings.getString("upload_data_url")+route, data.toString());
+        APIRequest.POST(settings.getString("upload_data_url")+Common.replaceTurkishChars(route), data.toString());
     }
 
     /**
