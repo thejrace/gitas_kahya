@@ -1,6 +1,7 @@
 package fleet;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import utils.APIRequest;
 import utils.Common;
@@ -14,7 +15,12 @@ public class RouteStopsDownload {
     }
 
     public JSONArray action(){
-        return new JSONObject(APIRequest.GET(url+route)).getJSONArray("data").getJSONArray(0);
+        try {
+            return new JSONObject(APIRequest.GET(url+route)).getJSONArray("data").getJSONArray(0);
+        } catch( JSONException e ){
+            e.printStackTrace();
+        }
+        return new JSONArray();
     }
 
 }
