@@ -100,7 +100,10 @@ public class RouteScannerPool extends Thread{
             JSONArray routeScanners = new JSONObject(APIRequest.GET(config.getString("get_route_scanners_list_url"))).getJSONArray("data");
             for( int k = 0; k < routeScanners.length(); k++ ){
                 String code = routeScanners.getJSONObject(k).getString("code");
-                if( !routeScannerList.containsKey(code) ) routeScannerList.put(code, new RouteScanner(code));
+                if( !routeScannerList.containsKey(code) ){
+                    ThreadHelper.delay(100);
+                    routeScannerList.put(code, new RouteScanner(code));
+                }
             }
         } catch( JSONException e ) {
             e.printStackTrace();
@@ -117,8 +120,8 @@ public class RouteScannerPool extends Thread{
             routeScanner.updateSettings(settings);
             if( !routeScanner.isStarted() ){
                 routeScanner.start();
-                ThreadHelper.delay(100);
             }
+            ThreadHelper.delay(1000);
         }
     }
 
