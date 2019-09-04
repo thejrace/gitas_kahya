@@ -125,7 +125,7 @@ public class RouteScanner {
         if( DEBUG ) System.out.println("downloading fleet data. ("+routesToDownload+")");
         routeFleetDownload.action();
         JSONObject fleetData = routeFleetDownload.getOutput();
-        System.out.println("fleet data:  ||"+fleetData+"||");
+        //System.out.println("fleet data:  ||"+fleetData+"||");
         // convert jsonobjects to <BusCode, ArrayList<RunData>>
         Iterator<String> busCodes = fleetData.keys();
         JSONArray tempData;
