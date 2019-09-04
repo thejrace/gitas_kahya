@@ -41,6 +41,15 @@ public class Common {
         return dateFormat.format(date);
     }
 
+    public static String replaceTurkishChars( String input ){
+        return  input.replaceAll("Ü", "U").
+                replaceAll("İ", "I").
+                replaceAll("Ş", "S").
+                replaceAll("Ç", "C").
+                replaceAll("Ö", "O");
+
+    }
+
     public static String regexTrim( String str ){
         return str.replaceAll("\u00A0", "");
     }
