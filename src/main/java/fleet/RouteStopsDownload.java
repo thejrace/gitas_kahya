@@ -16,7 +16,7 @@ public class RouteStopsDownload {
 
     public JSONArray action(){
         try {
-            return new JSONObject(APIRequest.GET(url+"?routeCode="+ Common.replaceTurkishChars(route))).getJSONArray("data").getJSONArray(0);
+            return new JSONObject(APIRequest.GET(url+"?routeCode="+ Common.replaceTurkishChars(route))).getJSONArray("data").getJSONArray(0); //@todo FIX
         } catch( JSONException e ){
             e.printStackTrace();
         }
