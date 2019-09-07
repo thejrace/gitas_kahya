@@ -132,7 +132,6 @@ public class RouteScanner {
         if( DEBUG ) System.out.println("downloading fleet data. ("+routesToDownload+")");
         routeFleetDownload.action();
         JSONObject fleetData = routeFleetDownload.getOutput();
-        //System.out.println("fleet data:  ||"+fleetData+"||");
         // convert jsonobjects to <BusCode, ArrayList<RunData>>
         Iterator<String> busCodes = fleetData.keys();
         JSONArray tempData;
@@ -165,7 +164,6 @@ public class RouteScanner {
             totalData.put(entry.getValue().toJSON());
         }
 
-        //sendDataToAPI("http://kahya_api.test/api/uploadRouteScannerData/"+route, totalData.toString());
         JSONObject data = new JSONObject();
         data.put("data", totalData);
         data.put("timestamp", Common.getDateTime());
