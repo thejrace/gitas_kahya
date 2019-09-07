@@ -65,13 +65,15 @@ public class RouteScannerPool extends Thread{
 
         while (true) {
 
+            getSettings();
+
             if( !CookieAgent.isReady() ){
                 ThreadHelper.logStatus(threadName, " WAITING CookieAgent!!");
                 ThreadHelper.delay(settings.getInt("cookie_agent_delay"));
                 continue;
             }
 
-            getSettings();
+            getRouteScannerList();
 
             if(!status){
                 ThreadHelper.logStatus(threadName, "IDLE!");
@@ -103,7 +105,6 @@ public class RouteScannerPool extends Thread{
             e.printStackTrace();
         }
         System.out.println(settings);
-        getRouteScannerList();
     }
 
     /**
