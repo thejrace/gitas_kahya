@@ -65,7 +65,12 @@ public class CookieAgent {
                     .execute();
 
             String newCookie = res.parse().text();
-            if( !FILO5_COOKIE.equals( newCookie ) ){
+            try {
+                if( !FILO5_COOKIE.equals( newCookie ) ){
+                    FILO5_COOKIE = newCookie;
+                    READY = true;
+                }
+            } catch( NullPointerException e ){
                 FILO5_COOKIE = newCookie;
                 READY = true;
             }
