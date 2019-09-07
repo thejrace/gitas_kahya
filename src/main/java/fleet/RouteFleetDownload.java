@@ -1,3 +1,10 @@
+/*
+ *  Kahya - Gitas 2019
+ *
+ *  Contributors:
+ *      Ahmet Ziya Kanbur 2019-
+ *
+ * */
 package fleet;
 
 import fakedatagenerator.FakeDataGenerator;
@@ -7,24 +14,26 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import utils.Common;
-
-import java.io.File;
 import java.util.ArrayList;
 
 public class RouteFleetDownload extends Filo_Task {
-
-    private String route;
+    /**
+     *  Route list to be downloaded
+     */
     private ArrayList<String> routes;
-    private boolean fetchOnlyStopsFlag = false;
 
-    public RouteFleetDownload( String route ){
-        this.route = route;
-    }
-
+    /**
+     * Constructor
+     *
+     * @param routes list of routes
+     */
     public RouteFleetDownload( ArrayList<String> routes ){
         this.routes = routes;
     }
 
+    /**
+     *  Downloads the data
+     */
     public void action(){
 
         if( FakeDataGenerator.ACTIVE ){
@@ -46,8 +55,12 @@ public class RouteFleetDownload extends Filo_Task {
         //output = FakeDataGenerator.ringPositionTest();
     }
 
+    /**
+     * Parses the html to fetch fleet data
+     *
+     * @param document html page
+     */
     public void parseData( Document document ){
-
         try {
             if( document == null ){}
         } catch( NullPointerException e ){
@@ -76,12 +89,10 @@ public class RouteFleetDownload extends Filo_Task {
                 String statusText;
                 String status;
                 String statusCode;
-                boolean addToOutputFlag = false;
                 boolean routeFetchedFlag = false;
                 for (int i = 1; i < rowsSize; i++) {
                     row = rows.get(i);
                     cols = row.select("td");
-                    addToOutputFlag = false; // reset the active run flag
                     busCode = Common.regexTrim(cols.get(5).text());
                     statusText = "";
                     status = "";
@@ -111,36 +122,22 @@ public class RouteFleetDownload extends Filo_Task {
                         routeFetchedFlag = true;
                     }
 
-                    if( fetchOnlyStopsFlag ){
-                        // for ring runs we only need active stop data of the busses.
-                        // therefore, status and status_checks are done here.
-                        if( status.equals("A") && !statusCode.equals("CA") ){
-                            runTemp.put("stop", cols.get(15).text() );
-                            runTemp.put("route",route );
-                            addToOutputFlag = true;
-                        }
-                    } else {
-
-                        // for normal runs we need all run data of the all busses to determine route direction
-                        // using route_details data.
-                        // status and status_text checks are done in the KahyaClient
-                        runTemp.put("dep_time", Common.regexTrim(cols.get(9).getAllElements().get(2).text()));
-                        runTemp.put("no", Common.regexTrim(cols.get(0).text()));
-                        try{
-                            runTemp.put("stop", cols.get(15).text() );
-                        } catch( Exception e ){
-                            runTemp.put("stop", "N/A");
-                        }
-                        runTemp.put("route", route );
-                        runTemp.put("route_details", Common.regexTrim(cols.get(4).getAllElements().get(1).text()));
-                        runTemp.put("status", status);
-                        runTemp.put("status_code", statusCode);
-                        addToOutputFlag = true; // this is true for all for normal case
+                    // for normal runs we need all run data of the all busses to determine route direction
+                    // using route_details data.
+                    // status and status_text checks are done in the KahyaClient
+                    runTemp.put("dep_time", Common.regexTrim(cols.get(9).getAllElements().get(2).text()));
+                    runTemp.put("no", Common.regexTrim(cols.get(0).text()));
+                    try{
+                        runTemp.put("stop", cols.get(15).text() );
+                    } catch( Exception e ){
+                        runTemp.put("stop", "N/A");
                     }
-                    if( addToOutputFlag ) {
-                        if( output.isNull(busCode) ) output.put(busCode, new JSONArray() );
-                        output.getJSONArray(busCode).put( runTemp );
-                    }
+                    runTemp.put("route", route );
+                    runTemp.put("route_details", Common.regexTrim(cols.get(4).getAllElements().get(1).text()));
+                    runTemp.put("status", status);
+                    runTemp.put("status_code", statusCode);
+                    if( output.isNull(busCode) ) output.put(busCode, new JSONArray() );
+                    output.getJSONArray(busCode).put( runTemp );
                 }
             }
 
@@ -149,25 +146,24 @@ public class RouteFleetDownload extends Filo_Task {
         }
     }
 
+    /**
+     * Getter for output
+     */
     public JSONObject getOutput(){
         return output;
     }
 
+    /**
+     * Getter for errorFlag
+     */
     public boolean getErrorFlag() {
         return errorFlag;
     }
 
+    /**
+     * Getter for errorMessage
+     */
     public String getErrorMessage() {
         return errorMessage;
     }
-
-
-    public boolean getFetchOnlyStopsFlag() {
-        return fetchOnlyStopsFlag;
-    }
-
-    public void setFetchOnlyStopsFlag(boolean fetchOnlyStopsFlag) {
-        this.fetchOnlyStopsFlag = fetchOnlyStopsFlag;
-    }
-
 }

@@ -1,20 +1,43 @@
+/*
+ *  Kahya - Gitas 2019
+ *
+ *  Contributors:
+ *      Ahmet Ziya Kanbur 2019-
+ *
+ * */
 package routescanner;
 
-import routescanner.RouteDirection;
-
 public class IntersectionData {
-    private String activeRoute, comparedRoute, intersectedAt;
-
-
-
+    /**
+     * Active route code
+     */
+    private String activeRoute;
+    /**
+     * Compared route code
+     */
+    private String comparedRoute;
+    /**
+     * Intersected stop name
+     */
+    private String intersectedAt;
+    /**
+     * Difference of the index of intersection route in the routes' stop list
+     */
     private int totalDiff;
-
-    public int getDirection() {
-        return direction;
-    }
-
+    /**
+     * Direction of the intersection
+     */
     private int direction;
 
+    /**
+     * Data constructor
+     *
+     * @param activeRoute active route code
+     * @param comparedRoute compared route code
+     * @param intersectedAt intersection stop
+     * @param direction intersection direction
+     * @param totalDiff intersection stop index difference
+     */
     public IntersectionData( String activeRoute, String comparedRoute, String intersectedAt, int direction, int totalDiff ){
         this.activeRoute = activeRoute;
         this.comparedRoute = comparedRoute;
@@ -23,40 +46,40 @@ public class IntersectionData {
         this.totalDiff = totalDiff;
     }
 
-    public String getActiveRoute() {
-        return activeRoute;
-    }
-
-    public void setActiveRoute(String activeRoute) {
-        this.activeRoute = activeRoute;
-    }
-
-    public String getComparedRoute() {
-        return comparedRoute;
-    }
-
-    public void setComparedRoute(String comparedRoute) {
-        this.comparedRoute = comparedRoute;
-    }
-
-    public String getIntersectedAt() {
-        return intersectedAt;
-    }
-
-    public void setIntersectedAt(String intersectedAt) {
-        this.intersectedAt = intersectedAt;
-    }
-
+    /**
+     * Serialize data
+     *
+     * @return string
+     */
     public String toString(){
         return activeRoute + "|" + comparedRoute + " - @"+intersectedAt + " - DIR:"+ RouteDirection.returnText(direction);
     }
 
+    /**
+     * Getter for direction
+     */
+    public int getDirection() {
+        return direction;
+    }
+
+    /**
+     * Getter for activeRoute
+     */
+    public String getActiveRoute() {
+        return activeRoute;
+    }
+
+    /**
+     * Getter for intersectedAt
+     */
+    public String getIntersectedAt() {
+        return intersectedAt;
+    }
+
+    /**
+     * Getter for totalDiff
+     */
     public int getTotalDiff() {
         return totalDiff;
     }
-
-    public void setTotalDiff(int totalDiff) {
-        this.totalDiff = totalDiff;
-    }
-
 }

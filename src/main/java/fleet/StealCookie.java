@@ -1,14 +1,27 @@
+/*
+ *  Kahya - Gitas 2019
+ *
+ *  Contributors:
+ *      Ahmet Ziya Kanbur 2019-
+ *
+ * */
 package fleet;
 
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import utils.Web_Request;
-
 import java.io.IOException;
 
 public class StealCookie {
 
+    /**
+     * Shared cookie
+     */
     public static String FILO5_COOKIE;
+
+    /**
+     * Request cookie from API
+     */
     public void action(){
         if( !request("http://192.168.2.177/filotakip/get_cookie?key=nJAHJjksd13" ) ){
             request("http://gitsistem.com/filotakip/get_cookie?key=nJAHJjksd13");
@@ -20,6 +33,11 @@ public class StealCookie {
         }
     }
 
+    /**
+     * Request method
+     *
+     * @param url API url
+     */
     private boolean request( String url ){
         Connection.Response res;
         try {
@@ -36,5 +54,4 @@ public class StealCookie {
         }
         return true;
     }
-
 }

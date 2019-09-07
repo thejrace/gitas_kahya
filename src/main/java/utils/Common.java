@@ -1,3 +1,10 @@
+/*
+ *  Kahya - Gitas 2019
+ *
+ *  Contributors:
+ *      Ahmet Ziya Kanbur 2019-
+ *
+ * */
 package utils;
 
 import java.io.BufferedReader;
@@ -9,12 +16,25 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class Common {
-
+    /**
+     * Checks if a file in given path exists
+     *
+     * @param path file path
+     *
+     * @return flag
+     */
     public static boolean checkFile( String path ){
         File f = new File( path );
         return f.exists();
     }
 
+    /**
+     * Reads a json file
+     *
+     * @param src file to be read
+     *
+     * @return data as string
+     */
     public static String readJSONFile( File src ){
         try {
             FileReader fr = new FileReader( src );
@@ -35,12 +55,24 @@ public class Common {
         }
     }
 
+    /**
+     * Return a current date time string
+     *
+     * @return string datetime
+     */
     public static String getDateTime(){
         DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
         Date date = new Date();
         return dateFormat.format(date);
     }
 
+    /**
+     * Replaces Turkish chars of given string
+     *
+     * @param input string
+     *
+     * @return sef output
+     */
     public static String replaceTurkishChars( String input ){
         return  input.replaceAll("Ü", "U").
                 replaceAll("İ", "I").
@@ -50,8 +82,12 @@ public class Common {
 
     }
 
+    /**
+     * @param str input
+     *
+     * @return trimmed output
+     */
     public static String regexTrim( String str ){
         return str.replaceAll("\u00A0", "");
     }
-
 }

@@ -1,10 +1,22 @@
+/*
+ *  Kahya - Gitas 2019
+ *
+ *  Contributors:
+ *      Ahmet Ziya Kanbur 2019-
+ *
+ * */
 package utils;
 
 public class StringSimilarity {
 
-        /**
-         * Calculates the similarity (a number within 0 and 1) between two strings.
-         */
+    /**
+     * Calculates the similarity (a number within 0 and 1) between two strings.
+     *
+     * @param s1 string x
+     * @param s2 string y
+     *
+     * @return double
+     */
     public static double similarity(String s1, String s2) {
         String longer = s1, shorter = s2;
         if (s1.length() < s2.length()) { // longer should always have greater length
@@ -19,8 +31,15 @@ public class StringSimilarity {
 
     }
 
-    // Example implementation of the Levenshtein Edit Distance
-    // See http://rosettacode.org/wiki/Levenshtein_distance#Java
+    /**
+     * Example implementation of the Levenshtein Edit Distance
+     * See http://rosettacode.org/wiki/Levenshtein_distance#Java
+     *
+     * @param s1 string x
+     * @param s2 string y
+     *
+     * @return int
+     */
     public static int editDistance(String s1, String s2) {
         s1 = s1.toLowerCase();
         s2 = s2.toLowerCase();
@@ -47,10 +66,4 @@ public class StringSimilarity {
         }
         return costs[s2.length()];
     }
-
-    public static void printSimilarity(String s, String t) {
-        System.out.println(String.format(
-                "%.3f is the similarity between \"%s\" and \"%s\"", similarity(s, t), s, t));
-    }
-
 }
