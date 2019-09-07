@@ -7,6 +7,7 @@
  * */
 package pool;
 
+import fleet.CookieAgent;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -64,6 +65,12 @@ public class RouteScannerPool extends Thread{
 
         while (true) {
 
+            if( !CookieAgent.isReady() ){
+                ThreadHelper.logStatus(threadName, " WAITING CookieAgent!!");
+                ThreadHelper.delay(settings.getInt("cookie_agent_delay"));
+                continue;
+            }
+
             getSettings();
 
             if(!status){
@@ -76,8 +83,8 @@ public class RouteScannerPool extends Thread{
             configureRouteScanners();
 
             ThreadHelper.delay(settings.getInt("active_interval"));
-        }
 
+        }
     }
 
     /**

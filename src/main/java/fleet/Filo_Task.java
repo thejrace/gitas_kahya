@@ -21,7 +21,7 @@ public class Filo_Task {
     protected org.jsoup.Connection.Response istek_yap( String url ){
         try {
             return Jsoup.connect(url + oto)
-                    .cookie("PHPSESSID", StealCookie.FILO5_COOKIE)
+                    .cookie("PHPSESSID", CookieAgent.FILO5_COOKIE)
                     .method(org.jsoup.Connection.Method.POST)
                     .timeout(40*1000)
                     .execute();
