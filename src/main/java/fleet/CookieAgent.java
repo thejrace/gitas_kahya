@@ -11,8 +11,10 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 import utils.ThreadHelper;
 import java.io.IOException;
+import java.util.Scanner;
 
 public class CookieAgent {
     /**
@@ -68,14 +70,28 @@ public class CookieAgent {
             try {
                 if( !FILO5_COOKIE.equals( newCookie ) ){
                     FILO5_COOKIE = newCookie;
-                    READY = true;
+                    READY = checkCookie();
                 }
             } catch( NullPointerException e ){
                 FILO5_COOKIE = newCookie;
-                READY = true;
+                READY = checkCookie();
             }
         } catch( IOException e) {
             return false;
+        }
+        return true;
+    }
+
+    private boolean checkCookie(){
+        Filo_Task testTask = new Filo_Task();
+        org.jsoup.Connection.Response request = testTask.istek_yap("https://filotakip.iett.gov.tr/_FYS/000/sorgu.php?konum=ana&konu=sefer&hat=15BK");
+        Document document = testTask.parse_html( request );
+        try {
+            document.getElementById("captcha").text();
+            System.out.println("Invalid captcha, trying login without captcha!");
+            return FiloLoginTask.attempt();
+        } catch( NullPointerException e ){
+            System.out.println("Valid captcha!");
         }
         return true;
     }
