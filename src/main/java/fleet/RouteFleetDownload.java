@@ -45,14 +45,10 @@ public class RouteFleetDownload extends Filo_Task {
                     Document document = parse_html( request );
                     parseData( document );
                 } catch( Exception e ){
-                    e.printStackTrace();
+                    System.out.println(routes.get(k) + " download error!");
                 }
             }
         }
-        //output = FakeDataGenerator.statusChangeTest();
-        //output = FakeDataGenerator.stopChangeTest();
-        //output = FakeDataGenerator.routeIntersectionTest();
-        //output = FakeDataGenerator.ringPositionTest();
     }
 
     /**
@@ -65,8 +61,7 @@ public class RouteFleetDownload extends Filo_Task {
             if( document == null ){}
         } catch( NullPointerException e ){
             e.printStackTrace();
-            System.out.println("ÖLÜYORUZ KAPTAAAAN");
-            errorMessage = "Document is empty.";
+            System.out.println(routes + " Document is empty.");
             return;
         }
         Elements table = null;
@@ -79,8 +74,7 @@ public class RouteFleetDownload extends Filo_Task {
             rows = table.select("tr");
             int rowsSize = rows.size();
             if ( rowsSize == 0 || rowsSize == 1) {
-                errorMessage = "No data to fetch.";
-                System.out.println("ÖLÜYORUZ KAPTAAAAN22222");
+                System.out.println(routes + " No data to fetch.");
                 return;
             } else {
                 JSONObject runTemp;

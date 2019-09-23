@@ -16,8 +16,8 @@ public class Filo_Task {
     protected JSONObject output = new JSONObject();
     protected boolean errorFlag = false;
     protected String errorMessage;
-
     protected String oto;
+
     protected org.jsoup.Connection.Response istek_yap( String url ){
         try {
             return Jsoup.connect(url + oto)
@@ -25,19 +25,13 @@ public class Filo_Task {
                     .method(org.jsoup.Connection.Method.POST)
                     .timeout(40*1000)
                     .execute();
-        } catch (Exception e) {
-            //System.out.println( "["+Common.get_current_hmin() + "]  "+ aktif_tarih  + " " +  oto + " " + logprefix + "veri alım hatası. Tekrar deneniyor.");
-            e.printStackTrace();
-        }
+        } catch (Exception e) {}
         return null;
     }
     protected Document parse_html(org.jsoup.Connection.Response req ){
         try {
             return req.parse();
-        } catch( Exception e ){
-            e.printStackTrace();
-            //System.out.println(  "["+Common.get_current_hmin() + "]  "+ aktif_tarih  + " " +  oto + " "+ logprefix + " parse hatası. Tekrar deneniyor.");
-        }
+        } catch( Exception e ){}
         return null;
     }
 

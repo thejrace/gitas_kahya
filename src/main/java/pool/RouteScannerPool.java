@@ -136,7 +136,7 @@ public class RouteScannerPool extends Thread{
             if( !routeScanner.isStarted() ){
                 routeScanner.start();
             }
-            ThreadHelper.delay(config.getInt("configure_route_scanner_delay"));
+            ThreadHelper.delay(settings.getInt("configure_route_scanner_delay"));
         }
     }
 
