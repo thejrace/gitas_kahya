@@ -49,6 +49,9 @@ public class RouteScannerPool extends Thread{
      */
     private Map<String, RouteScanner> routeScannerList = new HashMap<>();
 
+    private static int activeThreadCount = 0;
+    private static int threadLimit = 10;
+
     /**
      * Constructor
      *
@@ -101,6 +104,7 @@ public class RouteScannerPool extends Thread{
                 settings.put(setting.getString("key"), setting.get("value"));
             }
             status = apiResponse.getBoolean("status");
+            threadLimit = settings.getInt("parallel_scanner_thread_limit");
         } catch( JSONException e ){
             e.printStackTrace();
         }
@@ -138,6 +142,20 @@ public class RouteScannerPool extends Thread{
             }
             ThreadHelper.delay(settings.getInt("configure_route_scanner_delay"));
         }
+    }
+
+    synchronized public static void incThreadCount(){
+        activeThreadCount++;
+        System.out.println("ACTIVE THREAD COUNT  : " + activeThreadCount);
+    }
+
+    synchronized public static void decThreadCount(){
+        activeThreadCount--;
+        System.out.println("ACTIVE THREAD COUNT  : " + activeThreadCount);
+    }
+
+    synchronized public static boolean getConfirmation(){
+        return activeThreadCount < threadLimit;
     }
 
     /**

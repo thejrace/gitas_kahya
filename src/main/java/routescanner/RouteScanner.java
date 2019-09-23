@@ -12,6 +12,7 @@ import fleet.RouteFleetDownload;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import fleet.RouteStopsDownload;
+import pool.RouteScannerPool;
 import utils.APIRequest;
 import utils.Common;
 import utils.RunNoComparator;
@@ -68,13 +69,21 @@ public class RouteScanner {
             initializeRouteMap();
             // begin scan loop
             while( !shutdown ){
+                if( !RouteScannerPool.getConfirmation() ){
+                    ThreadHelper.delay(100);
+                    continue;
+                }
+                RouteScannerPool.incThreadCount();
+
                 downloadFleetData();
 
-                    if( FakeDataGenerator.ACTIVE ){
-                        ThreadHelper.delay(100);
-                    } else {
-                        ThreadHelper.delay(settings.getInt("scanner_active_interval"));
-                    }
+                RouteScannerPool.decThreadCount();
+
+                if( FakeDataGenerator.ACTIVE ){
+                    ThreadHelper.delay(100);
+                } else {
+                    ThreadHelper.delay(settings.getInt("scanner_active_interval"));
+                }
             }
             System.out.println( route + " shutdown!");
         });
@@ -129,7 +138,7 @@ public class RouteScanner {
         Map<String, ArrayList<RunData>> fleetRunData = new HashMap<>();
         ArrayList<String> routesToDownload = routeMap.getIntersectedRoutes();
         RouteFleetDownload routeFleetDownload = new RouteFleetDownload(routesToDownload);
-        if( DEBUG ) System.out.println("downloading fleet data. ("+routesToDownload+")");
+//        if( DEBUG ) System.out.println("downloading fleet data. ("+routesToDownload+")");
         routeFleetDownload.action();
         JSONObject fleetData = routeFleetDownload.getOutput();
         // convert jsonobjects to <BusCode, ArrayList<RunData>>
