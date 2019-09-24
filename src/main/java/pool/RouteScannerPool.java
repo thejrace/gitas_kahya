@@ -84,7 +84,6 @@ public class RouteScannerPool extends Thread{
                 continue;
             }
 
-            getRouteScannerList();
             configureRouteScanners();
 
             ThreadHelper.delay(settings.getInt("active_interval"));
@@ -123,6 +122,7 @@ public class RouteScannerPool extends Thread{
                     ThreadHelper.delay(100);
                     routeScannerList.put(code, new RouteScanner(code));
                 }
+                routeScannerList.get(code).updateStatus(routeScanners.getJSONObject(k).getBoolean("status"));
             }
         } catch( JSONException e ) {
             e.printStackTrace();
