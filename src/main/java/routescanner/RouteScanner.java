@@ -7,7 +7,6 @@
  * */
 package routescanner;
 
-import fakedatagenerator.FakeDataGenerator;
 import fleet.RouteFleetDownload;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -27,9 +26,9 @@ public class RouteScanner {
     public boolean DEBUG = true;
 
     /**
-     * Flag to kill main thread
+     * Status of the scanner
      */
-    private boolean shutdown = false;
+    private boolean status = false;
 
     /**
      * Flag to notifiy pool that thread is started
@@ -68,28 +67,41 @@ public class RouteScanner {
         Thread scannerThread = new Thread( () -> {
             initializeRouteMap();
             // begin scan loop
-            while( !shutdown ){
+            while( true ){
+
+                if( !status ){
+                    System.out.println( route + " idle!");
+                    ThreadHelper.delay(settings.getInt("scanner_active_interval"));
+                    continue;
+                }
+
                 if( !RouteScannerPool.getConfirmation() ){
                     ThreadHelper.delay(100);
                     continue;
                 }
+
                 RouteScannerPool.incThreadCount();
 
                 downloadFleetData();
 
                 RouteScannerPool.decThreadCount();
 
-                if( FakeDataGenerator.ACTIVE ){
-                    ThreadHelper.delay(100);
-                } else {
-                    ThreadHelper.delay(settings.getInt("scanner_active_interval"));
-                }
+                ThreadHelper.delay(settings.getInt("scanner_active_interval"));
             }
-            System.out.println( route + " shutdown!");
+
         });
         scannerThread.setDaemon(true);
         scannerThread.start();
         started = true;
+    }
+
+    /**
+     * Update the status of the scanner
+     *
+     * @param newStatus
+     */
+    public void updateStatus( boolean newStatus ){
+        this.status = newStatus;
     }
 
     /**
