@@ -182,7 +182,11 @@ public class RouteScanner {
 
         JSONArray totalData = new JSONArray();
         for( Map.Entry<String, Bus> entry : routeMap.getBuses().entrySet() ){
-            totalData.put(entry.getValue().toJSON());
+            // do not output the buses without valid status
+            Bus bus = entry.getValue();
+            if( bus.getStatus() == BusStatus.ACTIVE || bus.getStatus() == BusStatus.WAITING ){
+                totalData.put(entry.getValue().toJSON());
+            }
         }
 
         JSONObject data = new JSONObject();
