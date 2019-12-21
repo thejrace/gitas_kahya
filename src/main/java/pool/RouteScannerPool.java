@@ -13,6 +13,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import routescanner.RouteScanner;
 import utils.APIRequest;
+import utils.Common;
+import utils.RunTimeDiff;
 import utils.ThreadHelper;
 import java.util.HashMap;
 import java.util.Map;
@@ -76,6 +78,13 @@ public class RouteScannerPool extends Thread{
                 continue;
             }
 
+            if( !checkInWorkingHours() ){
+                ThreadHelper.logStatus(threadName, "IDLE!");
+                ThreadHelper.delay(settings.getInt("idle_interval"));
+                clearScanners();
+                continue;
+            }
+
             getRouteScannerList();
 
             if(!status){
@@ -108,6 +117,31 @@ public class RouteScannerPool extends Thread{
             e.printStackTrace();
         }
         System.out.println(settings);
+    }
+
+    /**
+     * Check if we're in working hours or not
+     *
+     * @return
+     */
+    private boolean checkInWorkingHours(){
+        String currentHmin = Common.getCurrentHmin();
+        if( RunTimeDiff.isPast(currentHmin, settings.getString("idle_start_hmin")) && !RunTimeDiff.isPast(currentHmin, settings.getString("idle_end_hmin") )){
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Stops and clears route scanners
+     */
+    private void clearScanners(){
+        for( Map.Entry<String, RouteScanner> entry : routeScannerList.entrySet() ){
+            RouteScanner routeScanner = entry.getValue();
+            routeScanner.destroy();
+        }
+        routeScannerList = new HashMap<>();
+        System.out.println("Route scanners are cleared!");
     }
 
     /**

@@ -67,6 +67,17 @@ public class Common {
     }
 
     /**
+     * Return current hmin string.
+     *
+     * @return string date
+     */
+    public static String getCurrentHmin(){
+        DateFormat dateFormat = new SimpleDateFormat("HH:mm");
+        Date date = new Date();
+        return dateFormat.format(date);
+    }
+
+    /**
      * Replaces Turkish chars of given string
      *
      * @param input string

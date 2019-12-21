@@ -26,6 +26,11 @@ public class RouteScanner {
     public boolean DEBUG = true;
 
     /**
+     * Is scanner alive flag
+     */
+    public boolean isAlive = true;
+
+    /**
      * Status of the scanner
      */
     private boolean status = false;
@@ -67,7 +72,7 @@ public class RouteScanner {
         Thread scannerThread = new Thread( () -> {
             initializeRouteMap();
             // begin scan loop
-            while( true ){
+            while( isAlive ){
 
                 if( !status ){
                     System.out.println( route + " idle!");
@@ -93,6 +98,13 @@ public class RouteScanner {
         scannerThread.setDaemon(true);
         scannerThread.start();
         started = true;
+    }
+
+    /**
+     * Kill the main thread
+     */
+    public void destroy(){
+        isAlive = false;
     }
 
     /**
@@ -147,54 +159,58 @@ public class RouteScanner {
      * Download the fleet data of the route
      */
     private void downloadFleetData(){
-        Map<String, ArrayList<RunData>> fleetRunData = new HashMap<>();
-        ArrayList<String> routesToDownload = routeMap.getIntersectedRoutes();
-        RouteFleetDownload routeFleetDownload = new RouteFleetDownload(routesToDownload);
+        try {
+            Map<String, ArrayList<RunData>> fleetRunData = new HashMap<>();
+            ArrayList<String> routesToDownload = routeMap.getIntersectedRoutes();
+            RouteFleetDownload routeFleetDownload = new RouteFleetDownload(routesToDownload);
 //        if( DEBUG ) System.out.println("downloading fleet data. ("+routesToDownload+")");
-        routeFleetDownload.action();
-        JSONObject fleetData = routeFleetDownload.getOutput();
-        // convert jsonobjects to <BusCode, ArrayList<RunData>>
-        Iterator<String> busCodes = fleetData.keys();
-        JSONArray tempData;
-        JSONObject tempRunData;
-        while( busCodes.hasNext() ) {
-            String key = busCodes.next(); // bus code
-            if( !fleetRunData.containsKey(key) ) fleetRunData.put(key, new ArrayList<>());
-            tempData = fleetData.getJSONArray(key);
-            for( int k = 0; k < tempData.length(); k++ ){
-                tempRunData = tempData.getJSONObject(k);
-                fleetRunData.get(key).add( new RunData(
-                        tempRunData.getString("bus_code"),
-                        tempRunData.getString("route"),
-                        Integer.valueOf(tempRunData.getString("no")),
-                        RouteStop.fetchStopName(tempRunData.getString("stop")),
-                        tempRunData.getString("dep_time"),
-                        tempRunData.getString("route_details"),
-                        tempRunData.getString("status"),
-                        tempRunData.getString("status_code")
-                ));
+            routeFleetDownload.action();
+            JSONObject fleetData = routeFleetDownload.getOutput();
+            // convert jsonobjects to <BusCode, ArrayList<RunData>>
+            Iterator<String> busCodes = fleetData.keys();
+            JSONArray tempData;
+            JSONObject tempRunData;
+            while( busCodes.hasNext() ) {
+                String key = busCodes.next(); // bus code
+                if( !fleetRunData.containsKey(key) ) fleetRunData.put(key, new ArrayList<>());
+                tempData = fleetData.getJSONArray(key);
+                for( int k = 0; k < tempData.length(); k++ ){
+                    tempRunData = tempData.getJSONObject(k);
+                    fleetRunData.get(key).add( new RunData(
+                            tempRunData.getString("bus_code"),
+                            tempRunData.getString("route"),
+                            Integer.valueOf(tempRunData.getString("no")),
+                            RouteStop.fetchStopName(tempRunData.getString("stop")),
+                            tempRunData.getString("dep_time"),
+                            tempRunData.getString("route_details"),
+                            tempRunData.getString("status"),
+                            tempRunData.getString("status_code")
+                    ));
+                }
+                Collections.sort(fleetRunData.get(key), new RunNoComparator() ); // sort by run no
+                routeMap.passBusData( key, fleetRunData.get(key) );
             }
-            Collections.sort(fleetRunData.get(key), new RunNoComparator() ); // sort by run no
-            routeMap.passBusData( key, fleetRunData.get(key) );
-        }
 
-        System.out.println(route + " Route Scanner DONE!");
+            System.out.println(route + " Route Scanner DONE!");
 
-        JSONArray totalData = new JSONArray();
-        for( Map.Entry<String, Bus> entry : routeMap.getBuses().entrySet() ){
-            // do not output the buses without valid status
-            Bus bus = entry.getValue();
-            if( bus.getStatus() == BusStatus.ACTIVE || bus.getStatus() == BusStatus.WAITING ){
-                totalData.put(entry.getValue().toJSON());
+            JSONArray totalData = new JSONArray();
+            for( Map.Entry<String, Bus> entry : routeMap.getBuses().entrySet() ){
+                // do not output the buses without valid status
+                Bus bus = entry.getValue();
+                if( bus.getStatus() == BusStatus.ACTIVE || bus.getStatus() == BusStatus.WAITING ){
+                    totalData.put(entry.getValue().toJSON());
+                }
             }
+
+            JSONObject data = new JSONObject();
+            data.put("data", totalData);
+            data.put("timestamp", Common.getDateTime());
+            data.put("routeCode", route);
+
+            APIRequest.POST(settings.getString("upload_data_url"), data.toString());
+        } catch( Exception e ){
+            e.printStackTrace();
         }
-
-        JSONObject data = new JSONObject();
-        data.put("data", totalData);
-        data.put("timestamp", Common.getDateTime());
-        data.put("routeCode", route);
-
-        APIRequest.POST(settings.getString("upload_data_url"), data.toString());
     }
 
     /**
